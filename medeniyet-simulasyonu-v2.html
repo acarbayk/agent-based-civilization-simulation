@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kavimler v2 — İsimler, Savaş, Araştırma</title>
+<style>
+  :root{
+    --bg:#0d1119; --panel:#151b28; --panel-2:#1d2536; --line:#2a3448;
+    --ink:#e9edf5; --muted:#8c95ac; --accent:#e6a94a;
+    --food:#57c98f;
+    --mono: ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{display:flex;flex-wrap:wrap;gap:16px;padding:16px;max-width:1240px;margin:0 auto}
+  .stage{flex:1 1 640px;min-width:320px}
+  .side{flex:0 1 320px;min-width:270px;display:flex;flex-direction:column;gap:12px}
+  h1{font-size:17px;margin:0 0 2px;font-weight:650;letter-spacing:.3px}
+  .sub{color:var(--muted);font-size:12.5px;margin:0 0 12px;line-height:1.55}
+  canvas#world{width:100%;display:block;border-radius:12px;border:1px solid var(--line);
+    background:radial-gradient(120% 120% at 30% 8%, #121a2b 0%, #0b0f18 100%);cursor:crosshair;touch-action:none}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  button{font:600 13px var(--sans);color:var(--ink);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:9px;padding:8px 13px;cursor:pointer;transition:.12s}
+  button:hover{background:#26314c;border-color:#3b466b}
+  button.primary{background:var(--accent);color:#241a06;border-color:transparent}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);margin:0 0 10px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:6px 4px;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;font-family:var(--mono)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+  .tribe-name{font-weight:600}.tribe-sub{color:var(--muted);font-size:11px;font-family:var(--mono)}
+  .tech{display:flex;gap:4px;margin-top:3px}
+  .pip{font-size:9px;padding:1px 5px;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+  .pip.on{color:#fff;border-color:transparent}
+  .ctrl{margin:11px 0}.ctrl label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .ctrl label b{color:var(--ink);font-family:var(--mono);font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  #inspect{font-size:12.5px;line-height:1.7}
+  #inspect .big{font-size:15px;font-weight:650;margin-bottom:4px}
+  #inspect .row{display:flex;justify-content:space-between;color:var(--muted)}
+  #inspect .row b{color:var(--ink);font-family:var(--mono)}
+  #inspect .empty{color:var(--muted);font-size:12px}
+  #feed{font-size:12px;line-height:1.65;font-family:var(--mono);color:var(--muted);max-height:130px;overflow:hidden}
+  .hint{color:var(--muted);font-size:11.5px;line-height:1.5}
+  canvas#graph{width:100%;height:96px;display:block;border-radius:8px;background:#0b0f18;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <h1>Kavimler v2 · isimli bireyler, ölümcül savaş, teknoloji</h1>
+    <p class="sub">Her birey artık bir isme ve mirasla geçen özelliklere sahip. Kavimler sınırda ölümcül savaşır (galip, kurbanının enerjisini yağmalar). Nüfus büyüdükçe kavimler bilgi biriktirip <b>Tarım · Avcılık · Tıp</b> teknolojilerini açar. Bir bireye tıkla → kim olduğunu gör.</p>
+    <canvas id="world" width="900" height="560"></canvas>
+    <div class="bar">
+      <button id="playBtn" class="primary">⏸ Duraklat</button>
+      <button id="stepBtn">⏭ Adım</button>
+      <button id="resetBtn">↻ Sıfırla</button>
+      <span class="hint" style="margin-left:auto">Bireye tık → incele · boşluğa tık → yiyecek · Shift+tık → yiyecek yağmuru</span>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card"><h2>İncele</h2><div id="inspect"><div class="empty">Bir bireye tıkla.</div></div></div>
+    <div class="card"><h2>Kavimler & Teknoloji</h2><table id="stats"><tbody></tbody></table></div>
+    <div class="card"><h2>Olaylar</h2><div id="feed"></div></div>
+    <div class="card"><h2>Nüfus</h2><canvas id="graph" width="300" height="96"></canvas></div>
+    <div class="card"><h2>Ayarlar</h2>
+      <div class="ctrl"><label>Hız <b id="speedVal">3×</b></label><input type="range" id="speed" min="1" max="8" value="3"></div>
+      <div class="ctrl"><label>Yiyecek <b id="foodVal">orta</b></label><input type="range" id="food" min="0" max="6" value="3"></div>
+      <div class="ctrl"><label>Saldırganlık <b id="aggVal">1.0×</b></label><input type="range" id="agg" min="0" max="20" value="10"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   KAVİMLER v2 — Sugarscape'ten ilham: ölümcül+yağmalı savaş, kalıtımsal
+   özellikler, isimli bireyler, ve nüfusla büyüyen teknoloji ağacı.
+   ====================================================================== */
+const cv=document.getElementById('world'), ctx=cv.getContext('2d');
+const gv=document.getElementById('graph'), gctx=gv.getContext('2d');
+const W=cv.width, H=cv.height;
+
+const CFG={
+  tribes:4, startPerTribe:10, perTribeCap:90, totalCap:380,
+  energyStart:100, energyMax:135, drain:0.06, hungry:45,
+  foodEnergy:46, maxAge:4200, eatR:7, baseR:16, combatR:12,
+  spawnCost:6, reproEnergy:95, mutation:0.12,
+};
+
+/* Kavim kimlikleri + araştırma önceliği (saldırgan kavim önce Avcılık'a gider) */
+const TRIBES=[
+  {name:'Solari', color:'#e6a94a', baseAgg:0.35},
+  {name:'Cyanâ',  color:'#4fc9e0', baseAgg:0.15},
+  {name:'Veren',  color:'#f06a9a', baseAgg:0.62},
+  {name:'Lumen',  color:'#7ee081', baseAgg:0.25},
+];
+const TECHS=['Tarım','Avcılık','Tıp'];
+
+/* İsim üreticisi (heceden) */
+const NA=['Ka','Vor','Sel','Tir','Bry','Mel','Dûn','Ael','Ros','Ny','Tha','Cor','Ven','Lir','Oss','Gar','Ish','Ra','Ten','Mir'];
+const NB=['lor','wen','dan','riç','sa','vâne','mir','os','ka','en','dra','wyn','tos','la','riel','dûr','han','ya','eth','vi'];
+function makeName(){ return NA[(Math.random()*NA.length)|0]+NB[(Math.random()*NB.length)|0]; }
+
+let sim, playing=true, foodRate=3, aggMul=1.0, stepsPerFrame=3, nextId=1, selectedId=null;
+
+/* Uzamsal ızgara */
+function makeGrid(cell){ const map=new Map(); const key=(x,y)=>((x/cell)|0)+','+((y/cell)|0);
+  return { add(it){const k=key(it.x,it.y);let b=map.get(k);if(!b){b=[];map.set(k,b);}b.push(it);},
+    near(x,y){const o=[],cx=(x/cell)|0,cy=(y/cell)|0;
+      for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const b=map.get((cx+i)+','+(cy+j));if(b)o.push(...b);}return o;} };
+}
+
+/* --- Teknoloji etkileri (kavmin açtığı tech'e göre) --- */
+const hasTech=(t,name)=> t.tech.includes(name);
+const drainMul=t=> hasTech(t,'Tıp')?0.72:1;
+const ageMul =t=> hasTech(t,'Tıp')?1.4:1;
+const powMul =t=> hasTech(t,'Avcılık')?1.6:1;
+const depositGain=t=> hasTech(t,'Tarım')?2:1;
+
+/* --- Kurulum --- */
+function makeTribe(i){
+  const t=TRIBES[i], pad=90;
+  const spots=[[pad,pad],[W-pad,pad],[pad,H-pad],[W-pad,H-pad]];
+  const [bx,by]=spots[i%spots.length];
+  // araştırma sırası: saldırgansa önce Avcılık, değilse önce Tarım
+  const order = t.baseAgg>0.4 ? ['Avcılık','Tarım','Tıp'] : ['Tarım','Tıp','Avcılık'];
+  return {id:i,name:t.name,color:t.color,baseAgg:t.baseAgg,
+    base:{x:bx,y:by,food:CFG.spawnCost}, pop:0, knowledge:0, tech:[], order, kills:0};
+}
+function makeAgent(tribe,x,y,parent){
+  const mut=(v,mn,mx)=>Math.max(mn,Math.min(mx,v*(1+(Math.random()*2-1)*CFG.mutation)));
+  const base=parent||{speed:1.1+Math.random()*0.9,sense:60+Math.random()*40,power:1.5+Math.random()*2,aggression:tribe.baseAgg};
+  return {id:nextId++,name:makeName(),tribe:tribe.id,color:tribe.color,
+    x,y,wx:x,wy:y,energy:parent?CFG.reproEnergy:CFG.energyStart,age:0,carrying:false,state:'SEEK',kills:0,
+    speed:parent?mut(base.speed,0.6,2.4):base.speed,
+    sense:parent?mut(base.sense,40,120):base.sense,
+    power:parent?mut(base.power,0.8,4.5):base.power,
+    aggression:parent?Math.max(0,Math.min(1,base.aggression+(Math.random()*2-1)*0.12)):base.aggression };
+}
+function reset(){
+  const tribes=[];for(let i=0;i<CFG.tribes;i++)tribes.push(makeTribe(i));
+  const agents=[];
+  for(const t of tribes)for(let k=0;k<CFG.startPerTribe;k++)
+    agents.push(makeAgent(t,t.base.x+(Math.random()*40-20),t.base.y+(Math.random()*40-20)));
+  const food=[];for(let i=0;i<160;i++)food.push({x:Math.random()*W,y:Math.random()*H});
+  sim={tribes,agents,food,tick:0,history:tribes.map(()=>[]),feed:[]};
+  selectedId=null; renderInspect(); updateStats();
+}
+
+function logEvent(text,color){ sim.feed.unshift({text,color}); if(sim.feed.length>7)sim.feed.pop();
+  const el=document.getElementById('feed');
+  el.innerHTML=sim.feed.map(e=>`<div style="color:${e.color||'#8c95ac'}">${e.text}</div>`).join(''); }
+
+/* --- Bir adım --- */
+function nearest(items,x,y,maxR){let best=null,bd=maxR*maxR;
+  for(const it of items){const dx=it.x-x,dy=it.y-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=it;}}return best;}
+
+function step(){
+  const {agents,food,tribes}=sim; sim.tick++;
+  // yiyecek
+  let sp=foodRate*0.9; while(sp>=1){food.push({x:Math.random()*W,y:Math.random()*H});sp--;}
+  if(Math.random()<sp)food.push({x:Math.random()*W,y:Math.random()*H});
+  // ızgaralar
+  const ag=makeGrid(48); for(const a of agents)ag.add(a);
+  const fg=makeGrid(60); for(const f of food)fg.add(f);
+  const births=[];
+
+  for(const a of agents){
+    const tribe=tribes[a.tribe];
+    a.age++; a.energy-=CFG.drain*(0.7+0.4*a.speed)*drainMul(tribe);
+    if(a.energy<CFG.hungry&&a.carrying){a.energy+=CFG.foodEnergy*0.5;a.carrying=false;}
+
+    // en yakın düşman
+    let enemy=null;
+    {const nb=ag.near(a.x,a.y),sr=Math.min(a.sense,90);let bd=sr*sr;
+     for(const o of nb){if(o.tribe===a.tribe)continue;const dx=o.x-a.x,dy=o.y-a.y,d=dx*dx+dy*dy;if(d<bd){bd=d;enemy=o;}}}
+
+    let tx,ty,mode;
+    const enemyClose=enemy&&Math.hypot(enemy.x-a.x,enemy.y-a.y)<a.sense;
+    if(enemy&&enemyClose&&(a.aggression*aggMul>0.3||Math.hypot(enemy.x-a.x,enemy.y-a.y)<CFG.combatR*2)){
+      mode='FIGHT';tx=enemy.x;ty=enemy.y;
+    }else if(a.carrying){mode='RETURN';tx=tribe.base.x;ty=tribe.base.y;}
+    else{const f=nearest(fg.near(a.x,a.y),a.x,a.y,a.sense);
+      if(f){mode='SEEK';tx=f.x;ty=f.y;a._t=f;}
+      else{mode='WANDER';
+        if(Math.hypot(a.wx-a.x,a.wy-a.y)<12||Math.random()<0.01){a.wx=tribe.base.x+(Math.random()*260-130);a.wy=tribe.base.y+(Math.random()*260-130);}
+        tx=a.wx;ty=a.wy;}}
+    a.state=mode;
+
+    const dx=tx-a.x,dy=ty-a.y,dist=Math.hypot(dx,dy)||1,spd=a.speed*(mode==='FIGHT'?1.15:1);
+    a.x=Math.max(2,Math.min(W-2,a.x+dx/dist*spd)); a.y=Math.max(2,Math.min(H-2,a.y+dy/dist*spd));
+
+    if(mode==='FIGHT'&&enemy){
+      const d=Math.hypot(enemy.x-a.x,enemy.y-a.y);
+      if(d<CFG.combatR){
+        const dmg=a.power*powMul(tribe)*aggMul*(0.8+0.5*Math.random());
+        enemy.energy-=dmg*4; enemy._killer=a;   // Sugarscape'ten: son vuran öldürme kredisini alır
+      }
+    }else if(mode==='SEEK'&&a._t){
+      const f=a._t,d=Math.hypot(f.x-a.x,f.y-a.y);
+      if(d<CFG.eatR){const idx=food.indexOf(f);
+        if(idx>=0){food.splice(idx,1);
+          if(a.energy<CFG.hungry)a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);
+          else a.carrying=true;}
+        a._t=null;}
+    }else if(mode==='RETURN'){
+      if(Math.hypot(tribe.base.x-a.x,tribe.base.y-a.y)<CFG.baseR){
+        tribe.base.food+=depositGain(tribe); a.carrying=false; a.energy=Math.min(CFG.energyMax,a.energy+8);}
+    }
+  }
+
+  // Üsler yiyecekten yeni birey üretir + kalıtım
+  const total=agents.length;
+  for(const t of tribes){
+    if(t.base.food>=CFG.spawnCost&&t.pop<CFG.perTribeCap&&total+births.length<CFG.totalCap){
+      t.base.food-=CFG.spawnCost;
+      const kin=agents.filter(a=>a.tribe===t.id);
+      const p=kin.length?kin[(Math.random()*kin.length)|0]:null;
+      births.push(makeAgent(t,t.base.x+(Math.random()*24-12),t.base.y+(Math.random()*24-12),
+        p&&{speed:p.speed,sense:p.sense,power:p.power,aggression:p.aggression}));
+    }
+    // Bilgi birikimi → teknoloji (büyük medeniyet daha hızlı araştırır)
+    t.knowledge += t.pop*0.0016 + 0.008;
+    const thresholds=[55,140,260];
+    const nextIdx=t.tech.length;
+    if(nextIdx<3 && t.knowledge>=thresholds[nextIdx]){
+      const unlocked=t.order[nextIdx]; t.tech.push(unlocked);
+      logEvent(`${t.name} → ${unlocked} keşfetti`, t.color);
+    }
+  }
+
+  // Ölüleri temizle (öldürme kredisi + yağma) ve doğanları ekle
+  const alive=[];
+  for(const a of agents){
+    if(a.energy>0 && a.age<CFG.maxAge){ alive.push(a); continue; }
+    if(a._killer && a._killer.energy>0){                 // savaşta öldü → galip yağmalar
+      const k=a._killer;
+      k.energy=Math.min(CFG.energyMax,k.energy+Math.min(28,Math.max(0,a.energy+22)));
+      k.kills++; tribes[k.tribe].kills++;
+    }
+  }
+  for(const b of births)alive.push(b);
+  sim.agents=alive;
+
+  for(const t of tribes)t.pop=0;
+  for(const a of sim.agents)tribes[a.tribe].pop++;
+  // yok oluş bildirimi
+  for(const t of tribes){ if(t.pop===0 && !t._dead && sim.tick>60){ t._dead=true; logEvent(`${t.name} yok oldu`, '#ff6b6b'); }
+    if(t.pop>0) t._dead=false; }
+
+  if(food.length>2600)food.splice(0,food.length-2600);
+  if(sim.tick%12===0){ tribes.forEach((t,i)=>{const h=sim.history[i];h.push(t.pop);if(h.length>160)h.shift();}); updateStats(); }
+  if(selectedId!=null && sim.tick%6===0) renderInspect();
+}
+
+/* --- Çizim --- */
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#3c7a5b';
+  for(const f of sim.food)ctx.fillRect(f.x-1.3,f.y-1.3,2.6,2.6);
+  for(const t of sim.tribes){const b=t.base;
+    ctx.beginPath();ctx.arc(b.x,b.y,22,0,7);ctx.fillStyle=t.color+'22';ctx.fill();
+    ctx.beginPath();ctx.arc(b.x,b.y,14,0,7);ctx.fillStyle=t.color+'55';ctx.fill();
+    ctx.lineWidth=2;ctx.strokeStyle=t.color;ctx.stroke();
+    const frac=Math.min(1,t.base.food/40);
+    ctx.beginPath();ctx.arc(b.x,b.y,14,-Math.PI/2,-Math.PI/2+frac*7,false);ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+  }
+  for(const a of sim.agents){
+    ctx.beginPath();ctx.arc(a.x,a.y,a.carrying?3.1:2.4,0,7);ctx.fillStyle=a.color;ctx.fill();
+    if(a.state==='FIGHT'){ctx.strokeStyle='#ff5a5a';ctx.lineWidth=1;ctx.stroke();}
+    if(a.carrying){ctx.fillStyle='#8ef0bf';ctx.fillRect(a.x-0.8,a.y-4.5,1.6,1.6);}
+    if(a.id===selectedId){ctx.beginPath();ctx.arc(a.x,a.y,7,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();}
+  }
+}
+function drawGraph(){gctx.clearRect(0,0,gv.width,gv.height);let max=1;
+  for(const h of sim.history)for(const v of h)if(v>max)max=v;
+  sim.tribes.forEach((t,i)=>{const h=sim.history[i];if(h.length<2)return;gctx.beginPath();
+    h.forEach((v,x)=>{const px=x/159*gv.width,py=gv.height-2-(v/max)*(gv.height-8);x?gctx.lineTo(px,py):gctx.moveTo(px,py);});
+    gctx.strokeStyle=t.color;gctx.lineWidth=1.6;gctx.stroke();});}
+
+/* --- İstatistik & inceleme panelleri --- */
+function updateStats(){
+  document.querySelector('#stats tbody').innerHTML=sim.tribes.map(t=>{
+    const pips=TECHS.map(name=>`<span class="pip ${t.tech.includes(name)?'on':''}" ${t.tech.includes(name)?`style="background:${t.color};"`:''}>${name}</span>`).join('');
+    return `<tr><td><span class="dot" style="background:${t.color}"></span>
+      <span class="tribe-name">${t.name}</span>
+      <div class="tribe-sub">depo ${t.base.food|0} · zafer ${t.kills} · bilgi ${t.knowledge|0}</div>
+      <div class="tech">${pips}</div></td><td>${t.pop}</td></tr>`;
+  }).join(''); drawGraph();
+}
+function renderInspect(){
+  const el=document.getElementById('inspect');
+  const a=sim.agents.find(x=>x.id===selectedId);
+  if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
+  const t=sim.tribes[a.tribe];
+  const stateTR={SEEK:'yiyecek arıyor',RETURN:'üsse taşıyor',FIGHT:'savaşıyor',WANDER:'geziniyor'}[a.state];
+  el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t.name}</span></div>
+    <div class="row"><span>durum</span><b>${stateTR}</b></div>
+    <div class="row"><span>enerji</span><b>${a.energy|0}</b></div>
+    <div class="row"><span>yaş</span><b>${a.age}</b></div>
+    <div class="row"><span>öldürme</span><b>${a.kills}</b></div>
+    <div class="row"><span>hız</span><b>${a.speed.toFixed(2)}</b></div>
+    <div class="row"><span>duyu</span><b>${a.sense|0}</b></div>
+    <div class="row"><span>güç</span><b>${a.power.toFixed(2)}</b></div>
+    <div class="row"><span>saldırganlık</span><b>${(a.aggression*100)|0}%</b></div>`;
+}
+
+/* --- Döngü & kontroller --- */
+function loop(){ if(playing)for(let i=0;i<stepsPerFrame;i++)step(); render(); requestAnimationFrame(loop); }
+document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'⏸ Duraklat':'▶ Oynat';};
+document.getElementById('stepBtn').onclick=()=>{step();render();};
+document.getElementById('resetBtn').onclick=()=>reset();
+const s=document.getElementById('speed'),sv=document.getElementById('speedVal');s.oninput=()=>{stepsPerFrame=+s.value;sv.textContent=stepsPerFrame+'×';};
+const f=document.getElementById('food'),fv=document.getElementById('foodVal'),FL=['yok','çok kıt','kıt','orta','bol','çok bol','bereket'];f.oninput=()=>{foodRate=+f.value;fv.textContent=FL[foodRate];};
+const g=document.getElementById('agg'),gvl=document.getElementById('aggVal');g.oninput=()=>{aggMul=(+g.value)/10;gvl.textContent=aggMul.toFixed(1)+'×';};
+
+function canvasXY(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
+cv.addEventListener('pointerdown',e=>{
+  const p=canvasXY(e);
+  // önce bir bireyi seçmeyi dene
+  let best=null,bd=14*14;
+  for(const a of sim.agents){const dx=a.x-p.x,dy=a.y-p.y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=a;}}
+  if(best && !e.shiftKey){ selectedId=best.id; renderInspect(); render(); return; }
+  const n=e.shiftKey?60:1;
+  for(let i=0;i<n;i++)sim.food.push({x:p.x+(Math.random()*80-40),y:p.y+(Math.random()*80-40)});
+});
+
+reset(); loop();
+</script>
+</body>
+</html>

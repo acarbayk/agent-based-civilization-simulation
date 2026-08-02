@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krallıklar v3 — Roller, Topraklar, Utility AI</title>
+<style>
+  :root{
+    --bg:#0d1119; --panel:#151b28; --panel-2:#1d2536; --line:#2a3448;
+    --ink:#e9edf5; --muted:#8c95ac; --accent:#e6a94a;
+    --mono: ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{display:flex;flex-wrap:wrap;gap:16px;padding:16px;max-width:1240px;margin:0 auto}
+  .stage{flex:1 1 640px;min-width:320px}
+  .side{flex:0 1 320px;min-width:270px;display:flex;flex-direction:column;gap:12px}
+  h1{font-size:17px;margin:0 0 2px;font-weight:650;letter-spacing:.3px}
+  .sub{color:var(--muted);font-size:12.5px;margin:0 0 12px;line-height:1.55}
+  canvas#world{width:100%;display:block;border-radius:12px;border:1px solid var(--line);
+    background:#0b0f18;cursor:crosshair;touch-action:none}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  button{font:600 13px var(--sans);color:var(--ink);background:var(--panel-2);border:1px solid var(--line);
+    border-radius:9px;padding:8px 13px;cursor:pointer;transition:.12s}
+  button:hover{background:#26314c;border-color:#3b466b}
+  button.primary{background:var(--accent);color:#241a06;border-color:transparent}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);margin:0 0 10px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+  .kname{font-weight:600}
+  .krow{color:var(--muted);font-size:11px;font-family:var(--mono);margin-top:2px}
+  .roles{display:flex;gap:8px;font-size:11px;font-family:var(--mono);margin-top:3px}
+  .ctrl{margin:11px 0}.ctrl label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .ctrl label b{color:var(--ink);font-family:var(--mono);font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  #inspect{font-size:12.5px;line-height:1.7}
+  #inspect .big{font-size:15px;font-weight:650;margin-bottom:4px}
+  #inspect .row{display:flex;justify-content:space-between;color:var(--muted)}
+  #inspect .row b{color:var(--ink);font-family:var(--mono)}
+  #inspect .empty{color:var(--muted);font-size:12px}
+  #feed{font-size:12px;line-height:1.65;font-family:var(--mono);color:var(--muted);max-height:120px;overflow:hidden}
+  .hint{color:var(--muted);font-size:11.5px;line-height:1.5}
+  .legend{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <h1>Krallıklar v3 · roller, topraklar ve karar veren ajanlar</h1>
+    <p class="sub">Kimse saldırmak zorunda değil. Her birey <b>Utility AI</b> ile o an yapabileceği tüm işleri puanlayıp en iyisini seçer. Roller iş bölümü yaratır: <b>çiftçiler</b> ambarı doldurur, ondan <b>asker</b> ve <b>doktor</b> beslenir; askerler sınırı korur, doktorlar yaralıyı iyileştirir. Topraklar nüfusla büyüyüp küçülür. Bir bireye tıkla → beynine bak.</p>
+    <canvas id="world" width="900" height="540"></canvas>
+    <div class="legend">
+      <span>● çiftçi</span><span>▲ asker</span><span>✚ doktor</span>
+      <span style="margin-left:auto">bireye tık → incele · boşluğa tık → yiyecek · Shift+tık → yiyecek yağmuru</span>
+    </div>
+    <div class="bar">
+      <button id="playBtn" class="primary">⏸ Duraklat</button>
+      <button id="stepBtn">⏭ Adım</button>
+      <button id="resetBtn">↻ Sıfırla</button>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card"><h2>İncele</h2><div id="inspect"><div class="empty">Bir bireye tıkla.</div></div></div>
+    <div class="card"><h2>Krallıklar</h2><table id="stats"><tbody></tbody></table></div>
+    <div class="card"><h2>Olaylar</h2><div id="feed"></div></div>
+    <div class="card"><h2>Ayarlar</h2>
+      <div class="ctrl"><label>Hız <b id="speedVal">3×</b></label><input type="range" id="speed" min="1" max="8" value="3"></div>
+      <div class="ctrl"><label>Yiyecek <b id="foodVal">orta</b></label><input type="range" id="food" min="0" max="6" value="3"></div>
+      <div class="ctrl"><label>Savaşçılık <b id="aggVal">1.0×</b></label><input type="range" id="agg" min="0" max="20" value="10"></div>
+      <p class="hint">Savaşçılık, askerlerin ne kadar cesur davranacağını belirler. Düşük tutarsan krallıklar birbirinden çekinir; barış olur.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   KRALLIKLAR v3
+   - Utility AI: her ajan eylemleri puanlar, en iyiyi (küçük rastgelelikle) seçer
+   - Roller: FARMER / SOLDIER / DOCTOR — iş bölümü + ambar ekonomisi
+   - Topraklar: etki haritası (influence map) ile kendiliğinden oluşan sınırlar
+   ====================================================================== */
+const cv=document.getElementById('world'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v;
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+const CFG={
+  kingdoms:4, startPop:14, perKingCap:95, totalCap:400,
+  energyStart:100, energyMax:135, drain:0.05, maxAge:5200,
+  foodEnergy:44, eatR:7, baseR:17, combatR:12, spawnCost:9, reproEnergy:95,
+  mutation:0.12, healR:26, senseCap:95,
+};
+const KINGS=[
+  {name:'Solari', color:'#e6a94a'},
+  {name:'Cyan',   color:'#4fc9e0'},
+  {name:'Veren',  color:'#f06a9a'},
+  {name:'Lumen',  color:'#7ee081'},
+];
+const ROLES=['FARMER','SOLDIER','DOCTOR'];
+const ROLE_TR={FARMER:'çiftçi',SOLDIER:'asker',DOCTOR:'doktor'};
+
+/* İsim üreticisi */
+const NA=['Ka','Vor','Sel','Tir','Bry','Mel','Dûn','Ael','Ros','Ny','Tha','Cor','Ven','Lir','Oss','Gar','Ish','Ra','Ten','Mir'];
+const NB=['lor','wen','dan','riç','sa','vâne','mir','os','ka','en','dra','wyn','tos','la','riel','dûr','han','ya','eth','vi'];
+const makeName=()=>NA[(Math.random()*NA.length)|0]+NB[(Math.random()*NB.length)|0];
+
+let sim, playing=true, foodRate=3, aggMul=1.0, stepsPerFrame=3, nextId=1, selectedId=null;
+
+/* Uzamsal ızgara (komşu sorguları) */
+function makeGrid(cell){const map=new Map();const key=(x,y)=>((x/cell)|0)+','+((y/cell)|0);
+  return{add(it){const k=key(it.x,it.y);let b=map.get(k);if(!b){b=[];map.set(k,b);}b.push(it);},
+    near(x,y){const o=[],cx=(x/cell)|0,cy=(y/cell)|0;
+      for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const b=map.get((cx+i)+','+(cy+j));if(b)o.push(...b);}return o;}};}
+
+/* ---------- Toprak: etki haritası ---------- */
+const TCELL=30, TCX=Math.ceil(W/TCELL), TCY=Math.ceil(H/TCELL), NCELL=TCX*TCY;
+let owner=new Int8Array(NCELL), inf=[];
+function initTerritory(){ inf=[]; for(let k=0;k<CFG.kingdoms;k++)inf.push(new Float32Array(NCELL)); owner=new Int8Array(NCELL); }
+function stamp(k,x,y,strength,rc){
+  const cx=(x/TCELL)|0, cy=(y/TCELL)|0;
+  for(let i=-rc;i<=rc;i++)for(let j=-rc;j<=rc;j++){
+    const gx=cx+i,gy=cy+j; if(gx<0||gy<0||gx>=TCX||gy>=TCY)continue;
+    const d=Math.hypot(i,j); if(d>rc)continue;
+    inf[k][gx*TCY+gy]+=strength*(1-d/rc);
+  }
+}
+function computeTerritory(){
+  for(let k=0;k<CFG.kingdoms;k++)inf[k].fill(0);
+  for(const t of sim.tribes) stamp(t.id,t.base.x,t.base.y,6,5);
+  for(const a of sim.agents) stamp(a.tribe,a.x,a.y,0.5,2);
+  for(let c=0;c<NCELL;c++){let best=-1,bv=0.62;for(let k=0;k<CFG.kingdoms;k++){const v=inf[k][c];if(v>bv){bv=v;best=k;}}owner[c]=best;}
+  // her krallığın toprak sayısı + içindeki düşman (tehdit)
+  for(const t of sim.tribes){t.land=0;t.threat=0;}
+  for(let c=0;c<NCELL;c++) if(owner[c]>=0) sim.tribes[owner[c]].land++;
+  for(const a of sim.agents){const o=ownerAt(a.x,a.y); if(o>=0&&o!==a.tribe) sim.tribes[o].threat++;}
+}
+function ownerAt(x,y){let cx=(x/TCELL)|0,cy=(y/TCELL)|0;cx=clamp(cx,0,TCX-1);cy=clamp(cy,0,TCY-1);return owner[cx*TCY+cy];}
+
+/* ---------- Kurulum ---------- */
+function makeKingdom(i){
+  const k=KINGS[i], pad=95;
+  const spots=[[pad,pad],[W-pad,pad],[pad,H-pad],[W-pad,H-pad]];
+  const [bx,by]=spots[i%spots.length];
+  return {id:i,name:k.name,color:k.color,base:{x:bx,y:by,food:14},pop:0,land:0,threat:0,kills:0,
+    counts:{FARMER:0,SOLDIER:0,DOCTOR:0}};
+}
+function makeAgent(king,x,y,role,parent){
+  const mut=(v,mn,mx)=>clamp(v*(1+(Math.random()*2-1)*CFG.mutation),mn,mx);
+  const base=parent||{speed:1.1+Math.random()*0.8,sense:60+Math.random()*35,power:1.5+Math.random()*2};
+  return {id:nextId++,name:makeName(),tribe:king.id,color:king.color,role,
+    x,y,wx:x,wy:y,energy:parent?CFG.reproEnergy:CFG.energyStart,age:0,carrying:false,act:'WANDER',
+    speed:parent?mut(base.speed,0.6,2.3):base.speed,
+    sense:parent?mut(base.sense,40,CFG.senseCap):base.sense,
+    power:parent?mut(base.power,0.8,4.5):base.power,
+    bravery: role==='SOLDIER'? 1+Math.random()*0.5 : 0.55+Math.random()*0.5 };
+}
+/* Krallık, durumuna göre en çok ihtiyaç duyduğu rolü seçer */
+function pickRole(t){
+  const c=t.counts, pop=Math.max(1,t.pop);
+  let r={FARMER:.58,SOLDIER:.27,DOCTOR:.15};
+  if(t.base.food<7)      r={FARMER:.72,SOLDIER:.18,DOCTOR:.10};   // açlık → çiftçi
+  else if(t.threat>2)    r={FARMER:.40,SOLDIER:.48,DOCTOR:.12};   // saldırı → asker
+  let best='FARMER',bd=-1e9;
+  for(const role of ROLES){const def=r[role]*pop-c[role]; if(def>bd){bd=def;best=role;}}
+  return best;
+}
+function reset(){
+  initTerritory();
+  const tribes=[]; for(let i=0;i<CFG.kingdoms;i++)tribes.push(makeKingdom(i));
+  const agents=[];
+  for(const t of tribes){
+    for(let n=0;n<CFG.startPop;n++){
+      const role = n<Math.round(CFG.startPop*.58)?'FARMER': n<Math.round(CFG.startPop*.85)?'SOLDIER':'DOCTOR';
+      agents.push(makeAgent(t,t.base.x+(Math.random()*44-22),t.base.y+(Math.random()*44-22),role));
+    }
+  }
+  const food=[]; for(let i=0;i<180;i++)food.push({x:Math.random()*W,y:Math.random()*H});
+  sim={tribes,agents,food,tick:0,history:tribes.map(()=>[]),feed:[]};
+  recount(); computeTerritory(); selectedId=null; renderInspect(); updateStats();
+}
+function recount(){ for(const t of sim.tribes){t.pop=0;t.counts={FARMER:0,SOLDIER:0,DOCTOR:0};}
+  for(const a of sim.agents){const t=sim.tribes[a.tribe];t.pop++;t.counts[a.role]++;} }
+function logEvent(text,color){sim.feed.unshift({text,color});if(sim.feed.length>6)sim.feed.pop();
+  document.getElementById('feed').innerHTML=sim.feed.map(e=>`<div style="color:${e.color||'#8c95ac'}">${e.text}</div>`).join('');}
+
+/* ---------- Utility AI: karar ---------- */
+function decide(a,t,env){
+  const hunger=clamp(1-a.energy/CFG.energyMax);          // 0 tok .. 1 açlıktan ölmek üzere
+  const inTerr=env.owner===a.tribe;
+  const C=[];
+  const enemy=env.enemy, dE=enemy?dist(a,enemy):1e9;
+
+  // KAÇ — düşman yakın (asker daha az korkar)
+  if(enemy&&dE<72){
+    const fear=clamp((72-dE)/72)*(a.role==='SOLDIER'?0.28:1.15);
+    C.push({act:'FLEE',s:fear,tx:a.x*2-enemy.x,ty:a.y*2-enemy.y});
+  }
+  // SAVAŞ — yalnız asker, kazanabilirse, savunma bölgesinde (zorunlu değil!)
+  if(a.role==='SOLDIER'&&enemy&&dE<95){
+    const win = (a.power*a.bravery*aggMul >= enemy.power*0.9) ? 1 : 0.12;   // yenik düşecekse çekil
+    const homeDef=(env.owner===a.tribe||env.owner<0)?1:0.45;               // kendi/tarafsız toprakta savun
+    C.push({act:'FIGHT',s:0.72*win*homeDef*(1-hunger*0.55),tx:enemy.x,ty:enemy.y,target:enemy});
+  }
+  // İYİLEŞTİR — yalnız doktor, yakında yaralı dost varsa
+  if(a.role==='DOCTOR'&&env.wounded){
+    C.push({act:'HEAL',s:0.78*(1-hunger*0.6),tx:env.wounded.x,ty:env.wounded.y,target:env.wounded});
+  }
+  // TARLADA YE — çok açsa ve yakında yiyecek varsa (herkes için can simidi)
+  if(env.food&&hunger>0.33){
+    C.push({act:'EAT_FIELD',s:0.35+hunger*0.75,tx:env.food.x,ty:env.food.y,target:env.food});
+  }
+  // AMBARDA YE — açsa ve ambarda yiyecek varsa üsse git
+  if(hunger>0.28&&t.base.food>0){
+    C.push({act:'EAT_STORE',s:0.28+hunger*0.8,tx:t.base.x,ty:t.base.y});
+  }
+  // TOPLA — çiftçinin işi
+  if(a.role==='FARMER'&&!a.carrying&&env.food){
+    C.push({act:'GATHER',s:0.55*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});
+  }
+  // TESLİM ET — taşıyorsa ambara götür
+  if(a.carrying) C.push({act:'DELIVER',s:0.82,tx:t.base.x,ty:t.base.y});
+  // DEVRİYE — asker sınır çevresinde dolaşır
+  if(a.role==='SOLDIER') C.push({act:'PATROL',s:0.30,tx:a.wx,ty:a.wy});
+  // EVE DÖN — kendi toprağının dışındaysa
+  if(!inTerr) C.push({act:'RETURN',s:0.34,tx:t.base.x,ty:t.base.y});
+  // GEZİN — varsayılan
+  C.push({act:'WANDER',s:0.14,tx:a.wx,ty:a.wy});
+
+  // En yüksek skorun 0.12 bandındakilerden rastgele seç (The Sims tarzı çeşitlilik)
+  C.sort((x,y)=>y.s-x.s);
+  const top=C[0].s, pool=C.filter(c=>c.s>=top-0.12);
+  return pool[(Math.random()*pool.length)|0];
+}
+
+/* ---------- Bir adım ---------- */
+function nearest(items,x,y,maxR){let best=null,bd=maxR*maxR;
+  for(const it of items){const dx=it.x-x,dy=it.y-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=it;}}return best;}
+
+function step(){
+  const {agents,food,tribes}=sim; sim.tick++;
+  let sp=foodRate*0.95; while(sp>=1){food.push({x:Math.random()*W,y:Math.random()*H});sp--;}
+  if(Math.random()<sp)food.push({x:Math.random()*W,y:Math.random()*H});
+
+  const ag=makeGrid(48); for(const a of agents)ag.add(a);
+  const fg=makeGrid(60); for(const f of food)fg.add(f);
+  const births=[];
+
+  for(const a of agents){
+    const t=tribes[a.tribe];
+    a.age++; a.energy-=CFG.drain*(0.7+0.4*a.speed);
+
+    // Çevreyi algıla
+    const nb=ag.near(a.x,a.y);
+    let enemy=null,ebd=Math.min(a.sense,CFG.senseCap)**2, wounded=null,wbd=CFG.healR**2;
+    for(const o of nb){
+      if(o.tribe!==a.tribe){const d=(o.x-a.x)**2+(o.y-a.y)**2; if(d<ebd){ebd=d;enemy=o;}}
+      else if(a.role==='DOCTOR'&&o!==a&&o.energy<70){const d=(o.x-a.x)**2+(o.y-a.y)**2; if(d<wbd){wbd=d;wounded=o;}}
+    }
+    const env={enemy,wounded,food:a.carrying?null:nearest(fg.near(a.x,a.y),a.x,a.y,a.sense),owner:ownerAt(a.x,a.y)};
+    const dec=decide(a,t,env); a.act=dec.act;
+
+    // wander hedefini kendi toprağına yakın seç
+    if((dec.act==='WANDER'||dec.act==='PATROL')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||Math.random()<0.012)){
+      a.wx=t.base.x+(Math.random()*300-150); a.wy=t.base.y+(Math.random()*300-150);
+      dec.tx=a.wx; dec.ty=a.wy;
+    }
+
+    // Hareket
+    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1;
+    const spd=a.speed*(dec.act==='FIGHT'?1.2:dec.act==='FLEE'?1.25:1);
+    a.x=clamp(a.x+dx/dd*spd,2,W-2); a.y=clamp(a.y+dy/dd*spd,2,H-2);
+
+    // Eylem sonucu
+    if(dec.act==='FIGHT'&&dec.target){
+      if(dist(a,dec.target)<CFG.combatR){
+        const dmg=a.power*aggMul*a.bravery*(0.8+0.5*Math.random());
+        dec.target.energy-=dmg*4; dec.target._killer=a;
+      }
+    } else if(dec.act==='HEAL'&&dec.target){
+      if(dist(a,dec.target)<CFG.healR){dec.target.energy=Math.min(CFG.energyMax,dec.target.energy+0.9); a.energy-=0.02;}
+    } else if((dec.act==='EAT_FIELD'||dec.act==='GATHER')&&dec.target){
+      if(dist(a,dec.target)<CFG.eatR){const idx=food.indexOf(dec.target);
+        if(idx>=0){ if(dec.act==='GATHER'&&a.role==='FARMER'&&a.energy>CFG.energyMax*0.33){food.splice(idx,1);a.carrying=true;}
+          else {food.splice(idx,1);a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);} }}
+    } else if(dec.act==='EAT_STORE'){
+      if(dist(a,t.base)<CFG.baseR&&t.base.food>0){t.base.food-=1;a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy*0.9);}
+    } else if(dec.act==='DELIVER'){
+      if(dist(a,t.base)<CFG.baseR){t.base.food+=2;a.carrying=false;a.energy=Math.min(CFG.energyMax,a.energy+5);}
+    }
+  }
+
+  // Üsler yiyecekten yeni birey üretir; rolü ihtiyaca göre seçilir
+  const total=agents.length;
+  for(const t of tribes){
+    if(t.base.food>=CFG.spawnCost&&t.pop<CFG.perKingCap&&total+births.length<CFG.totalCap){
+      t.base.food-=CFG.spawnCost;
+      const kin=agents.filter(a=>a.tribe===t.id);
+      const p=kin.length?kin[(Math.random()*kin.length)|0]:null;
+      const role=pickRole(t);
+      births.push(makeAgent(t,t.base.x+(Math.random()*24-12),t.base.y+(Math.random()*24-12),role,
+        p&&{speed:p.speed,sense:p.sense,power:p.power}));
+    }
+  }
+
+  // Ölüleri temizle (savaş → galip yağmalar)
+  const alive=[];
+  for(const a of agents){
+    if(a.energy>0&&a.age<CFG.maxAge){alive.push(a);continue;}
+    if(a._killer&&a._killer.energy>0){const k=a._killer;
+      k.energy=Math.min(CFG.energyMax,k.energy+22); k.kills=(k.kills||0)+1; tribes[k.tribe].kills++;}
+  }
+  for(const b of births)alive.push(b);
+  sim.agents=alive; recount();
+
+  // Seferberlik: saldırı altındaki krallık çiftçiyi askere alır
+  if(sim.tick%90===0){
+    for(const t of tribes){
+      if(t.threat>3 && t.counts.SOLDIER < t.pop*0.4){
+        const farmer=sim.agents.find(a=>a.tribe===t.id&&a.role==='FARMER');
+        if(farmer){farmer.role='SOLDIER';farmer.bravery=1+Math.random()*0.4;recount();
+          logEvent(`${t.name}: seferberlik — çiftçi askere alındı`,t.color);}
+      }
+    }
+  }
+  // yok oluş
+  for(const t of tribes){ if(t.pop===0&&!t._dead&&sim.tick>80){t._dead=true;logEvent(`${t.name} krallığı düştü`,'#ff6b6b');} if(t.pop>0)t._dead=false; }
+
+  if(food.length>2800)food.splice(0,food.length-2800);
+  if(sim.tick%14===0) computeTerritory();
+  if(sim.tick%12===0){tribes.forEach((t,i)=>{const h=sim.history[i];h.push(t.pop);if(h.length>160)h.shift();});updateStats();}
+  if(selectedId!=null&&sim.tick%6===0) renderInspect();
+}
+
+/* ---------- Çizim ---------- */
+function render(){
+  ctx.clearRect(0,0,W,H);
+  // topraklar
+  for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){
+    const o=owner[cx*TCY+cy]; if(o<0)continue;
+    ctx.fillStyle=sim.tribes[o].color+'16'; ctx.fillRect(cx*TCELL,cy*TCELL,TCELL,TCELL);
+  }
+  // sınır çizgileri
+  ctx.lineWidth=1;
+  for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){
+    const o=owner[cx*TCY+cy];
+    const rN=cx+1<TCX?owner[(cx+1)*TCY+cy]:o, dN=cy+1<TCY?owner[cx*TCY+cy+1]:o;
+    if(o!==rN){ctx.strokeStyle=(o>=0?sim.tribes[o].color:'#33405e')+'88';
+      ctx.beginPath();ctx.moveTo((cx+1)*TCELL,cy*TCELL);ctx.lineTo((cx+1)*TCELL,(cy+1)*TCELL);ctx.stroke();}
+    if(o!==dN){ctx.strokeStyle=(o>=0?sim.tribes[o].color:'#33405e')+'88';
+      ctx.beginPath();ctx.moveTo(cx*TCELL,(cy+1)*TCELL);ctx.lineTo((cx+1)*TCELL,(cy+1)*TCELL);ctx.stroke();}
+  }
+  // yiyecek
+  ctx.fillStyle='#3c7a5b'; for(const f of sim.food)ctx.fillRect(f.x-1.2,f.y-1.2,2.4,2.4);
+  // başkentler
+  for(const t of sim.tribes){const b=t.base;
+    ctx.beginPath();ctx.arc(b.x,b.y,15,0,7);ctx.fillStyle=t.color+'44';ctx.fill();
+    ctx.lineWidth=2;ctx.strokeStyle=t.color;ctx.stroke();
+    const frac=Math.min(1,t.base.food/40);
+    ctx.beginPath();ctx.arc(b.x,b.y,15,-Math.PI/2,-Math.PI/2+frac*7,false);ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+  }
+  // bireyler — role göre şekil
+  for(const a of sim.agents){
+    ctx.fillStyle=a.color;
+    if(a.role==='SOLDIER'){ // üçgen
+      ctx.beginPath();ctx.moveTo(a.x,a.y-3.6);ctx.lineTo(a.x-3.1,a.y+2.8);ctx.lineTo(a.x+3.1,a.y+2.8);ctx.closePath();ctx.fill();
+      if(a.act==='FIGHT'){ctx.strokeStyle='#ff5a5a';ctx.lineWidth=1;ctx.stroke();}
+    } else if(a.role==='DOCTOR'){ // artı
+      ctx.fillRect(a.x-2.6,a.y-0.9,5.2,1.8); ctx.fillRect(a.x-0.9,a.y-2.6,1.8,5.2);
+    } else { // çiftçi nokta
+      ctx.beginPath();ctx.arc(a.x,a.y,a.carrying?3:2.4,0,7);ctx.fill();
+      if(a.carrying){ctx.fillStyle='#8ef0bf';ctx.fillRect(a.x-0.8,a.y-4.6,1.6,1.6);}
+    }
+    if(a.act==='FLEE'){ctx.strokeStyle='#fff';ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(a.x,a.y,4.5,0,7);ctx.stroke();}
+    if(a.id===selectedId){ctx.beginPath();ctx.arc(a.x,a.y,8,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();}
+  }
+}
+
+/* ---------- Paneller ---------- */
+function updateStats(){
+  document.querySelector('#stats tbody').innerHTML=sim.tribes.map(t=>{
+    const c=t.counts;
+    return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></span>
+      <span class="kname">${t.name}</span>
+      <div class="krow">ambar ${t.base.food|0} · toprak ${t.land} · zafer ${t.kills}${t.threat>2?` · ⚔ tehdit ${t.threat}`:''}</div>
+      <div class="roles"><span>●${c.FARMER}</span><span>▲${c.SOLDIER}</span><span>✚${c.DOCTOR}</span></div>
+      </td><td style="text-align:right;font-family:var(--mono)">${t.pop}</td></tr>`;
+  }).join('');
+}
+function renderInspect(){
+  const el=document.getElementById('inspect');
+  const a=sim.agents.find(x=>x.id===selectedId);
+  if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
+  const t=sim.tribes[a.tribe];
+  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',
+    EAT_STORE:'ambardan yiyor',GATHER:'topluyor',DELIVER:'ambara taşıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor'}[a.act];
+  el.innerHTML=`<div class="big" style="color:${a.color}">${a.name}
+      <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t.name} · ${ROLE_TR[a.role]}</span></div>
+    <div class="row"><span>şu an</span><b>${actTR}</b></div>
+    <div class="row"><span>enerji</span><b>${a.energy|0}</b></div>
+    <div class="row"><span>yaş</span><b>${a.age}</b></div>
+    <div class="row"><span>hız</span><b>${a.speed.toFixed(2)}</b></div>
+    <div class="row"><span>duyu</span><b>${a.sense|0}</b></div>
+    <div class="row"><span>güç</span><b>${a.power.toFixed(2)}</b></div>
+    <div class="row"><span>cesaret</span><b>${a.bravery.toFixed(2)}</b></div>`;
+}
+
+/* ---------- Döngü & kontroller ---------- */
+function loop(){ if(playing)for(let i=0;i<stepsPerFrame;i++)step(); render(); requestAnimationFrame(loop); }
+document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'⏸ Duraklat':'▶ Oynat';};
+document.getElementById('stepBtn').onclick=()=>{step();render();};
+document.getElementById('resetBtn').onclick=()=>reset();
+const s=document.getElementById('speed'),sv=document.getElementById('speedVal');s.oninput=()=>{stepsPerFrame=+s.value;sv.textContent=stepsPerFrame+'×';};
+const f=document.getElementById('food'),fv=document.getElementById('foodVal'),FL=['yok','çok kıt','kıt','orta','bol','çok bol','bereket'];f.oninput=()=>{foodRate=+f.value;fv.textContent=FL[foodRate];};
+const g=document.getElementById('agg'),gvl=document.getElementById('aggVal');g.oninput=()=>{aggMul=(+g.value)/10;gvl.textContent=aggMul.toFixed(1)+'×';};
+function canvasXY(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
+cv.addEventListener('pointerdown',e=>{
+  const p=canvasXY(e); let best=null,bd=14*14;
+  for(const a of sim.agents){const d=(a.x-p.x)**2+(a.y-p.y)**2;if(d<bd){bd=d;best=a;}}
+  if(best&&!e.shiftKey){selectedId=best.id;renderInspect();render();return;}
+  const n=e.shiftKey?60:1; for(let i=0;i<n;i++)sim.food.push({x:p.x+(Math.random()*80-40),y:p.y+(Math.random()*80-40)});
+});
+
+reset(); loop();
+</script>
+</body>
+</html>
