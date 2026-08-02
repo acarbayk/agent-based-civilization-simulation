@@ -2,90 +2,153 @@
 
 # 🌍 Agent-Based Civilization Simulation
 
-### An emergent civilization simulation where autonomous AI agents build kingdoms, wage wars, establish dynasties and create unique histories.
+### Autonomous AI • Emergent Civilizations • Diplomacy • Dynasties • Rebellions
 
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![HTML5](https://img.shields.io/badge/HTML5-Canvas-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p>
+  <a href="https://acarbayk.github.io/agent-based-civilization-simulation/">
+    <img src="https://img.shields.io/badge/▶-Live%20Demo-2ea44f?style=for-the-badge" />
+  </a>
+  <img src="https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+  <img src="https://img.shields.io/badge/HTML5-Canvas-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" />
+</p>
 
-### ▶️ Live Demo
-
-**https://acarbayk.github.io/agent-based-civilization-simulation/**
+### A simulation where every individual has its own life, every kingdom makes its own decisions, and every world writes a different history.
 
 </div>
 
 ---
 
-# 📖 About
+# 🎬 Evolution
 
-This project explores **emergent behaviour** through autonomous AI agents.
+This project has evolved through multiple major versions.
 
-Instead of scripting historical events, every individual acts independently and interacts with the world according to its own goals and circumstances.
+## Version 1
 
-Kingdoms emerge naturally, expand across the map, negotiate alliances, wage wars, establish cities, create dynasties and sometimes collapse into rebellions.
+🎥 **V1.mp4**
 
-No two simulations are exactly alike.
+The very first prototype.
 
----
+Features:
 
-# ✨ Features
-
-## 🤖 Autonomous AI
-
-Every individual exists as an independent agent capable of making its own decisions.
-
-Agents can:
-
-- 🌾 Gather food
-- ⚔️ Fight enemies
-- 🩺 Heal allies
-- 💰 Trade
-- 🕵️ Spy
-- 👶 Be born
-- 👴 Age
-- ☠️ Die
-- 👑 Become legendary figures
+- Basic civilization simulation
+- Population
+- Food gathering
+- Combat
+- Simple kingdoms
 
 ---
 
-## 🏰 Kingdom Simulation
+## Version 3
 
-Each kingdom continuously evaluates its situation and reacts dynamically.
+🎥 **V3.mp4**
 
-Kingdoms can:
+The project evolved into an autonomous simulation.
 
-- Expand territory
-- Found cities
-- Form alliances
-- Declare wars
-- Sign peace treaties
-- Manage legitimacy
-- Suppress unrest
-- Collapse through rebellion
+Major additions:
+
+- Utility AI
+- Specialized roles
+- Smarter decision making
+- Territory expansion
+- Individual behavior
 
 ---
 
-## 🌍 World Simulation
+## Version 6
 
-The world continuously evolves through interactions between autonomous systems.
+🎥 **V6.mp4**
 
-Included systems:
+The current version.
 
-- Territory Expansion
+Features include:
+
 - Diplomacy
-- Warfare
-- Reputation
 - Cities
 - Dynasties
-- Legends
+- Reputation
+- Alliances
 - Rebellions
-- Procedural History
+- Procedural history
+- Emergent storytelling
+
+---
+
+# 🌍 About
+
+Unlike traditional strategy games, nothing is scripted.
+
+Every citizen acts independently.
+
+Kingdoms react to changing circumstances.
+
+Wars begin naturally.
+
+Alliances are formed because kingdoms decide they are beneficial.
+
+Dynasties emerge through generations.
+
+Civil wars begin when legitimacy collapses.
+
+Each simulation creates a unique world history.
+
+---
+
+# ✨ Core Systems
+
+## 🤖 Autonomous Individuals
+
+Every character is simulated independently.
+
+Each individual can:
+
+- Gather resources
+- Fight
+- Heal
+- Trade
+- Spy
+- Age
+- Die
+- Raise children
+- Become legendary
+
+---
+
+## 🏰 Kingdom AI
+
+Kingdoms make strategic decisions such as:
+
+- Expanding territory
+- Founding cities
+- Forming alliances
+- Declaring war
+- Signing peace
+- Managing legitimacy
+- Fighting rebellions
+
+---
+
+## 🌐 World Simulation
+
+The world constantly changes through interactions between systems.
+
+Included mechanics:
+
+- Diplomacy
+- Territory
+- Warfare
+- Cities
+- Trade
+- Reputation
+- Dynasties
+- Legends
+- Civil Wars
 
 ---
 
 # 📸 Screenshots
 
-## Early Simulation
+## World Overview
 
 ![Overview](screenshots/overview.png)
 
@@ -97,16 +160,16 @@ Included systems:
 
 ---
 
-## Legends & History
+## Legends
 
 ![Legends](screenshots/legends.png)
 
 ---
 
-# 🧠 Simulation Architecture
+# 🧠 Simulation Flow
 
-```
-Individuals
+```text
+Citizens
       │
       ▼
 Decision Making
@@ -115,63 +178,88 @@ Decision Making
 Role Behaviour
       │
       ▼
-Kingdom Systems
+Kingdom AI
       │
- ├─ Diplomacy
- ├─ Warfare
- ├─ Expansion
- ├─ Cities
- ├─ Dynasties
- └─ Rebellions
+ ├── Diplomacy
+ ├── Warfare
+ ├── Expansion
+ ├── Cities
+ ├── Dynasties
+ └── Rebellions
       │
       ▼
-Emergent History
+Emergent Civilization
 ```
 
 ---
 
-# 🚀 Evolution
+# 📈 Project Timeline
 
-| Version | Major Addition |
-|----------|----------------|
-| v1 | Basic civilization simulation |
-| v2 | Named individuals & technology |
-| v3 | Utility AI & specialized roles |
-| v4 | Diplomacy, trade & espionage |
-| v5 | Reputation, alliances & cities |
-| v6 | Dynasties, legends & rebellions |
+| Version | Main Focus |
+|----------|------------|
+| V1 | Basic civilization |
+| V2 | Technology & genetics |
+| V3 | Utility AI |
+| V4 | Diplomacy |
+| V5 | Reputation & cities |
+| V6 | Dynasties & rebellions |
 
 ---
 
-# 🛠 Technologies
+# 🚀 Technologies
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- HTML5 Canvas
+- Canvas API
 
-No external frameworks or libraries were used.
+No frameworks.
 
----
+No game engine.
 
-# 🎯 Goals
-
-This project was created to explore how relatively simple AI rules can generate complex civilizations and believable historical narratives without predefined scripts.
-
-Every simulation tells a different story driven entirely by interactions between autonomous agents.
+Everything was developed from scratch.
 
 ---
 
-# 🔮 Future Plans
+# 🎯 What I Learned
+
+During this project I gained experience with:
+
+- Agent-based simulations
+- Utility AI
+- Emergent behaviour
+- State management
+- Simulation balancing
+- Canvas rendering
+- System design
+- Incremental architecture
+
+---
+
+# 🔮 Planned Features
 
 - Religion
 - Economy
 - Cultural evolution
 - Climate simulation
 - Natural disasters
-- More advanced AI personalities
-- Save / Load system
-- World generation
+- Personality traits
+- Save / Load
+- Procedural map generation
+
+---
+
+# 👨‍💻 Why I Built This
+
+I wanted to challenge myself by creating a civilization simulation entirely from scratch using only Vanilla JavaScript.
+
+Rather than scripting events, my goal was to design simple autonomous systems whose interactions could naturally produce complex histories.
+
+The project grew incrementally—from a small population simulation into a world where diplomacy, dynasties, wars and rebellions emerge without predefined narratives.
+
+Every new version expanded the simulation while preserving the same core idea:
+
+> **Complex civilizations can emerge from simple autonomous rules.**
 
 ---
 
@@ -185,16 +273,16 @@ git clone https://github.com/acarbayk/agent-based-civilization-simulation.git
 
 Open
 
-```text
+```
 index.html
 ```
 
-using any modern web browser.
+in any modern browser.
 
-No installation is required.
+No installation required.
 
 ---
 
 # 📄 License
 
-This project is licensed under the MIT License.
+Released under the MIT License.
