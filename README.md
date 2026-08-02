@@ -4,6 +4,12 @@
 
 ### Autonomous AI • Emergent Civilizations • Diplomacy • Dynasties • Rebellions
 
+
+## ⭐ Support
+
+If you found this project interesting, consider giving it a star. It helps others discover the project and motivates future development.
+
+
 An agent-based civilization simulation built entirely with **Vanilla JavaScript**, where autonomous individuals create kingdoms, wage wars, establish cities, build dynasties and generate unique histories through their interactions.
 
 [![Live Demo](https://img.shields.io/badge/▶-Live%20Demo-2ea44f?style=for-the-badge)](https://acarbayk.github.io/agent-based-civilization-simulation/)
