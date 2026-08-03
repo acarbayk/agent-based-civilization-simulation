@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krallıklar v5 — Denge, İtibar, Medeniyet</title>
+<style>
+  :root{--bg:#0d1119;--panel:#151b28;--panel-2:#1d2536;--line:#2a3448;--ink:#e9edf5;--muted:#8c95ac;--accent:#e6a94a;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{display:flex;flex-wrap:wrap;gap:16px;padding:16px;max-width:1260px;margin:0 auto}
+  .stage{flex:1 1 640px;min-width:320px}
+  .side{flex:0 1 330px;min-width:275px;display:flex;flex-direction:column;gap:12px}
+  h1{font-size:17px;margin:0 0 2px;font-weight:650}
+  .sub{color:var(--muted);font-size:12.5px;margin:0 0 12px;line-height:1.55}
+  canvas#world{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#0b0f18;cursor:crosshair;touch-action:none}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  button{font:600 13px var(--sans);color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 13px;cursor:pointer}
+  button:hover{background:#26314c;border-color:#3b466b}
+  button.primary{background:var(--accent);color:#241a06;border-color:transparent}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);margin:0 0 10px;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+  .kname{font-weight:600}.krow{color:var(--muted);font-size:11px;font-family:var(--mono);margin-top:2px}
+  .roles{display:flex;gap:7px;font-size:10.5px;font-family:var(--mono);margin-top:3px;color:var(--muted)}
+  .status{font-size:11px;margin-top:3px}
+  .ctrl{margin:11px 0}.ctrl label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .ctrl label b{color:var(--ink);font-family:var(--mono);font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  #inspect{font-size:12.5px;line-height:1.7}
+  #inspect .big{font-size:15px;font-weight:650;margin-bottom:4px}
+  #inspect .row{display:flex;justify-content:space-between;color:var(--muted)}#inspect .row b{color:var(--ink);font-family:var(--mono)}
+  #inspect .empty{color:var(--muted);font-size:12px}
+  #feed{font-size:11.5px;line-height:1.7;font-family:var(--mono);color:var(--muted);max-height:190px;overflow:hidden}
+  .legend{display:flex;gap:11px;font-size:11px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <h1>Krallıklar v7c · teknoloji, kültür ve isyan</h1>
+    <p class="sub">Krallıklar artık <b>teknoloji keşfediyor</b>: yenilikçiliği (innov) yüksek olan daha hızlı ilerler, 22 teknolojilik ağaçta 5 çağı tırmanır (Tarım'dan Barut'a). Teknoloji <b>savunmaya ağırlık verir</b> — küçük ama gelişmiş bir ordu, büyük ama ilkel bir orduyu tutabilir; savaşan krallık az âlim üretip tech'te geri kalır. Her nokta bir iç dünya (hoşnutluk/korku) taşır, meslek seçer, meşruiyetsiz krallıkta isyan eder. Bir bireye tıkla → hikâyesini gör.</p>
+    <canvas id="world" width="900" height="520"></canvas>
+    <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ doktor</span><span>◆ tüccar</span><span>✦ casus</span><span style="color:#ff6b6b">◯ isyancı</span><span style="margin-left:auto">bireye tık → ruh hâli + hikâye</span></div>
+    <div class="bar"><button id="playBtn" class="primary">⏸ Duraklat</button><button id="stepBtn">⏭ Adım</button><button id="resetBtn">↻ Sıfırla</button><button id="techBtn">⚙ Teknoloji Ağacı</button><button id="cultBtn">◈ Kültür Ağacı</button><button id="histBtn">📜 Tarih</button><button id="chronBtn">📖 Vakayiname</button><span id="dateNow" style="margin-left:auto;font-family:var(--mono);font-size:12px;color:#8b93a5"></span></div>
+  </div>
+  <div id="histOverlay" style="display:none;position:fixed;inset:0;background:rgba(8,10,16,.94);z-index:50;overflow:auto;padding:22px">
+    <div style="max-width:760px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <h2 style="margin:0;color:#dfe6f0">📜 Krallıkların Tarihi</h2>
+        <span id="histInfo" style="color:#8b93a5;font-size:12.5px"></span>
+        <button id="histClose" style="margin-left:auto">✕ Kapat</button>
+      </div>
+      <div id="histBody"></div>
+    </div>
+  </div>
+  <div id="techOverlay" style="display:none;position:fixed;inset:0;background:rgba(8,10,16,.92);z-index:50;overflow:auto;padding:18px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+      <h2 style="margin:0;color:#dfe6f0">Teknoloji Ağacı</h2>
+      <select id="techKing" style="background:#161a24;color:#dfe6f0;border:1px solid #2a3040;border-radius:6px;padding:5px 8px"></select>
+      <span id="techInfo" style="color:#8b93a5;font-size:12.5px"></span>
+      <button id="techClose" style="margin-left:auto">✕ Kapat</button>
+    </div>
+    <div id="techSvgWrap" style="overflow:auto"></div>
+  </div>
+  <div id="cultOverlay" style="display:none;position:fixed;inset:0;background:rgba(8,10,16,.92);z-index:50;overflow:auto;padding:18px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+      <h2 style="margin:0;color:#dfe6f0">◈ Kültür Ağacı</h2>
+      <select id="cultKing" style="background:#161a24;color:#dfe6f0;border:1px solid #2a3040;border-radius:6px;padding:5px 8px"></select>
+      <span id="cultInfo" style="color:#8b93a5;font-size:12.5px"></span>
+      <button id="cultClose" style="margin-left:auto">✕ Kapat</button>
+    </div>
+    <div id="cultSvgWrap" style="overflow:auto"></div>
+  </div>
+  <div id="chronOverlay" style="display:none;position:fixed;inset:0;background:rgba(8,10,16,.94);z-index:50;overflow:auto;padding:22px">
+    <div style="max-width:720px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        <h2 style="margin:0;color:#dfe6f0">📖 Vakayiname</h2>
+        <span id="chronInfo" style="color:#8b93a5;font-size:12.5px"></span>
+        <button id="chronClose" style="margin-left:auto">✕ Kapat</button>
+      </div>
+      <div id="chronBody"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="card"><h2>İncele</h2><div id="inspect"><div class="empty">Bir bireye tıkla.</div></div></div>
+    <div class="card"><h2>Krallıklar</h2><table id="stats"><tbody></tbody></table></div>
+    <div class="card"><h2>Efsaneler</h2><div id="legends"></div></div>
+    <div class="card"><h2>Vakayiname</h2><div id="feed"></div></div>
+    <div class="card"><h2>Ayarlar</h2>
+      <div class="ctrl"><label>Hız <b id="speedVal">3×</b></label><input type="range" id="speed" min="1" max="8" value="3"></div>
+      <div class="ctrl"><label>Yiyecek <b id="foodVal">orta</b></label><input type="range" id="food" min="0" max="6" value="3"></div>
+      <div class="ctrl"><label>Savaşçılık <b id="aggVal">1.0×</b></label><input type="range" id="agg" min="0" max="20" value="10"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   KRALLIKLAR v5 — dengeli dünya
+   Düzeltmeler (araştırmadan):
+   • AFFETME  : ilişkiler antlaşmaya göre bir tabana doğru toparlanır (Axelrod)
+   • İTİBAR   : ihanet/saldırı itibarı düşürür; herkes ihanetçiye küser (üçüncü taraf cezası)
+   • HASETSİZLİK: entrika yalnız gerçek husumette (düşük ilişki), zenginlikten değil
+   • YORGUNLUK: uzun savaş sürdürülemez → barış istenir
+   • ŞEHİR    : barış temettüsü — krallar genişleyip medeniyet kurar
+   • DENGE    : en güçlüye kolay saldırılmaz; ona karşı ittifak kurulur
+   ====================================================================== */
+const cv=document.getElementById('world'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v;
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+
+const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:440,
+  energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
+  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,
+  // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
+  yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
+  // isyan (Epstein) + döngü (Turchin)
+  legitStart:0.80, carryCap:70, riskK:2.3, rebelThresh:0.05, secedeFrac:0.28, maxKingdoms:10};
+const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
+// isyanla doğacak yeni krallıklar için renk + isim havuzu
+const PALETTE=['#b98cff','#ff8a5c','#5cd6c0','#d64f6a','#9ec94f','#4f8cff','#f0a6d0','#c0a15c','#6ad0ff','#ff6ba3'];
+const KNAMES=['Aztra','Belka','Corvia','Draxa','Eburon','Farne','Gethra','Hesperia','Ilyria','Jorund','Kaltos','Melar','Noria','Orvath','Pyros','Quenya','Ravok','Sylva','Torneth','Ustra','Volgar','Wyrland','Xanthe','Zephyr'];
+const ROLES=['FARMER','SOLDIER','DOCTOR','MERCHANT','SPY'];
+const ROLE_TR={FARMER:'çiftçi',SOLDIER:'asker',DOCTOR:'doktor',MERCHANT:'tüccar',SPY:'casus',CHILD:'çocuk'};
+const CITYNAMES=['Ard','Bel','Cor','Dun','Eld','Fen','Gal','Hal','Ith','Kor','Lun','Mor','Nor','Oth','Per','Ryn','Sol','Tor','Vel','Yss'];
+const NA=['Ka','Vor','Sel','Tir','Bry','Mel','Dûn','Ael','Ros','Ny','Tha','Cor','Ven','Lir','Oss','Gar','Ish','Ra','Ten','Mir'];
+const NB=['lor','wen','dan','riç','sa','vâne','mir','os','ka','en','dra','wyn','tos','la','riel','dûr','han','ya','eth','vi'];
+const SURN=['Kar','Vel','Thorn','Ash','Bryn','Dun','Mor','Oss','Ren','Lir','Vane','Corr','Halt','Ryn','Sol','Ered'];
+const makeName=()=>NA[(Math.random()*NA.length)|0]+NB[(Math.random()*NB.length)|0];
+const makeSurname=()=>SURN[(Math.random()*SURN.length)|0]+['â','en','oth','ia','wyn','dûr'][(Math.random()*6)|0];
+const cityName=()=>CITYNAMES[(Math.random()*CITYNAMES.length)|0]+['a','or','en','ia','oth'][(Math.random()*5)|0];
+let nextKingId=0;
+// yaşam evresi + yaşa göre yetenek eğrisi (Dave Mark response curve): çocuk zayıf, yetişkin tam, yaşlı düşer
+const ageYears=a=>((sim?sim.tick:0)-a.born)/CFG.yearLen;
+function lifeStage(a){const y=ageYears(a);return y<CFG.childYears?'child':y>CFG.elderYears?'elder':'adult';}
+function capability(a){const y=ageYears(a);
+  if(y<CFG.childYears)return clamp(0.25+0.75*(y/CFG.childYears));      // çocuk: yükselen
+  if(y<CFG.elderYears)return 1;                                        // yetişkin: tam
+  return clamp(1-(y-CFG.elderYears)/40*0.7);}                          // yaşlı: düşen
+
+let sim,playing=true,foodRate=3,aggMul=1.0,stepsPerFrame=3,nextId=1,selectedId=null;
+
+function makeGrid(cell){const map=new Map();const key=(x,y)=>((x/cell)|0)+','+((y/cell)|0);
+  return{add(it){const k=key(it.x,it.y);let b=map.get(k);if(!b){b=[];map.set(k,b);}b.push(it);},
+    near(x,y){const o=[],cx=(x/cell)|0,cy=(y/cell)|0;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const b=map.get((cx+i)+','+(cy+j));if(b)o.push(...b);}return o;}};}
+
+/* Topraklar */
+const TCELL=30,TCX=Math.ceil(W/TCELL),TCY=Math.ceil(H/TCELL),NCELL=TCX*TCY;
+let owner=new Int8Array(NCELL),inf=[];
+function initTerritory(){inf=[];for(let k=0;k<CFG.kingdoms;k++)inf.push(new Float32Array(NCELL));owner=new Int8Array(NCELL);}
+function stamp(k,x,y,st,rc){const cx=(x/TCELL)|0,cy=(y/TCELL)|0;
+  for(let i=-rc;i<=rc;i++)for(let j=-rc;j<=rc;j++){const gx=cx+i,gy=cy+j;if(gx<0||gy<0||gx>=TCX||gy>=TCY)continue;
+    const d=Math.hypot(i,j);if(d>rc)continue;inf[k][gx*TCY+gy]+=st*(1-d/rc);}}
+function computeTerritory(){const K=sim.tribes.length;
+  for(let k=0;k<K;k++)inf[k].fill(0);
+  for(const t of sim.tribes)if(!t._dead)for(const c of t.cities)stamp(t.id,c.x,c.y,5.5,5);
+  for(const a of sim.agents)stamp(a.tribe,a.x,a.y,0.5,2);
+  for(let c=0;c<NCELL;c++){let best=-1,bv=0.6;for(let k=0;k<K;k++){const v=inf[k][c];if(v>bv){bv=v;best=k;}}owner[c]=best;}
+  for(const t of sim.tribes){t.land=0;t.threat=0;}
+  for(let c=0;c<NCELL;c++)if(owner[c]>=0)sim.tribes[owner[c]].land++;
+  for(const a of sim.agents){const o=ownerAt(a.x,a.y);if(o>=0&&o!==a.tribe)sim.tribes[o].threat++;}
+  // komşu krallıklar arasında paylaşılan sınır (gerilim kaynağı)
+  for(let i=0;i<K;i++)sim.border[i].fill(0);
+  for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy];if(o<0)continue;
+    if(cx+1<TCX){const r=owner[(cx+1)*TCY+cy];if(r>=0&&r!==o){sim.border[o][r]++;sim.border[r][o]++;}}
+    if(cy+1<TCY){const d=owner[cx*TCY+cy+1];if(d>=0&&d!==o){sim.border[o][d]++;sim.border[d][o]++;}}}
+}
+function ownerAt(x,y){let cx=clamp((x/TCELL)|0,0,TCX-1),cy=clamp((y/TCELL)|0,0,TCY-1);return owner[cx*TCY+cy];}
+
+/* Kurulum */
+function kingdomShell(id,name,color,cities){
+  return {id,name,color,cities,treasury:40,rep:55,weariness:0,pop:0,land:0,threat:0,kills:0,counts:{},
+    legit:CFG.legitStart,unrest:0,born:sim?sim.tick:0,
+    ambition:rnd(.2,.9),cunning:rnd(.15,.8),greed:rnd(.3,.9),loyalty:rnd(.25,.95),
+    innov:rnd(.25,.85),research:0,techs:{},era:1,_mil:1,_def:1,_food:1,_trade:1,_res:1,_gov:0,
+    culture:0,civics:{},cultId:'—',_cLegit:0,_cContent:0,_cTrade:0,
+    plots:{},war:null,rulerCd:40+((id*17)%60)};}
+function makeKingdom(i){const k=KINGS[i],pad=95,spots=[[pad,pad],[W-pad,pad],[pad,H-pad],[W-pad,H-pad]];const [bx,by]=spots[i%spots.length];
+  return kingdomShell(i,k.name,k.color,[{name:'Başkent',x:bx,y:by,food:16,hp:CFG.cityHP}]);}
+// Matrisleri bir satır/sütun büyüt (yeni krallık için)
+function growMatrices(){const K=sim.tribes.length;
+  for(const m of [sim.rel,sim.tr,sim.border,sim.truce]){for(const row of m)row.push(m===sim.tr?'none':0);m.push(new Array(K).fill(m===sim.tr?'none':0));}
+  while(inf.length<K)inf.push(new Float32Array(NCELL));}
+// İsyandan yeni krallık doğur
+function spawnKingdom(name,color,cities,foundingAgents,fromId){
+  const id=sim.tribes.length;
+  const k=kingdomShell(id,name,color,cities); k.legit=0.9; sim.tribes.push(k); growMatrices();
+  for(const a of foundingAgents){a.tribe=id;a.color=color;a.rebel=false;a.events.push({t:sim.tick,e:`${name} krallığını kurdu`});}
+  if(fromId!=null){sim.rel[id][fromId]=sim.rel[fromId][id]=-70;sim.truce[id][fromId]=sim.truce[fromId][id]=sim.tick+1500;} // düşman ama ana krallık hemen saldıramaz
+  recount();return k;}
+const capital=t=>t.cities[0];
+function nearestCity(cities,x,y){let best=cities[0],bd=1e18;for(const c of cities){const d=(c.x-x)**2+(c.y-y)**2;if(d<bd){bd=d;best=c;}}return best;}
+function makeAgent(king,x,y,role,parentAgent){
+  const mut=(v,mn,mx)=>clamp(v*(1+(Math.random()*2-1)*CFG.mutation),mn,mx);
+  const p=parentAgent, base=p||{speed:1.1+Math.random()*0.8,sense:60+Math.random()*35,power:1.5+Math.random()*2};
+  const surname=p?p.surname:makeSurname();
+  // başlangıç ajanları yetişkin doğsun; sonradan doğanlar bebek
+  const startAdult=!p, born=(sim?sim.tick:0)-(startAdult?rnd(CFG.childYears,40)*CFG.yearLen:0);
+  const a={id:nextId++,name:makeName(),surname,gen:p?(p.gen+1):1,tribe:king.id,color:king.color,role,x,y,wx:x,wy:y,
+    energy:p?CFG.reproEnergy:CFG.energyStart,born,age:0,lifespan:rnd(CFG.lifeMin,CFG.lifeMax),
+    carrying:false,act:'WANDER',homeward:false,kills:0,rebel:false,events:[],roleAge:0,
+    hardship0:Math.random(),risk:Math.random(),  // kişisel zorluk + risk-kaçınması
+    content:rnd(0.5,0.75),fear:0,               // İÇ DÜNYA: hoşnutluk + korku (deneyimle değişir)
+    speed:p?mut(base.speed,0.6,2.3):base.speed,sense:p?mut(base.sense,40,CFG.senseCap):base.sense,
+    power:p?mut(base.power,0.8,4.5):base.power,bravery:role==='SOLDIER'?1+Math.random()*0.5:0.4+Math.random()*0.55};
+  a.events.push({t:a.born,e:p?`${p.name} ${p.surname}'in çocuğu olarak doğdu`:'kuruluş neslinden'});
+  return a;}
+// yaşa göre etkin güç (yetenek eğrisi)
+const effPower=a=>a.power*capability(a);
+// EMERGENT ROLLER: krallık rol dağıtmaz; birey durum + kişilik + PİYASA DOYGUNLUĞU'na göre kendi mesleğini seçer
+function roleScores(a,t){
+  const pop=Math.max(1,t.pop), adults=Math.max(1,pop-(t.counts.CHILD||0)), c=t.counts;
+  const scarce=clamp(1-cityFood(t)/(pop*0.6));               // kıtlık → çiftçilik talebi
+  const danger=clamp((t.war?0.8:0)+clamp(t.threat/40)*0.7);  // savaş/tehdit → askerlik talebi
+  const trade=t._tradePartner!=null?1:0, plot=t._plotTarget!=null?1:0;
+  const demand={                                             // talep: sinyaller + kişilik
+    FARMER:  0.50 + scarce*0.6,
+    SOLDIER: 0.28 + danger*0.6 + a.bravery*0.3 + t.ambition*0.2,
+    DOCTOR:  0.34 + clamp(pop/90)*0.2,
+    MERCHANT:0.32 + trade*0.35 + t.greed*0.2,
+    SPY:     0.26 + plot*0.4 + t.cunning*0.2 };
+  const target={                                             // sağlıklı oran (doygunluk eşiği) — sinyalle kayar
+    FARMER:  0.42 + scarce*0.18,
+    SOLDIER: 0.12 + danger*0.28,
+    DOCTOR:  0.07,
+    MERCHANT:0.08 + trade*0.05,
+    SPY:     0.04 + plot*0.04 };
+  let best='FARMER',bv=-1e9,U={};
+  for(const r of ROLES){const share=(c[r]||0)/adults;
+    const sat=clamp(1.3-share/target[r],0.08,1.3);           // rol dolunca cazibe düşer (piyasa doygunluğu)
+    U[r]=demand[r]*sat*(0.92+Math.random()*0.16);
+    if(U[r]>bv){bv=U[r];best=r;}}
+  return {best,U};
+}
+const chooseRole=(a,t)=>roleScores(a,t).best;
+// çocukluk → meslek seçimi; sonra YAPIŞKAN (kimlik). Sadece güçlü/sürekli baskıda değişir.
+function updateRoleChoice(a,t){
+  const stage=lifeStage(a);
+  if(stage==='child'){if(a.role!=='CHILD')a.role='CHILD';return;}
+  if(a.role==='CHILD'){a.role=chooseRole(a,t);a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`${ROLE_TR[a.role]} oldu`});return;}
+  // yetişkin: çok seyrek, ancak yeni meslek belirgin şekilde iyiyse VE bir süredir bu meslekteyse değişir
+  if(a.roleAge>1000 && Math.random()<0.0006){const {best,U}=roleScores(a,t);
+    if(best!==a.role && U[best]>(U[a.role]||0)*1.55){a.role=best;a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`hayatı değişti: ${ROLE_TR[best]} oldu`});}}
+}
+const cityFood=t=>t.cities.reduce((s,c)=>s+c.food,0);
+function reset(){
+  initTerritory();
+  const tribes=[];for(let i=0;i<CFG.kingdoms;i++)tribes.push(makeKingdom(i));
+  const agents=[];
+  for(const t of tribes){const b=capital(t);for(let n=0;n<CFG.startPop;n++){
+    agents.push(makeAgent(t,b.x+rnd(-22,22),b.y+rnd(-22,22),'CHILD'));}}
+  const food=[];for(let i=0;i<180;i++)food.push({x:Math.random()*W,y:Math.random()*H});
+  const K=CFG.kingdoms; nextKingId=K;
+  sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],
+    rel:Array.from({length:K},()=>new Array(K).fill(0)),tr:Array.from({length:K},()=>new Array(K).fill('none')),
+    border:Array.from({length:K},()=>new Array(K).fill(0)),
+    truce:Array.from({length:K},()=>new Array(K).fill(0))};
+  recount();
+  for(const a of agents){updateRoleChoice(a,tribes[a.tribe]);recount();} // kurucu nesil: doygunlukla dengeli dağılır
+  recount();computeTerritory();selectedId=null;renderInspect();updateStats();
+  logEvent('Dört krallık kuruldu. Tarih başlıyor.','#aab');
+}
+function recount(){for(const t of sim.tribes){t.pop=0;t.counts={};}for(const a of sim.agents){const t=sim.tribes[a.tribe];t.pop++;t.counts[a.role]=(t.counts[a.role]||0)+1;}}
+const WD=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+function dateStr(tk){const y=Math.floor(tk/CFG.yearLen),d=(tk%CFG.yearLen)+1;return `Yıl ${y} · ${d}. gün · ${WD[tk%7]}`;}
+function evIcon(x){if(x.includes('FETHETTİ'))return '👑';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
+function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu/.test(x);}
+function logEvent(text,color){const ev={text,color,tick:sim?sim.tick:0};
+  sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
+  (sim.chronicle=sim.chronicle||[]).unshift(ev);if(sim.chronicle.length>500)sim.chronicle.pop();
+  const el=document.getElementById('feed');if(!el)return;
+  el.innerHTML=sim.feed.map(e=>{const yr=Math.floor((e.tick||0)/CFG.yearLen),maj=evMajor(e.text);
+    return `<div style="display:flex;gap:7px;align-items:baseline;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="color:#5b6376;font-family:var(--mono);font-size:9.5px;min-width:34px">Y${yr}</span>
+      <span style="font-size:11px">${evIcon(e.text)}</span>
+      <span style="color:${e.color||'#8c95ac'};font-size:11.5px;line-height:1.35;font-weight:${maj?600:400}">${e.text}</span></div>`;}).join('');}
+const living=t=>sim.tribes.filter(o=>o.id!==t.id&&o.pop>0&&!o._dead);
+function armyStrength(t){let s=t.treasury*0.02+1;for(const a of sim.agents)if(a.tribe===t.id&&a.role==='SOLDIER')s+=effPower(a)*a.bravery;return s;}
+const power=t=>armyStrength(t)+t.pop*0.4+t.cities.length*3;
+
+/* ---------- Toplum: meşruiyet (Turchin) + isyan (Epstein) + ayrılıkçılık ---------- */
+/* ---------- TEKNOLOJİ AĞACI (Civ tabanlı, savunma-ağırlıklı) ---------- */
+const TECHS={
+  tarim:{tr:'Tarım',era:1,cost:40,pre:[],food:.25}, avcilik:{tr:'Avcılık',era:1,cost:40,pre:[],mil:.15},
+  comlek:{tr:'Çömlekçilik',era:1,cost:40,pre:[],food:.15},
+  yazi:{tr:'Yazı',era:2,cost:70,pre:['comlek'],res:.4}, bronz:{tr:'Bronz',era:2,cost:70,pre:['avcilik'],mil:.25},
+  tas:{tr:'Taş İşçiliği',era:2,cost:70,pre:['comlek'],def:.4}, tekerlek:{tr:'Tekerlek',era:2,cost:70,pre:['tarim'],trade:.15},
+  sulama:{tr:'Sulama',era:2,cost:70,pre:['tarim'],food:.3},
+  para:{tr:'Para',era:3,cost:120,pre:['yazi'],trade:.5}, matematik:{tr:'Matematik',era:3,cost:120,pre:['yazi'],res:.3},
+  insaat:{tr:'İnşaat',era:3,cost:120,pre:['tas'],def:.3}, demir:{tr:'Demir',era:3,cost:120,pre:['bronz'],mil:.35},
+  kanunlar:{tr:'Kanunlar',era:3,cost:120,pre:['yazi'],gov:.08},
+  tip:{tr:'Tıp',era:4,cost:200,pre:['matematik'],def:.3}, sovalye:{tr:'Şövalyelik',era:4,cost:200,pre:['demir'],mil:.3},
+  egitim:{tr:'Eğitim',era:4,cost:200,pre:['matematik'],res:.5}, burokrasi:{tr:'Bürokrasi',era:4,cost:200,pre:['kanunlar'],gov:.10},
+  kaleler:{tr:'Kaleler',era:4,cost:200,pre:['insaat','tas'],def:.5},
+  barut:{tr:'Barut',era:5,cost:320,pre:['demir','sovalye'],mil:.4}, matbaa:{tr:'Matbaa',era:5,cost:320,pre:['egitim'],res:.6,gov:.06},
+  bankacilik:{tr:'Bankacılık',era:5,cost:320,pre:['para','matematik'],trade:.8}, pusula:{tr:'Pusula',era:5,cost:320,pre:['para'],trade:.3},
+};
+function recomputeTech(t){let m=1,d=1,f=1,tr=1,r=1,g=0,era=1;
+  for(const id in t.techs){const T=TECHS[id];if(!T)continue;m+=T.mil||0;d+=T.def||0;f+=T.food||0;tr+=T.trade||0;r+=T.res||0;g+=T.gov||0;era=Math.max(era,T.era);}
+  t._mil=m;t._def=d;t._food=f;t._trade=tr;t._res=r;t._gov=g;t.era=era;}
+function doResearch(t){
+  const peace=t.war?0.5:1;
+  t.research+=Math.max(1,t.pop)*t.innov*0.02*peace*t._res;        // araştırma geliri (barış + bilim hızlandırır)
+  let best=null,bc=1e9;
+  for(const id in TECHS){if(t.techs[id])continue;const T=TECHS[id];if(T.pre.some(p=>!t.techs[p]))continue;if(T.cost<bc){bc=T.cost;best=id;}}
+  if(best&&Math.random()<t.innov*clamp(t.research/bc)*0.05){       // yüksek innov = yüksek keşif şansı
+    t.techs[best]=1;t.research=Math.max(0,t.research-bc);recomputeTech(t);
+    logEvent(`⚙ ${t.name} keşfetti: ${TECHS[best].tr}`,t.color);}
+}
+/* ---------- KÜLTÜR AĞACI (millete özgü kimlik) ---------- */
+const CULTS={
+  gelenek:{tr:'Kabile Gelenekleri',era:1,cost:35,pre:[],branch:'—',legit:.02},
+  onur:{tr:'Savaşçı Onuru',era:2,cost:75,pre:['gelenek'],branch:'Savaşçı',content:.03},
+  fetih:{tr:'Fetih Ülküsü',era:3,cost:140,pre:['onur'],branch:'Savaşçı',legit:.03},
+  destan:{tr:'Kahramanlık Destanları',era:4,cost:220,pre:['fetih'],branch:'Savaşçı',content:.04},
+  pazar:{tr:'Pazar Hakları',era:2,cost:75,pre:['gelenek'],branch:'Tüccar',trade:.2},
+  lonca:{tr:'Lonca Sistemi',era:3,cost:140,pre:['pazar'],branch:'Tüccar',trade:.3},
+  prens:{tr:'Tüccar Prensleri',era:4,cost:220,pre:['lonca'],branch:'Tüccar',trade:.4},
+  atalar:{tr:'Atalar Kültü',era:2,cost:75,pre:['gelenek'],branch:'Dindar',legit:.03},
+  tapinak:{tr:'Tapınaklar',era:3,cost:140,pre:['atalar'],branch:'Dindar',content:.04},
+  kutsal:{tr:'Kutsal Düzen',era:4,cost:220,pre:['tapinak'],branch:'Dindar',legit:.05},
+  tore:{tr:'Töre',era:2,cost:75,pre:['gelenek'],branch:'Nizamcı',legit:.03},
+  meclis:{tr:'Meclis',era:3,cost:140,pre:['tore'],branch:'Nizamcı',legit:.05},
+  solen:{tr:'Şölenler',era:2,cost:75,pre:['gelenek'],branch:'Ünsever',content:.05},
+  ozan:{tr:'Ozanlar',era:3,cost:140,pre:['solen'],branch:'Ünsever',content:.05},
+};
+function recomputeCult(t){let cl=0,cc=0,ct=0;const tally={};
+  for(const id in t.civics){const C=CULTS[id];if(!C)continue;cl+=C.legit||0;cc+=C.content||0;ct+=C.trade||0;
+    if(C.branch!=='—')tally[C.branch]=(tally[C.branch]||0)+1;}
+  t._cLegit=cl;t._cContent=cc;t._cTrade=ct;
+  let bId='—',bn=0,tie=false;for(const b in tally){if(tally[b]>bn){bn=tally[b];bId=b;tie=false;}else if(tally[b]===bn)tie=true;}
+  t.cultId=(bn>0&&tie)?'Çok-kültürlü':bId;}
+function doCulture(t){
+  const peace=t.war?0.6:1;
+  t.culture+=Math.max(1,t.pop)*0.02*peace*(0.5+t.loyalty);   // kültür barışçıl, sadık, kalabalık toplumda büyür
+  let best=null,bc=1e9;
+  for(const id in CULTS){if(t.civics[id])continue;const C=CULTS[id];if(C.pre.some(p=>!t.civics[p]))continue;if(C.cost<bc){bc=C.cost;best=id;}}
+  if(best&&Math.random()<(0.5+t.loyalty)*clamp(t.culture/bc)*0.05){
+    t.civics[best]=1;t.culture=Math.max(0,t.culture-bc);recomputeCult(t);
+    logEvent(`◈ ${t.name} bir gelenek benimsedi: ${CULTS[best].tr}`,t.color);}
+}
+function updateSociety(){
+  for(const t of sim.tribes){if(t._dead)continue;
+    const pop=Math.max(1,t.pop), cap=CFG.carryCap*(1+0.4*(t.cities.length-1));
+    // Turchin sürücüleri (yumuşatılmış): sağlıklı krallık istikrarlı kalır, sadece gerçek stres çökertir
+    const crowd=clamp(pop/cap), elite=clamp(((t.counts.SOLDIER||0)/pop-0.28)/0.4),
+          scarce=clamp(1-cityFood(t)/(pop*0.6)), war=t.weariness/100;
+    const totLand=Math.max(1,sim.tribes.reduce((s,k)=>s+(k._dead?0:k.land),0));
+    const dominance=clamp((t.land/totLand-0.5)/0.4);   // sadece AŞIRI hâkimiyette (>%50 toprak) devreye girer
+    const target=clamp(0.86-crowd*0.32-elite*0.4-scarce*0.35-war*0.35-dominance*0.3+t._gov+(t._cLegit||0),0.15,0.94);
+    t.legit+=(target-t.legit)*0.05;                    // yavaş, yumuşak kayış
+    doResearch(t); doCulture(t);                       // teknoloji + kültür
+    // İsyan (Epstein): grievance = zorluk × meşruiyetsizlik. İç dünya (hoşnutluk/korku) EŞİĞİ belirler.
+    const kin=sim.agents.filter(a=>a.tribe===t.id), illeg=1-t.legit;
+    let rebels=0;
+    for(const a of kin){
+      if(lifeStage(a)==='child'){a.rebel=false;continue;}
+      const hardship=clamp(0.40+a.hardship0*0.3-a.content*0.20+(1-a.energy/CFG.energyMax)*0.3);
+      const grievance=hardship*illeg;
+      a.rebel = grievance > (0.10 + a.risk*0.22 + a.fear*0.18);   // cesaret/korku eşiği
+      if(a.rebel)rebels++;
+    }
+    t.unrest=kin.length?rebels/kin.length:0;
+    trySecede(t);
+  }
+}
+function trySecede(t){
+  if(t._dead||t.pop<14||sim.tribes.length>=CFG.maxKingdoms||t.unrest<CFG.secedeFrac)return;
+  const rebels=sim.agents.filter(a=>a.tribe===t.id&&a.rebel);
+  if(rebels.length<8)return;
+  // en çok isyancının toplandığı şehri odak seç
+  let bestCity=null,bestN=-1,bestIdx=-1;
+  t.cities.forEach((c,idx)=>{let n=0;for(const r of rebels)if(Math.hypot(r.x-c.x,r.y-c.y)<170)n++;if(n>bestN){bestN=n;bestCity=c;bestIdx=idx;}});
+  if(bestN<6)return;
+  const founders=rebels.filter(r=>Math.hypot(r.x-bestCity.x,r.y-bestCity.y)<190);
+  if(founders.length<6)return;
+  const color=PALETTE[nextKingId%PALETTE.length], name=KNAMES[nextKingId%KNAMES.length]; nextKingId++;
+  // büyük imparatorluktan kopan devlet, yakın 2. şehri de alır (yaşayabilir successor)
+  const takeCities=[bestCity];
+  if(t.cities.length>=4){let nc=null,nd=1e18;for(const c of t.cities)if(c!==bestCity){const d=(c.x-bestCity.x)**2+(c.y-bestCity.y)**2;if(d<nd){nd=d;nc=c;}}if(nc)takeCities.push(nc);}
+  for(const c of takeCities){const idx=t.cities.indexOf(c);if(idx>=0)t.cities.splice(idx,1);}
+  const k=spawnKingdom(name,color,takeCities.map(c=>({name:c.name,x:c.x,y:c.y,food:12,hp:CFG.cityHP})),founders,t.id);
+  logEvent(`⚑ ${t.name}'de İSYAN! Yeni krallık doğdu: ${name}`,color);
+  if(t.cities.length===0){t._dead=true;t.war=null;logEvent(`${t.name} isyanla dağıldı`,'#ff6b6b');
+    for(const o of sim.tribes)if(o.war&&o.war.target===t.id)o.war=null;
+    for(const a of sim.agents)if(a.tribe===t.id){a.tribe=k.id;a.color=color;a.rebel=false;} // kalanlar yeni krallığa
+    sim.rel[k.id][t.id]=sim.rel[t.id][k.id]=0; recount();}
+  t.legit=Math.min(0.7,t.legit+0.08); // baskı biraz düşer ama imparatorluk hâlâ istikrarsız
+  computeTerritory();
+}
+
+/* ---------- Katman 2: KRAL kararı ---------- */
+function declareWar(t,o,betrayal){
+  const wasAlly=sim.tr[t.id][o.id]==='ally',wasTrade=sim.tr[t.id][o.id]==='trade';
+  t.war={target:o.id,start:sim.tick};o.war=o.war||{target:t.id,start:sim.tick};
+  sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='none';
+  sim.rel[t.id][o.id]=sim.rel[o.id][t.id]=-70;t.plots[o.id]=0;
+  // İTİBAR CEZASI + üçüncü taraf (herkes saldırgana küser)
+  t.rep=clamp(t.rep-(betrayal?34:16),0,100);
+  for(const x of sim.tribes){if(x.id===t.id||x._dead)continue;sim.rel[x.id][t.id]-=(betrayal?26:12);}
+  if(betrayal){const rel=wasAlly?'müttefiki':wasTrade?'ticaret ortağı':'komşusu';
+    logEvent(`🗡 İHANET! ${t.name}, ${rel} ${o.name}'e saldırdı (itibar çöktü)`,t.color);}
+  else logEvent(`⚔ ${t.name}, ${o.name}'e savaş açtı`,t.color);
+}
+function makePeace(t,o){if(t.war&&t.war.target===o.id)t.war=null;if(o.war&&o.war.target===t.id)o.war=null;
+  sim.rel[t.id][o.id]=sim.rel[o.id][t.id]=-8;t.weariness*=0.4;o.weariness*=0.4;
+  sim.truce[t.id][o.id]=sim.truce[o.id][t.id]=sim.tick+700;   // ateşkes: hemen yeniden savaşamaz
+  logEvent(`🕊 ${t.name} ile ${o.name} barıştı`,'#9fb');}
+function findSettleSpot(t){
+  for(let n=0;n<50;n++){const x=rnd(40,W-40),y=rnd(40,H-40),o=ownerAt(x,y);
+    if(o!==-1&&o!==t.id)continue;
+    let dOwn=1e9;for(const c of t.cities)dOwn=Math.min(dOwn,Math.hypot(c.x-x,c.y-y));
+    if(dOwn<110||dOwn>240)continue;
+    let ok=true;for(const k of sim.tribes){if(k._dead)continue;for(const c of k.cities)if(k.id!==t.id&&Math.hypot(c.x-x,c.y-y)<95)ok=false;}
+    if(ok)return{x,y};}
+  return null;
+}
+function rulerDecide(t){
+  if(t._dead)return;const others=living(t);if(!others.length)return;
+  if(t.war){const o=sim.tribes[t.war.target];
+    if(!o||o._dead){t.war=null;t.weariness*=0.5;}
+    else if((t.weariness>58||t.pop<o.pop*0.55||capital(t).hp<40||o.weariness>62)&&(sim.tick-(t.war.start||0)>250||capital(t).hp<36)){makePeace(t,o);}
+    return;}
+  // en güçlü krallık (denge için)
+  let strongest=t;for(const k of sim.tribes)if(!k._dead&&power(k)>power(strongest))strongest=k;
+  const myPow=power(t),C=[];
+  for(const o of others){
+    const rel=sim.rel[t.id][o.id],tr=sim.tr[t.id][o.id],plot=t.plots[o.id]||0,oPow=power(o),edge=myPow/(oPow+1);
+    if(tr==='none'&&rel>-8&&o.rep>34) C.push({a:'TRADE',o,s:0.5+t.greed*0.4+rel/300+(o.rep-50)/300-(edge>1.2?t.ambition*0.35:0)});
+    if(tr==='trade'&&rel>22){const bal=(strongest.id!==t.id&&strongest.id!==o.id)?0.3:0;
+      C.push({a:'ALLY',o,s:0.3+t.loyalty*0.5+rel/300+bal});}
+    // entrika: gerilim varsa (sınır anlaşmazlığı), yalnız kurnaz krallar — hasetten değil
+    if(rel<-6&&plot<CFG.plotMature&&t.cunning>0.45) C.push({a:'PLOT',o,s:0.4+t.cunning*0.5*clamp(-rel/60)});
+    // savaş: yorgunluk düşük + ateşkes yok. Az krallık kalınca güç-dengesi freni kalkar; kıtlık çaresizlik doğurur
+    const living=sim.tribes.filter(k=>!k._dead).length, fewK=living<=2;
+    const desperate=cityFood(t)<t.pop*0.7;                    // kaynak kıtlığı → kaynak savaşı
+    const notStrongest=fewK||(o.id!==strongest.id)||edge>1.35, truced=sim.tick<sim.truce[t.id][o.id];
+    const scheming=(plot>18&&t.cunning>0.5); // kurnaz kral açık savaş yerine ihaneti bekler
+    if(t.weariness<24&&notStrongest&&!truced&&(t.legit>0.35||desperate)){
+      if(plot>=CFG.plotMature&&edge>1.05) C.push({a:'BETRAY',o,s:0.5+t.ambition*0.4+(1-t.loyalty)*0.4});
+      else if(!scheming&&rel<-16&&edge>1.14) C.push({a:'INVADE',o,s:0.3+t.ambition*0.4+clamp(edge-1)*0.5+(desperate?0.5:0)});
+      else if(!scheming&&edge>1.28&&(t.ambition>0.55||desperate)) C.push({a:'INVADE',o,s:0.22+t.ambition*0.5+clamp(edge-1.28)*0.6+(desperate?0.5:0)});
+    }
+  }
+  // BARIŞ TEMETTÜSÜ: genişle, medeniyet kur (savaş yerine)
+  if(t.pop>18&&t.treasury>34&&t.cities.length<CFG.maxCities&&t.weariness<20)
+    C.push({a:'FOUND',s:0.5+t.ambition*0.2+(t._tradePartner!=null?0.15:0)});
+  C.push({a:'FOCUS',s:0.4});
+  C.sort((x,y)=>y.s-x.s);const pool=C.filter(c=>c.s>=C[0].s-0.1),dec=pool[(Math.random()*pool.length)|0],o=dec.o;
+  if(dec.a==='TRADE'){if(sim.rel[o.id][t.id]>-14&&t.rep>34){sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='trade';
+    sim.rel[t.id][o.id]+=12;sim.rel[o.id][t.id]+=12;logEvent(`⇄ ${t.name} ↔ ${o.name} ticaret anlaşması`,t.color);}}
+  else if(dec.a==='ALLY'){sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='ally';sim.rel[t.id][o.id]+=18;sim.rel[o.id][t.id]+=18;
+    logEvent(`🤝 ${t.name} ↔ ${o.name} ittifak kurdu`,t.color);}
+  else if(dec.a==='PLOT'){t.plots[o.id]=(t.plots[o.id]||0)+14+t.cunning*16;}
+  else if(dec.a==='BETRAY'){declareWar(t,o,true);}
+  else if(dec.a==='INVADE'){declareWar(t,o,false);}
+  else if(dec.a==='FOUND'){const s=findSettleSpot(t);if(s){t.treasury-=30;t.cities.push({name:cityName(),x:s.x,y:s.y,food:12,hp:CFG.cityHP});
+    logEvent(`🏛 ${t.name} yeni şehir kurdu: ${t.cities[t.cities.length-1].name}`,t.color);computeTerritory();}}
+  else if(dec.a==='FOCUS'){t.treasury+=6;for(const c of t.cities)c.food+=1;}
+}
+
+/* ---------- Katman 1: birey kararı ---------- */
+function decide(a,t,env){
+  const hunger=clamp(1-a.energy/CFG.energyMax),eat=hunger*hunger,inTerr=env.owner===a.tribe,C=[]; // eat: azalan marjinal fayda
+  const enemy=env.enemy,dE=enemy?dist(a,enemy):1e9;
+  const home=nearestCity(t.cities,a.x,a.y);
+  if(enemy&&dE<70&&a.role!=='SOLDIER')C.push({act:'FLEE',s:clamp((70-dE)/70)*1.1,tx:a.x*2-enemy.x,ty:a.y*2-enemy.y});
+  if(env.food&&hunger>0.3)C.push({act:'EAT_FIELD',s:0.3+eat*1.1,tx:env.food.x,ty:env.food.y,target:env.food});
+  if(hunger>0.25&&home.food>0)C.push({act:'EAT_STORE',s:0.25+eat*1.15,tx:home.x,ty:home.y,city:home});
+  if(a.role==='FARMER'){if(a.carrying)C.push({act:'DELIVER',s:0.82,tx:home.x,ty:home.y,city:home});
+    else if(env.food)C.push({act:'GATHER',s:0.55*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});}
+  else if(a.role==='SOLDIER'){
+    if(t.war){const o=sim.tribes[t.war.target];if(o&&!o._dead){const tc=nearestCity(o.cities,a.x,a.y);
+      C.push({act:'INVADE',s:0.7*(1-hunger*0.5),tx:tc.x,ty:tc.y,city:tc,king:o.id});}}
+    if(enemy&&dE<95){const win=(a.power*a.bravery*aggMul>=enemy.power*0.9)?1:0.12,homeDef=(env.owner===a.tribe||env.owner<0)?1:0.5;
+      C.push({act:'FIGHT',s:0.66*win*homeDef*(1-hunger*0.5),tx:enemy.x,ty:enemy.y});}
+    C.push({act:'PATROL',s:0.3,tx:a.wx,ty:a.wy});}
+  else if(a.role==='DOCTOR'){if(env.wounded)C.push({act:'HEAL',s:0.78*(1-hunger*0.6),tx:env.wounded.x,ty:env.wounded.y,target:env.wounded});}
+  else if(a.role==='MERCHANT'){const p=t._tradePartner;
+    if(p!=null){const dest=a.homeward?capital(t):capital(sim.tribes[p]);C.push({act:'TRADE_RUN',s:0.6,tx:dest.x,ty:dest.y,dest});}
+    else if(!a.carrying&&env.food)C.push({act:'GATHER',s:0.4,tx:env.food.x,ty:env.food.y,target:env.food});
+    else if(a.carrying)C.push({act:'DELIVER',s:0.7,tx:home.x,ty:home.y,city:home});}
+  else if(a.role==='SPY'){const pt=t._plotTarget;if(pt!=null&&!sim.tribes[pt]._dead){const tc=capital(sim.tribes[pt]);
+    C.push({act:'ESPIONAGE',s:0.6,tx:tc.x,ty:tc.y,king:pt});}}
+  if(!inTerr&&a.role!=='SOLDIER'&&a.role!=='MERCHANT'&&a.role!=='SPY')C.push({act:'RETURN',s:0.34,tx:home.x,ty:home.y});
+  C.push({act:'WANDER',s:0.14,tx:a.wx,ty:a.wy});
+  C.sort((x,y)=>y.s-x.s);const pool=C.filter(c=>c.s>=C[0].s-0.12);return pool[(Math.random()*pool.length)|0];
+}
+function nearest(items,x,y,maxR){let best=null,bd=maxR*maxR;for(const it of items){const dx=it.x-x,dy=it.y-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=it;}}return best;}
+
+/* ---------- Bir adım ---------- */
+function step(){
+  const {agents,food,tribes}=sim;sim.tick++;
+  let sp=foodRate*0.95;while(sp>=1){food.push({x:Math.random()*W,y:Math.random()*H});sp--;}
+  if(Math.random()<sp)food.push({x:Math.random()*W,y:Math.random()*H});
+  for(const t of tribes){t._tradePartner=null;t._plotTarget=null;let bR=-1e9,bP=0;
+    for(const o of tribes){if(o.id===t.id||o._dead||o.pop===0)continue;const tr=sim.tr[t.id][o.id];
+      if((tr==='trade'||tr==='ally')&&sim.rel[t.id][o.id]>bR){bR=sim.rel[t.id][o.id];t._tradePartner=o.id;}
+      const p=t.plots[o.id]||0;if(p>bP){bP=p;t._plotTarget=o.id;}}}
+
+  const ag=makeGrid(48);for(const a of agents)ag.add(a);
+  const fg=makeGrid(60);for(const f of food)fg.add(f);
+  const births=[];
+
+  for(const a of agents){
+    const t=tribes[a.tribe];a.age++;a.energy-=CFG.drain*(0.7+0.4*a.speed);
+    updateRoleChoice(a,t);   // çocukluk→meslek + ataletli yeniden değerlendirme
+    const nb=ag.near(a.x,a.y);
+    let enemy=null,ebd=Math.min(a.sense,CFG.senseCap)**2,wounded=null,wbd=CFG.healR**2;
+    for(const o of nb){if(o.tribe!==a.tribe){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<ebd){ebd=d;enemy=o;}}
+      else if(a.role==='DOCTOR'&&o!==a&&o.energy<70){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<wbd){wbd=d;wounded=o;}}}
+    const env={enemy,wounded,food:a.carrying?null:nearest(fg.near(a.x,a.y),a.x,a.y,a.sense),owner:ownerAt(a.x,a.y)};
+    // İÇ DÜNYA: tok+güvende+meşru krallık → hoşnutluk artar; aç/tehdit → düşer, korku yükselir
+    const fed=a.energy>CFG.energyMax*0.45, threat=enemy&&ebd<3025;
+    a.content=clamp(a.content+(fed?0.003:-0.006)+(t.legit-0.55)*0.004+(threat?-0.006:0.0012));
+    a.content=clamp(a.content+(t._cContent||0)*0.006);a.fear=clamp(a.fear+(threat?0.03:-0.01)); a.roleAge++;
+    const dec=decide(a,t,env);a.act=dec.act;
+    if((dec.act==='WANDER'||dec.act==='PATROL')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||Math.random()<0.012)){
+      const hc=nearestCity(t.cities,a.x,a.y);a.wx=hc.x+rnd(-260,260);a.wy=hc.y+rnd(-260,260);dec.tx=a.wx;dec.ty=a.wy;}
+    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
+    a.x=clamp(a.x+dx/dd*spd,2,W-2);a.y=clamp(a.y+dy/dd*spd,2,H-2);
+    if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*Math.random());enemy.energy-=dmg*4;enemy._killer=a;}
+    if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;}}
+    else if(dec.act==='HEAL'&&dec.target){if(dist(a,dec.target)<CFG.healR){dec.target.energy=Math.min(CFG.energyMax,dec.target.energy+0.9);a.energy-=0.02;}}
+    else if((dec.act==='EAT_FIELD'||dec.act==='GATHER')&&dec.target){if(dist(a,dec.target)<CFG.eatR){const idx=food.indexOf(dec.target);
+      if(idx>=0){if(dec.act==='GATHER'&&a.energy>CFG.energyMax*0.33){food.splice(idx,1);a.carrying=true;}else{food.splice(idx,1);a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);}}}}
+    else if(dec.act==='EAT_STORE'&&dec.city){if(dist(a,dec.city)<CFG.cityR&&dec.city.food>0){dec.city.food-=1;a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy*0.9);}}
+    else if(dec.act==='DELIVER'&&dec.city){if(dist(a,dec.city)<CFG.cityR){dec.city.food=Math.min(CFG.granaryCap,dec.city.food+2*(t._food||1));a.carrying=false;a.energy=Math.min(CFG.energyMax,a.energy+5);}}
+    else if(dec.act==='TRADE_RUN'&&dec.dest){if(dist(a,dec.dest)<CFG.cityR){if(a.homeward){t.treasury+=9*((t._trade||1)+(t._cTrade||0));a.homeward=false;a.energy=Math.min(CFG.energyMax,a.energy+6);}else a.homeward=true;}}
+    else if(dec.act==='ESPIONAGE'&&dec.king!=null){const O=sim.tribes[dec.king];if(ownerAt(a.x,a.y)===O.id){t.plots[O.id]=(t.plots[O.id]||0)+0.45;if(O.treasury>0&&Math.random()<0.05){O.treasury-=1;t.treasury+=1;}}}
+  }
+
+  // Doğumlar
+  const total=agents.length;
+  for(const t of tribes){if(t._dead)continue;
+    let cost=CFG.spawnCost;if(t.war&&t.treasury>=4){cost-=2;t.treasury-=4;}
+    let city=null;for(const c of t.cities)if(c.food>=cost){city=c;break;}
+    if(city&&t.pop<CFG.perKingCap&&total+births.length<CFG.totalCap){city.food-=cost;
+      const kin=agents.filter(a=>a.tribe===t.id&&lifeStage(a)==='adult'),p=kin.length?kin[(Math.random()*kin.length)|0]:null;
+      const baby=makeAgent(t,city.x+rnd(-12,12),city.y+rnd(-12,12),'CHILD',p||null);
+      if(p&&p.events.length<8)p.events.push({t:sim.tick,e:`bir çocuğu oldu: ${baby.name}`});
+      births.push(baby);}
+    // şehir onarımı + savaş masrafı
+    for(const c of t.cities){if(sim.tick-(c._hitTick||-1e9)>90)c.hp=Math.min(CFG.cityHP,c.hp+0.03);}
+    if(t.war)capital(t).food=Math.max(0,capital(t).food-0.02);
+    if(t._tradePartner!=null)t.treasury+=0.02;
+  }
+
+  // Ölümler + fetih/yıkım
+  const alive=[];
+  for(const a of agents){
+    const oldAge=ageYears(a)>=a.lifespan;
+    if(a.energy>0&&!oldAge){alive.push(a);continue;}
+    if(a._killer&&a._killer.energy>0){const k=a._killer;k.energy=Math.min(CFG.energyMax,k.energy+22);k.kills++;tribes[k.tribe].kills++;
+      a._slainBy=`${k.name} ${k.surname}`;
+      if(k.events.length<10)k.events.push({t:sim.tick,e:`${a.name} ${a.surname}'i devirdi`});}
+    // Efsane: GERÇEKTEN hak edilsin — büyük savaşçı / uzun hanedan / çok yaşlı / krallık kurucusu
+    const yrs=Math.round(ageYears(a));
+    const notable=a.kills>=5||a.gen>=3||yrs>=62||a.events.some(e=>e.e.includes('krallığını kurdu'));
+    if(notable){
+      a.diedAt=sim.tick; a.deathCause=oldAge?'yaşlılıktan':(a._slainBy||'savaşta');
+      a.events.push({t:sim.tick,e:oldAge?`${yrs} yaşında huzur içinde öldü`:(a._slainBy?`${a._slainBy} tarafından öldürüldü`:'savaşta can verdi')});
+      sim.legends.unshift(a); if(sim.legends.length>40)sim.legends.pop();}}
+  for(const b of births)alive.push(b);sim.agents=alive;recount();
+
+  for(const t of tribes){if(t._dead)continue;
+    // ikincil şehirler yıkılabilir
+    for(let i=t.cities.length-1;i>=1;i--){if(t.cities[i].hp<=0){logEvent(`🔥 ${t.name}'in ${t.cities[i].name} şehri yıkıldı`,'#ff9b5b');t.cities.splice(i,1);}}
+    // başkent düşerse → fetih
+    if(capital(t).hp<=0){const conq=(capital(t)._lastAtk!=null)?tribes[capital(t)._lastAtk]:null;t._dead=true;t.war=null;
+      if(conq&&!conq._dead){conq.treasury+=t.treasury;t.treasury=0;
+        for(const a of sim.agents)if(a.tribe===t.id){if(Math.random()<0.35){a.tribe=conq.id;a.color=conq.color;a.rebel=false;}else a.energy=-1;}
+        sim.agents=sim.agents.filter(a=>a.energy>0);
+        for(const c of t.cities){c.hp=CFG.cityHP*0.6;conq.cities.push(c);} t.cities=[]; // şehirleri imparatorluğa kat
+        conq.legit=Math.max(0.3,conq.legit-0.12); // fethedilen halk huzursuz → hafif aşırı-genişleme
+        logEvent(`👑 ${conq.name}, ${t.name}'i FETHETTİ`,conq.color);}
+      else logEvent(`${t.name} çöktü`,'#ff6b6b');
+      for(const o of tribes)if(o.war&&o.war.target===t.id)o.war=null;recount();}}
+
+  // Kral kararları
+  for(const t of tribes){if(t._dead)continue;if(--t.rulerCd<=0){t.rulerCd=110+((Math.random()*40)|0);rulerDecide(t);}}
+
+  // AFFETME + İTİBAR + YORGUNLUK (her 20 adımda)
+  if(sim.tick%20===0){
+    const K=sim.tribes.length;
+    for(let i=0;i<K;i++)for(let j=0;j<K;j++){if(i===j)continue;
+      const ti=sim.tribes[i],tj=sim.tribes[j];if(ti._dead||tj._dead)continue;
+      const atWar=ti.war&&ti.war.target===j;
+      if(!atWar){const baseline=sim.tr[i][j]==='ally'?48:sim.tr[i][j]==='trade'?28:2;
+        sim.rel[i][j]+=(baseline-sim.rel[i][j])*0.05;                                  // affetme: tabana toparlan
+        if(sim.tr[i][j]!=='ally'){const fr=clamp(sim.border[i][j]/24)*1.7*(sim.tr[i][j]==='trade'?0.5:1);sim.rel[i][j]-=fr;} // sınır gerilimi
+      }
+      // düşük ilişkide antlaşma bozulur
+      if(sim.rel[i][j]<-25&&sim.tr[i][j]!=='none'){sim.tr[i][j]=sim.tr[j][i]='none';}
+    }
+    for(const t of sim.tribes){if(t._dead)continue;
+      if(t.war){t.weariness=Math.min(100,t.weariness+1.1);}
+      else{t.weariness=Math.max(0,t.weariness-1.3);t.rep=Math.min(78,t.rep+0.5);}}
+    // güç dengesi: en güçlüden herkes çekinir (koalisyon eğilimi)
+    let str=null;for(const k of sim.tribes)if(!k._dead&&(!str||power(k)>power(str)))str=k;
+    if(str){for(const o of sim.tribes){if(o._dead||o.id===str.id)continue;
+      if(!(o.war&&o.war.target===str.id)) sim.rel[o.id][str.id]-=1.4;}}   // hegemona güvensizlik
+  }
+
+  if(sim.tick%16===0)updateSociety();   // meşruiyet + isyan + ayrılıkçılık
+  if(food.length>3000)food.splice(0,food.length-3000);
+  if(sim.tick%14===0)computeTerritory();
+  if(sim.tick%12===0)updateStats();
+  if(selectedId!=null&&sim.tick%6===0)renderInspect();
+}
+
+/* ---------- Çizim ---------- */
+function render(){
+  const dn=document.getElementById('dateNow');if(dn)dn.textContent=dateStr(sim.tick);
+  ctx.clearRect(0,0,W,H);
+  for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy];if(o<0)continue;ctx.fillStyle=sim.tribes[o].color+'16';ctx.fillRect(cx*TCELL,cy*TCELL,TCELL,TCELL);}
+  ctx.lineWidth=1;
+  for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy],rN=cx+1<TCX?owner[(cx+1)*TCY+cy]:o,dN=cy+1<TCY?owner[cx*TCY+cy+1]:o;
+    if(o!==rN){ctx.strokeStyle=(o>=0?sim.tribes[o].color:'#33405e')+'88';ctx.beginPath();ctx.moveTo((cx+1)*TCELL,cy*TCELL);ctx.lineTo((cx+1)*TCELL,(cy+1)*TCELL);ctx.stroke();}
+    if(o!==dN){ctx.strokeStyle=(o>=0?sim.tribes[o].color:'#33405e')+'88';ctx.beginPath();ctx.moveTo(cx*TCELL,(cy+1)*TCELL);ctx.lineTo((cx+1)*TCELL,(cy+1)*TCELL);ctx.stroke();}}
+  ctx.fillStyle='#3c7a5b';for(const f of sim.food)ctx.fillRect(f.x-1.2,f.y-1.2,2.4,2.4);
+  for(let i=0;i<sim.tribes.length;i++)for(let j=i+1;j<sim.tribes.length;j++){const tr=sim.tr[i][j];if(tr==='none')continue;const A=sim.tribes[i],B=sim.tribes[j];if(A._dead||B._dead)continue;
+    ctx.strokeStyle=tr==='ally'?'#7ee08155':'#f4cf6a33';ctx.lineWidth=tr==='ally'?2:1;ctx.setLineDash(tr==='ally'?[]:[4,4]);
+    ctx.beginPath();ctx.moveTo(capital(A).x,capital(A).y);ctx.lineTo(capital(B).x,capital(B).y);ctx.stroke();ctx.setLineDash([]);}
+  for(const t of sim.tribes){if(t._dead)continue;t.cities.forEach((b,idx)=>{const R=idx===0?15:11;
+    ctx.beginPath();ctx.arc(b.x,b.y,R,0,7);ctx.fillStyle=t.color+'44';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=t.color;ctx.stroke();
+    if(idx>0){ctx.fillStyle=t.color;ctx.fillRect(b.x-2,b.y-2,4,4);}
+    const hp=clamp(b.hp/CFG.cityHP);ctx.beginPath();ctx.arc(b.x,b.y,R+3,-Math.PI/2,-Math.PI/2+hp*7,false);ctx.strokeStyle=hp>0.4?'#8ef0bf':'#ff6b6b';ctx.lineWidth=2.5;ctx.stroke();});}
+  for(const a of sim.agents){ctx.fillStyle=a.color;
+    if(a.role==='SOLDIER'){ctx.beginPath();ctx.moveTo(a.x,a.y-3.6);ctx.lineTo(a.x-3.1,a.y+2.8);ctx.lineTo(a.x+3.1,a.y+2.8);ctx.closePath();ctx.fill();if(a.act==='FIGHT'||a.act==='INVADE'){ctx.strokeStyle='#ff5a5a';ctx.lineWidth=1;ctx.stroke();}}
+    else if(a.role==='DOCTOR'){ctx.fillRect(a.x-2.6,a.y-0.9,5.2,1.8);ctx.fillRect(a.x-0.9,a.y-2.6,1.8,5.2);}
+    else if(a.role==='MERCHANT'){ctx.beginPath();ctx.moveTo(a.x,a.y-3.4);ctx.lineTo(a.x+3.4,a.y);ctx.lineTo(a.x,a.y+3.4);ctx.lineTo(a.x-3.4,a.y);ctx.closePath();ctx.fill();ctx.fillStyle='#f4cf6a';ctx.fillRect(a.x-0.8,a.y-0.8,1.6,1.6);}
+    else if(a.role==='SPY'){ctx.fillStyle='#c9b7e0';ctx.beginPath();for(let k=0;k<5;k++){const an=-Math.PI/2+k*2*Math.PI/5;ctx.lineTo(a.x+Math.cos(an)*3.4,a.y+Math.sin(an)*3.4);}ctx.closePath();ctx.fill();}
+    else{const rr=a.role==='CHILD'?1.5:(a.carrying?3:2.4);ctx.globalAlpha=a.role==='CHILD'?0.7:1;ctx.beginPath();ctx.arc(a.x,a.y,rr,0,7);ctx.fill();ctx.globalAlpha=1;if(a.carrying){ctx.fillStyle='#8ef0bf';ctx.fillRect(a.x-0.8,a.y-4.6,1.6,1.6);}}
+    if(a.rebel){ctx.strokeStyle='#ff4444';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(a.x,a.y,5,0,7);ctx.stroke();}
+    if(a.id===selectedId){ctx.beginPath();ctx.arc(a.x,a.y,8,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();}}
+}
+
+/* ---------- Paneller ---------- */
+function kStatus(t){if(t._dead)return `<span style="color:#ff6b6b">düştü</span>`;
+  if(t.war){const o=sim.tribes[t.war.target];return `<span style="color:#ff6b6b">⚔ ${o?o.name:''} (yorgunluk ${t.weariness|0})</span>`;}
+  const rels=[];for(const o of sim.tribes){if(o.id===t.id||o._dead)continue;const tr=sim.tr[t.id][o.id];
+    if(tr==='ally')rels.push(`<span style="color:#7ee081">🤝${o.name}</span>`);else if(tr==='trade')rels.push(`<span style="color:#f4cf6a">⇄${o.name}</span>`);}
+  if(Object.values(t.plots||{}).some(v=>v>15))rels.push(`<span style="color:#c9b7e0" title="gizli entrika">…</span>`);
+  return rels.join(' ')||'<span style="color:var(--muted)">tarafsız</span>';}
+function updateStats(){document.querySelector('#stats tbody').innerHTML=sim.tribes.map(t=>{
+  if(t._dead)return `<tr><td style="opacity:.45"><span class="kname">${t.name}</span><div class="krow">düştü</div></td><td style="text-align:right">—</td></tr>`;
+  const c=t.counts;return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></span>
+    <span class="kname">${t.name}</span>
+    <div class="krow">şehir ${t.cities.length} · toprak ${t.land} · <b>çağ ${t.era}</b> (${Object.keys(t.techs).length} tech)${t.cultId&&t.cultId!=='—'?` · <span style="color:#c9a3e5">◈ ${t.cultId}</span>`:''} · meşruiyet ${(t.legit*100)|0}%${t.unrest>0.15?` · <span style="color:#ff6b6b">huzursuzluk ${(t.unrest*100)|0}%</span>`:''}</div>
+    <div class="roles"><span>●${c.FARMER||0}</span><span>▲${c.SOLDIER||0}</span><span>✚${c.DOCTOR||0}</span><span>◆${c.MERCHANT||0}</span><span>✦${c.SPY||0}</span><span style="opacity:.6">çocuk ${c.CHILD||0}</span></div>
+    <div class="status">${kStatus(t)}</div></td><td style="text-align:right;font-family:var(--mono)">${t.pop}</td></tr>`;}).join('');renderLegends();}
+const STAGE_TR={child:'çocuk',adult:'yetişkin',elder:'yaşlı'};
+function moodLabel(a){
+  if(a.rebel)return '⚑ öfkeli, isyanda';
+  if((a.fear??0)>0.5)return 'korku içinde';
+  if((a.content??0.6)<0.35)return 'hoşnutsuz, küskün';
+  if((a.content??0.6)>0.7)return 'huzurlu, hoşnut';
+  return 'kararsız';
+}
+function renderInspect(){const el=document.getElementById('inspect');
+  const a=sim.agents.find(x=>x.id===selectedId)||(sim.legends||[]).find(x=>x.id===selectedId);
+  if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
+  const t=sim.tribes[a.tribe], dead=!!a.diedAt, yr=Math.round(dead?(a.diedAt-a.born)/CFG.yearLen:ageYears(a));
+  const stage=dead?'—':STAGE_TR[lifeStage(a)];
+  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor'}[a.act];
+  const chron=`<div style="color:var(--muted);font-size:11.5px;line-height:1.5">${lifeProse(a)}</div>`;
+  el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} ${a.surname} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t?t.name:'?'}</span></div>
+    <div class="row"><span>unvan</span><b style="color:#e5c07b">${legendTitle(a)}</b></div>
+    <div class="row"><span>${dead?'öldü':'rol / evre'}</span><b>${dead?a.deathCause:ROLE_TR[a.role]+' · '+stage}</b></div>
+    <div class="row"><span>yaş</span><b>${yr} yıl</b></div>
+    <div class="row"><span>nesil / soy</span><b>${a.gen}. ${a.surname}</b></div>
+    ${dead?'':`<div class="row"><span>ruh hâli</span><b>${moodLabel(a)}</b></div><div class="row"><span>şu an</span><b>${a.rebel?'İSYANDA':actTR}</b></div><div class="row"><span>enerji</span><b>${a.energy|0}</b></div>`}
+    <div class="row"><span>öldürme</span><b>${a.kills}</b></div>
+    <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:7px">${chron}</div>`;}
+function legendTitle(a){
+  if(a.events&&a.events.some(e=>e.e.includes('krallığını kurdu')))return 'Kurucu';
+  if(a.kills>=8)return 'Büyük Fatih'; if(a.kills>=5)return 'Fatih'; if(a.kills>=3)return 'Savaşçı';
+  if(a.gen>=5)return 'Hanedan Atası'; if(a.gen>=4)return 'Soylu';
+  const yrs=a.diedAt?Math.round((a.diedAt-a.born)/CFG.yearLen):0;
+  if(yrs>=70)return 'Bilge Yaşlı';
+  return 'Onurlu';}
+function renderLegends(){const el=document.getElementById('legends');if(!el)return;
+  if(!sim.legends||!sim.legends.length){el.innerHTML='<div style="color:var(--muted);font-size:11.5px">Henüz efsane yok. Zamanla kahramanlar ve hanedanlar doğacak.</div>';return;}
+  el.innerHTML=sim.legends.slice(0,8).map(a=>{const t=sim.tribes[a.tribe];
+    const yrs=a.diedAt?Math.round((a.diedAt-a.born)/CFG.yearLen):0;
+    const meta=[a.kills>0?`${a.kills} zafer`:'',`${a.gen}. nesil`,`${yrs} yıl`].filter(Boolean).join(' · ');
+    return `<div onclick="selectLegend(${a.id})" style="cursor:pointer;display:flex;gap:8px;align-items:center;padding:5px 6px;margin-bottom:3px;border-radius:7px;border:1px solid rgba(255,255,255,.05);border-left:3px solid ${a.color};background:rgba(255,255,255,.02)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px"><span style="color:${a.color};font-weight:600">${a.name} ${a.surname}</span> <span style="color:#e5c07b;font-size:10.5px">· ${legendTitle(a)}</span></div>
+        <div style="color:var(--muted);font-size:10px">${t?t.name:'?'} · ${meta}</div>
+      </div></div>`;}).join('');}
+function selectLegend(id){selectedId=id;renderInspect();}
+
+/* ---------- Döngü & kontroller ---------- */
+function loop(){if(playing)for(let i=0;i<stepsPerFrame;i++)step();render();requestAnimationFrame(loop);}
+document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'⏸ Duraklat':'▶ Oynat';};
+document.getElementById('stepBtn').onclick=()=>{step();render();};
+document.getElementById('resetBtn').onclick=()=>reset();
+const s=document.getElementById('speed'),sv=document.getElementById('speedVal');s.oninput=()=>{stepsPerFrame=+s.value;sv.textContent=stepsPerFrame+'×';};
+const f=document.getElementById('food'),fv=document.getElementById('foodVal'),FL=['yok','çok kıt','kıt','orta','bol','çok bol','bereket'];f.oninput=()=>{foodRate=+f.value;fv.textContent=FL[foodRate];};
+const g=document.getElementById('agg'),gvl=document.getElementById('aggVal');g.oninput=()=>{aggMul=(+g.value)/10;gvl.textContent=aggMul.toFixed(1)+'×';};
+function canvasXY(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
+cv.addEventListener('pointerdown',e=>{const p=canvasXY(e);let best=null,bd=14*14;for(const a of sim.agents){const d=(a.x-p.x)**2+(a.y-p.y)**2;if(d<bd){bd=d;best=a;}}
+  if(best&&!e.shiftKey){selectedId=best.id;renderInspect();render();return;}const n=e.shiftKey?60:1;for(let i=0;i<n;i++)sim.food.push({x:p.x+rnd(-40,40),y:p.y+rnd(-40,40)});});
+
+reset();loop();
+
+/* ---------- Görünür Teknoloji Ağacı ---------- */
+function treeLayout(data){const byEra={};let maxE=1;for(const id in data){const e=data[id].era;(byEra[e]=byEra[e]||[]).push(id);maxE=Math.max(maxE,e);}
+  const colW=215,rowH=58,mx=20,my=24,pos={};let maxRows=0;
+  for(let e=1;e<=maxE;e++){const ids=byEra[e]||[];maxRows=Math.max(maxRows,ids.length);
+    ids.forEach((id,i)=>pos[id]={x:mx+(e-1)*colW,y:my+i*rowH,e});}
+  return {pos,w:mx*2+maxE*colW,h:my*2+maxRows*rowH,maxE};}
+function treeSVG(data,owned,color,eraNames){
+  const {pos,w,h,maxE}=treeLayout(data),NW=185,NH=42;
+  const frontier=id=>!owned[id]&&data[id].pre.every(p=>owned[p]);
+  let lines='',nodes='';
+  for(const id in data){const p=pos[id];for(const pre of data[id].pre){const q=pos[pre];if(!q)continue;const ow=owned[id]&&owned[pre];
+    lines+=`<path d="M${q.x+NW} ${q.y+NH/2} C${q.x+NW+28} ${q.y+NH/2}, ${p.x-28} ${p.y+NH/2}, ${p.x} ${p.y+NH/2}" fill="none" stroke="${ow?color:'#333a4a'}" stroke-width="${ow?2:1.4}" opacity="${ow?0.9:0.5}"/>`;}}
+  for(const id in data){const p=pos[id],T=data[id],own=owned[id],fr=frontier(id);
+    const fill=own?color:(fr?'#1d2534':'#141821'), stroke=own?color:(fr?'#e5c07b':'#2a3040'), tcol=own?'#0a0d14':(fr?'#e9edf4':'#697083');
+    const eff=[T.mil?`⚔+${(T.mil*100)|0}%`:'',T.def?`🛡+${(T.def*100)|0}%`:'',T.food?`🌾+${(T.food*100)|0}%`:'',T.trade?`💰+${(T.trade*100)|0}%`:'',T.res?`📖+${(T.res*100)|0}%`:'',T.gov?`⚖+${(T.gov*100)|0}`:'',T.legit?`⚖+${(T.legit*100)|0}`:'',T.content?`☺+${(T.content*100)|0}`:'',T.branch&&T.branch!=='—'?`〔${T.branch}〕`:''].filter(Boolean).join(' ');
+    nodes+=`<g><rect x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="${fr?2:1.3}"/>
+      <text x="${p.x+11}" y="${p.y+17}" fill="${tcol}" font-size="13" font-weight="600">${T.tr}${own?' ✓':(fr?' ◦':'')}</text>
+      <text x="${p.x+11}" y="${p.y+33}" fill="${own?'rgba(10,13,20,.75)':'#6b7180'}" font-size="10.5">${eff}</text></g>`;}
+  const eraLbl=(eraNames||[]).slice(0,maxE).map((n,i)=>`<text x="${20+i*215+92}" y="16" fill="#5b6376" font-size="11" text-anchor="middle">${n}</text>`).join('');
+  return `<svg width="${w}" height="${h+12}" style="min-width:${w}px">${eraLbl}${lines}${nodes}</svg>`;}
+const ERA5=['I. Kabile','II. Antik','III. Klasik','IV. Orta','V. Rönesans'];
+function renderTechTree(kid){const t=sim.tribes[kid];if(!t)return;
+  document.getElementById('techSvgWrap').innerHTML=treeSVG(TECHS,t.techs,t.color,ERA5);
+  document.getElementById('techInfo').textContent=`Çağ ${t.era} · ${Object.keys(t.techs).length}/22 teknoloji · yenilikçilik ${(t.innov*100)|0}% · araştırma ${t.research|0}`;}
+function renderCultureTree(kid){const t=sim.tribes[kid];if(!t)return;
+  document.getElementById('cultSvgWrap').innerHTML=treeSVG(CULTS,t.civics,t.color,ERA5);
+  document.getElementById('cultInfo').textContent=`Kültürel kimlik: ${t.cultId==='—'?'henüz belirsiz':t.cultId} · ${Object.keys(t.civics).length}/14 gelenek · kültür ${t.culture|0}`;}
+function openTech(){const sel=document.getElementById('techKing');
+  sel.innerHTML=sim.tribes.filter(t=>!t._dead).map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  document.getElementById('techOverlay').style.display='block';renderTechTree(+sel.value);}
+function openCult(){const sel=document.getElementById('cultKing');
+  sel.innerHTML=sim.tribes.filter(t=>!t._dead).map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  document.getElementById('cultOverlay').style.display='block';renderCultureTree(+sel.value);}
+document.getElementById('techBtn').onclick=openTech;
+document.getElementById('techClose').onclick=()=>document.getElementById('techOverlay').style.display='none';
+document.getElementById('techKing').onchange=e=>renderTechTree(+e.target.value);
+document.getElementById('cultBtn').onclick=openCult;
+document.getElementById('cultClose').onclick=()=>document.getElementById('cultOverlay').style.display='none';
+document.getElementById('cultKing').onchange=e=>renderCultureTree(+e.target.value);
+/* ---------- Düzyazı hayat hikâyesi + Tarih galerisi ---------- */
+function lifeProse(a){
+  const t=sim.tribes[a.tribe],yr=e=>Math.floor((e.t||0)/CFG.yearLen);
+  const cap=s=>s.charAt(0).toLocaleUpperCase('tr')+s.slice(1);
+  const sents=(a.events||[]).map(e=>`Yıl ${yr(e)}: ${e.e}`);
+  let p=`${t?t.name:'?'} halkının ${a.gen}. neslinden ${a.name} ${a.surname}. `;
+  p+=sents.map(cap).join('. ')+'.';
+  if(a.kills>0&&!a.diedAt)p+=` Şimdiye dek ${a.kills} düşman devirdi.`;
+  return p;}
+function renderHistory(){
+  const el=document.getElementById('histBody');const L=sim.legends||[];
+  document.getElementById('histInfo').textContent=`${L.length} efsane · yıl ${Math.floor(sim.tick/CFG.yearLen)}`;
+  if(!L.length){el.innerHTML='<div style="color:#697083">Henüz efsane doğmadı. Tarih yazılmayı bekliyor.</div>';return;}
+  el.innerHTML=L.map(a=>{const t=sim.tribes[a.tribe];const dy=a.diedAt?Math.floor(a.diedAt/CFG.yearLen):null;
+    return `<div onclick="selectLegend(${a.id});document.getElementById('histOverlay').style.display='none'"
+      style="cursor:pointer;border-left:3px solid ${a.color};background:rgba(255,255,255,.025);border-radius:8px;padding:11px 14px;margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+        <span style="font-size:14px;font-weight:700;color:${a.color}">${a.name} ${a.surname} <span style="color:#e5c07b;font-weight:500;font-size:12px">· ${legendTitle(a)}</span></span>
+        <span style="color:#5b6376;font-size:11px;font-family:var(--mono);white-space:nowrap">${t?t.name:'?'}${dy!=null?` · ✝ yıl ${dy}`:''}</span>
+      </div>
+      <div style="color:#aab2c2;font-size:12.5px;line-height:1.55;margin-top:5px">${lifeProse(a)}</div>
+    </div>`;}).join('');}
+document.getElementById('histBtn').onclick=()=>{document.getElementById('histOverlay').style.display='block';renderHistory();};
+document.getElementById('histClose').onclick=()=>document.getElementById('histOverlay').style.display='none';
+function renderChronicle(){
+  const C=sim.chronicle||[];const el=document.getElementById('chronBody');
+  document.getElementById('chronInfo').textContent=`${C.length} kayıt · ${dateStr(sim.tick)}`;
+  if(!C.length){el.innerHTML='<div style="color:#697083">Henüz vaka kaydı yok.</div>';return;}
+  const byYear={};for(const e of C){const y=Math.floor((e.tick||0)/CFG.yearLen);(byYear[y]=byYear[y]||[]).push(e);}
+  const years=Object.keys(byYear).map(Number).sort((a,b)=>b-a);
+  el.innerHTML=years.map(y=>`
+    <div style="margin-bottom:14px">
+      <div style="color:#e5c07b;font-family:var(--mono);font-size:12px;font-weight:700;border-bottom:1px solid rgba(229,192,123,.25);padding-bottom:3px;margin-bottom:6px">Yıl ${y}</div>
+      ${byYear[y].map(e=>{const maj=evMajor(e.text),d=(e.tick%CFG.yearLen)+1;
+        return `<div style="display:flex;gap:9px;align-items:baseline;padding:${maj?'5px':'3px'} 4px">
+          <span style="color:#4c5468;font-family:var(--mono);font-size:9.5px;min-width:46px">${d}. gün</span>
+          <span style="font-size:${maj?13:11}px">${evIcon(e.text)}</span>
+          <span style="color:${e.color||'#8c95ac'};font-size:${maj?13.5:12}px;font-weight:${maj?600:400};line-height:1.4">${e.text}</span>
+        </div>`;}).join('')}
+    </div>`).join('');
+}
+document.getElementById('chronBtn').onclick=()=>{document.getElementById('chronOverlay').style.display='block';renderChronicle();};
+document.getElementById('chronClose').onclick=()=>document.getElementById('chronOverlay').style.display='none';
+</script>
+</body>
+</html>
