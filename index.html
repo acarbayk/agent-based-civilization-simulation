@@ -688,7 +688,7 @@ function decide(a,t,env){
     else if(env.food)C.push({act:'GATHER',s:0.55*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});}
   else if(a.role==='SOLDIER'){
     if(t.war){const o=sim.tribes[t.war.target];if(o&&!o._dead){const tc=nearestCity(o.cities,a.x,a.y);
-      C.push({act:'INVADE',s:0.7*(1-hunger*0.5),tx:tc.x,ty:tc.y,city:tc,king:o.id});}}
+      C.push({act:'INVADE',s:0.7*(1-hunger*0.5)*(seasonIdx(sim.tick)===3?0.3:1),tx:tc.x,ty:tc.y,city:tc,king:o.id});}}   // sefer mevsimi: ordular kışın harekete geçmez
     if(enemy&&dE<95){const win=(a.power*a.bravery*aggMul>=enemy.power*0.9)?1:0.12,homeDef=(env.owner===a.tribe||env.owner<0)?1:0.5;
       C.push({act:'FIGHT',s:0.66*win*homeDef*(1-hunger*0.5),tx:enemy.x,ty:enemy.y});}
     C.push({act:'PATROL',s:0.3,tx:a.wx,ty:a.wy});}
