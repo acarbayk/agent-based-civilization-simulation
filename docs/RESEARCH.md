@@ -53,13 +53,13 @@ kontrol edildi; kitapların tamamı okunmadı.
 
 ## 5. Krallık churn deneyi
 
-Sorun: bazı seed'lerde 12.000 adımda (~170 yıl) 66-77 krallık doğuyordu (baseline: 10 seed'in
+Sorun: bazı seed'lerde 12.000 adımda (~170 yıl) 66-77 krallık doğuyordu (baseline: 8 seed'in
 üçünde; diğerleri 4-8). Teşhis: (a) tek şehirli devletin "bölünmesi" aslında kendi başkentini
 yeniden adlandırmaktı, (b) isyan ölçütü anlık tek bir eşikti, (c) bölünmeden sonra soğuma yoktu,
 (d) büyük imparatorluğu yıpratan bir mekanizma yoktu (sonunda tek devlet donup kalıyordu).
 
 Uygulanan tasarım (parametreler `CFG` içinde):
-- **Epstein kuralı makaledeki haliyle:** görüşteki asker (`C`) ve aktif isyancı (`A`) oranından
+- **Epstein kuralı (korku terimi bizim eklememiz):** görüşteki asker (`C`) ve aktif isyancı (`A`) oranından
   tutuklanma olasılığı `P`; `N = risk·P + korku·0.18`.
 - **Sürekli huzursuzluk:** eşik üstünde `secedeSustain=6` ardışık kontrol (~1.4 yıl) gerekir.
 - **Soğuma:** bölünmeden sonra ana ve yeni devlet için `secedeCool=420` adım (~6 yıl).
