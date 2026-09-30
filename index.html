@@ -41,7 +41,7 @@
 <div class="wrap">
   <div class="stage">
     <h1>Krallıklar · her birey bir hayat</h1>
-    <p class="sub">Her nokta <b>kendi kişiliği ve değerleri</b> olan bir birey: sever, evlenir, çocuk yetiştirir, yas tutar, <b>intikam peşinde koşar</b>. Anıları ruh halini ve korkusunu değiştirir; hükümdarın kişiliği krallığın barış, savaş ve ihanet kararlarını belirler. Hükümdar ölünce veraset gelir, hanedanlar kurulur, meşruiyeti çöken devlette isyan çıkar. Bir bireye tıkla → kişiliğini, ailesini, dostlarını, hasımlarını, anılarını ve hedefini gör; isimlere tıklayarak aile ağında gez. <b>Seed</b> kutusu aynı tarihi yeniden oynatır.</p>
+    <p class="sub">Her nokta <b>kendi kişiliği ve değerleri</b> olan bir birey: sever, evlenir, çocuk yetiştirir, yas tutar, <b>intikam peşinde koşar</b>. Anıları ruh halini ve korkusunu değiştirir; hükümdarın kişiliği krallığın barış, savaş ve ihanet kararlarını belirler. Günlük davranış büyük ölçüde mesleğe bağlıdır, kişilik ve anılar bunu ılımlı biçimde değiştirir. Hükümdar ölünce veraset gelir, hanedanlar kurulur, meşruiyeti çöken devlette isyan çıkar. Bir bireye tıkla → kişiliğini, ailesini, dostlarını, hasımlarını, anılarını ve hedefini gör; isimlere tıklayarak aile ağında gez. <b>Seed</b> kutusu aynı tarihi yeniden oynatır.</p>
     <canvas id="world" width="900" height="520"></canvas>
     <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ doktor</span><span>◆ tüccar</span><span>✦ casus</span><span style="color:#ff6b6b">◯ isyancı</span><span style="margin-left:auto">bireye tık → ruh hâli + hikâye</span></div>
     <div class="bar"><button id="playBtn" class="primary">⏸ Duraklat</button><button id="stepBtn">⏭ Adım</button><button id="resetBtn" title="Aynı seed ile baştan başlat (aynı tarih)">↻ Sıfırla</button><input id="seedIn" title="Seed: aynı seed = aynı tarih" spellcheck="false" style="width:74px;background:#161a24;color:#dfe6f0;border:1px solid #2a3040;border-radius:6px;padding:5px 7px;font-family:var(--mono);font-size:12px"><button id="seedNewBtn" title="Yeni rastgele seed ile başlat">🎲</button><button id="techBtn">⚙ Teknoloji Ağacı</button><button id="cultBtn">◈ Kültür Ağacı</button><button id="histBtn">📜 Tarih</button><button id="chronBtn">📖 Vakayiname</button><button id="followBtn" title="Seçili bireyi kamerayla takip et (fare tekerleği: yakınlaş)">🔍 Takip</button><span id="dateNow" style="margin-left:auto;font-family:var(--mono);font-size:12px;color:#8b93a5"></span></div>
@@ -92,7 +92,7 @@
     <div class="card"><h2>Efsaneler</h2><div id="legends"></div></div>
     <div class="card"><h2>Vakayiname</h2><div id="feed"></div></div>
     <div class="card"><h2>Ayarlar</h2>
-      <div class="ctrl"><label>Hız <b id="speedVal">3×</b></label><input type="range" id="speed" min="1" max="8" value="3"></div>
+      <div class="ctrl"><label>Hız <b id="speedVal">1×</b></label><input type="range" id="speed" min="1" max="8" value="1"></div>
       <div class="ctrl"><label>Yiyecek <b id="foodVal">orta</b></label><input type="range" id="food" min="0" max="6" value="3"></div>
       <div class="ctrl"><label>Savaşçılık <b id="aggVal">1.0×</b></label><input type="range" id="agg" min="0" max="20" value="10"></div>
       <div class="ctrl"><label>Bilim &amp; Kültür Hızı <b id="sciVal">1.0×</b></label><input type="range" id="sci" min="3" max="40" value="10"></div>
@@ -135,7 +135,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
   legitStart:0.80, carryCap:70, riskK:2.3, rebelThresh:0.13, visionR:95, epstein:true,        // Epstein (2002): k=2.3, T=0.1 (burada 0.13: ölçümle ayarlandı, docs/RESEARCH.md)
-  secedeFrac:0.14, secedeSustain:6, secedeCool:420, overreach:0.32, maxKingdoms:10,
+  secedeMinPop:40, secedeMinFounders:10, secedeFrac:0.14, secedeSustain:6, secedeCool:420, overreach:0.32, maxKingdoms:10,
   // sosyal katman: Dunbar-tarzı sınırlı ilişki listesi, homofili, evlilik
   relCap:14, socEvery:8, socR:34, marryMinYears:16, mateGapYears:12, marryOpinion:24, marryProb:0.7, homoK:6, contact:0.6,
   // hafıza (ACT-R güç yasası, Dwarf Fortress yuvaları) + hedefler (GOB insistence)
@@ -145,7 +145,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
   fecundity:1.2, fertMin:16, fertMax:44, amenorrhea:[1.1,2.0], gestYears:0.75, maternalDeath:0.012,
   founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.92, dmgK:2.2,
-  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10], foodScale:0.17, foodCap:1300, femSoldier:0.35,   // femSoldier: ön sanayi iş bölümü normu (kapatmak için 1)
+  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10], foodScale:0.17, foodCap:1300, femSoldier:0.1,   // femSoldier: ön sanayi iş bölümü normu (kapatmak için 1)
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
 const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
@@ -171,7 +171,7 @@ function capability(a){const y=ageYears(a);
   return clamp(1-(y-CFG.elderYears)/40*0.7);}                          // yaşlı: düşen
 
 let view={z:1,cx:450,cy:260,follow:false};
-let sim,playing=true,foodRate=3,aggMul=1.0,sciMul=1.0,stepsPerFrame=3,nextId=1,selectedId=null;
+let sim,playing=true,foodRate=3,aggMul=1.0,sciMul=1.0,stepsPerFrame=1,nextId=1,selectedId=null;
 
 // Uzamsal ızgara: sayısal indeks, `near` her çağrıda aynı diziyi yeniden kullanır (çağıran hemen tüketmeli)
 function makeGrid(cell){const cols=Math.ceil((W+100)/cell)+3,rows=Math.ceil((H+100)/cell)+3,B=new Array(cols*rows),out=[];
@@ -484,8 +484,9 @@ function updateSociety(){
 }
 function trySecede(t){
   if(t._dead)return;
-  t._uStreak=t.unrest>=CFG.secedeFrac?t._uStreak+1:0;            // huzursuzluk birkaç yıl sürmeli (Goldstone/Turchin: kriz birikir)
-  if(t.pop<14||t._uStreak<CFG.secedeSustain||sim.tick<t._seceCd)return;
+  const fragile=sim.tribes.filter(o=>!o._dead).length<=2?0.6:1;   // dünya birleşmişse bölünme eşiği düşer (Turchin: birleşmeyi bölünme izler)
+  t._uStreak=t.unrest>=CFG.secedeFrac*fragile?t._uStreak+1:0;            // huzursuzluk birkaç yıl sürmeli (Goldstone/Turchin: kriz birikir)
+  if(t.pop<CFG.secedeMinPop||t._uStreak<CFG.secedeSustain||sim.tick<t._seceCd)return;
   if(t.cities.length<2){                                         // tek şehirli devlet bölünemez: saray darbesi, yeni hanedan
     t.legit=Math.max(t.legit,0.62);t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;t.born=sim.tick;   // yeni rejim, saat sıfırlanır
     const reb=sim.agents.filter(a=>a.tribe===t.id&&a.rebel&&lifeStage(a)==='adult');
@@ -500,7 +501,7 @@ function trySecede(t){
   t.cities.forEach((c,idx)=>{let n=0;for(const r of rebels)if(Math.hypot(r.x-c.x,r.y-c.y)<170)n++;if(n>bestN){bestN=n;bestCity=c;bestIdx=idx;}});
   if(bestN<6)return;
   const founders=rebels.filter(r=>Math.hypot(r.x-bestCity.x,r.y-bestCity.y)<190);
-  if(founders.length<6)return;
+  if(founders.length<CFG.secedeMinFounders)return;
   const color=PALETTE[nextKingId%PALETTE.length], name=KNAMES[nextKingId%KNAMES.length]; nextKingId++;
   // büyük imparatorluktan kopan devlet, yakın 2. şehri de alır (yaşayabilir successor)
   const takeCities=[bestCity];
@@ -692,20 +693,23 @@ function decide(a,t,env){
   if(env.food&&hunger>0.3)C.push({act:'EAT_FIELD',s:0.3+eat*1.1,tx:env.food.x,ty:env.food.y,target:env.food});
   if(hunger>0.25&&home.food>0)C.push({act:'EAT_STORE',s:0.25+eat*1.15,tx:home.x,ty:home.y,city:home});
   if(a.role==='FARMER'){if(a.carrying)C.push({act:'DELIVER',s:0.82*(0.85+0.3*a.pers.C),tx:home.x,ty:home.y,city:home});
-    else if(env.food)C.push({act:'GATHER',s:0.55*(0.8+0.4*a.pers.C)*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});}
+    else if(env.food)C.push({act:'GATHER',s:0.55*(0.8+0.4*a.pers.C)*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});
+    else C.push({act:'FORAGE',s:0.5,tx:a.wx,ty:a.wy});}                                                   // yiyecek görünmüyorsa verimli araziyi tarar
   else if(a.role==='SOLDIER'){
     if(t.war){const o=sim.tribes[t.war.target];if(o&&!o._dead){const tc=nearestCity(o.cities,a.x,a.y);
       C.push({act:'INVADE',s:0.7*(1-hunger*0.5)*(seasonIdx(sim.tick)===3?0.3:1),tx:tc.x,ty:tc.y,city:tc,king:o.id});}}   // sefer mevsimi: ordular kışın harekete geçmez
     if(enemy&&dE<95){const win=(a.power*a.bravery*aggMul>=enemy.power*0.9)?1:0.12,homeDef=(env.owner===a.tribe||env.owner<0)?1:0.5;
       C.push({act:'FIGHT',s:0.66*win*homeDef*(1-hunger*0.5)*(1.2-0.5*a.pers.N),tx:enemy.x,ty:enemy.y});}
     C.push({act:'PATROL',s:0.3*(0.8+0.4*a.pers.E),tx:a.wx,ty:a.wy});}
-  else if(a.role==='DOCTOR'){if(env.wounded)C.push({act:'HEAL',s:0.78*(0.85+0.3*a.pers.A)*(1-hunger*0.6),tx:env.wounded.x,ty:env.wounded.y,target:env.wounded});}
+  else if(a.role==='DOCTOR'){if(!env.wounded)C.push({act:'CLINIC',s:0.5,tx:home.x+((a.id%7)-3)*7,ty:home.y+(((a.id>>3)%7)-3)*7});   // hasta yokken şehirde bekler
+    if(env.wounded)C.push({act:'HEAL',s:0.78*(0.85+0.3*a.pers.A)*(1-hunger*0.6),tx:env.wounded.x,ty:env.wounded.y,target:env.wounded});}
   else if(a.role==='MERCHANT'){const p=t._tradePartner;
     if(p!=null){const dest=a.homeward?capital(t):capital(sim.tribes[p]);C.push({act:'TRADE_RUN',s:0.6,tx:dest.x,ty:dest.y,dest});}
     else if(!a.carrying&&env.food)C.push({act:'GATHER',s:0.4,tx:env.food.x,ty:env.food.y,target:env.food});
-    else if(a.carrying)C.push({act:'DELIVER',s:0.7,tx:home.x,ty:home.y,city:home});}
+    else if(a.carrying)C.push({act:'DELIVER',s:0.7,tx:home.x,ty:home.y,city:home});
+    else C.push({act:'MARKET',s:0.5,tx:home.x+((a.id%9)-4)*6,ty:home.y+(((a.id>>2)%9)-4)*6});}          // ortak yoksa pazarda bekler
   else if(a.role==='SPY'){const pt=t._plotTarget;if(pt!=null&&!sim.tribes[pt]._dead){const tc=capital(sim.tribes[pt]);
-    C.push({act:'ESPIONAGE',s:0.6,tx:tc.x,ty:tc.y,king:pt});}}
+    C.push({act:'ESPIONAGE',s:0.6,tx:tc.x,ty:tc.y,king:pt});}else C.push({act:'LURK',s:0.45,tx:a.wx,ty:a.wy});}
   if(t.ruler===a.id){const cp=capital(t),far=dist(a,cp)>34;C.push({act:'COURT',s:0.9*(1-hunger*0.4),tx:far?cp.x:a.x,ty:far?cp.y:a.y});}   // hükümdar sarayda kalır
   if(CFG.goals&&a.goal&&a.id!==t.ruler&&lifeStage(a)!=='child'){const tg=sim.byId.get(a.goal.target);
     if(tg&&tg.energy>0){const g=a.goal,far=dist(a,tg)>CFG.socR*0.7;
@@ -772,11 +776,12 @@ function conceiveAndBirth(agents,births,t_of){
       a.nextFertile=sim.tick+Math.round(rnd(...CFG.amenorrhea)*CFG.yearLen);births.push(baby);
       if(CFG.mortality&&rng()<CFG.maternalDeath*a.frail){a.energy=-1;a._childbirth=true;}               // doğumda ölüm
       continue;}
-    if(a.spouse==null||sim.tick<a.nextFertile||agents.length+births.length>=CFG.totalCap)continue;   // performans tavanı: yeni gebelik yok
+    const room=clamp((CFG.totalCap-(agents.length+births.length))/(CFG.totalCap*0.15),0,1);   // performans tavanına yaklaştıkça doğum yumuşakça azalır
+    if(a.spouse==null||sim.tick<a.nextFertile||room<=0)continue;
     const sp=sim.byId.get(a.spouse);if(!sp||sp.spouse!==a.id)continue;
     const y=ageYears(a),fa=fecAt(y);if(!fa)continue;
     const food=clamp((a.energy-30)/60),K=carryK(t),crowd=clamp(1.5-t.pop/K,0.25,1),sec=clamp(cityFood(t)/(Math.max(1,t.pop)*0.4)*0.5+0.5,0.35,1);
-    if(rng()<fa*food*crowd*sec/CFG.yearLen)a.pregUntil=sim.tick+Math.round(rnd(CFG.gestYears-0.05,CFG.gestYears+0.05)*CFG.yearLen);}}
+    if(rng()<fa*food*crowd*sec*room/CFG.yearLen)a.pregUntil=sim.tick+Math.round(rnd(CFG.gestYears-0.05,CFG.gestYears+0.05)*CFG.yearLen);}}
 
 /* Sahipsiz kalanlar: krallığı fethedeni olmadan çöken halk yakın bir krallığa katılır; hiç krallık kalmadıysa mülteciler yenisini kurar */
 function adoptOrphans(){
@@ -830,7 +835,7 @@ function step(){
     if((a.id+sim.tick)%CFG.socEvery===0)socialize(a,nb);
     if(CFG.goals&&(a.id+sim.tick)%CFG.goalEvery===0&&lifeStage(a)!=='child')chooseGoal(a);
     const dec=decide(a,t,env);a.act=dec.act;a.acts[dec.act]=(a.acts[dec.act]||0)+1;
-    if((dec.act==='WANDER'||dec.act==='PATROL')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||rng()<0.012)){
+    if((dec.act==='WANDER'||dec.act==='PATROL'||dec.act==='FORAGE'||dec.act==='LURK')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||rng()<0.012)){
       const hc0=nearestCity(t.cities,a.x,a.y),par=lifeStage(a)==='child'?parentOf(a):null,hc=par||hc0,RR=par?45:(a._nurse||a.pregUntil>0)?110:(200+120*a.pers.O);let bx=0,by=0,bf=-1;for(let q=0;q<3;q++){const x=clamp(hc.x+rnd(-RR,RR),2,W-2),y=clamp(hc.y+rnd(-RR,RR),2,H-2),f=fert[cellOf(x,y)];if(f>bf){bf=f;bx=x;by=y;}}   // verimli toprağa yönelim
       a.wx=bx;a.wy=by;dec.tx=a.wx;dec.ty=a.wy;}
     const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
@@ -1018,7 +1023,7 @@ function renderInspect(){const el=document.getElementById('inspect');
   if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
   const t=sim.tribes[a.tribe], dead=!!a.diedAt, yr=Math.round(dead?(a.diedAt-a.born)/CFG.yearLen:ageYears(a));
   const stage=dead?'—':STAGE_TR[lifeStage(a)];
-  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',COURT:'saray işleriyle ilgileniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor'}[a.act];
+  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',COURT:'saray işleriyle ilgileniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor',FORAGE:'yiyecek arıyor',CLINIC:'hastalarını bekliyor',MARKET:'pazarda',LURK:'gölgede bekliyor'}[a.act];
   const chron=`<div style="color:var(--muted);font-size:11.5px;line-height:1.5">${lifeProse(a)}</div>`;
   el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} ${a.surname} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t?t.name:'?'}</span></div>
     <div class="row"><span>unvan</span><b style="color:#e5c07b">${legendTitle(a)}</b></div>
