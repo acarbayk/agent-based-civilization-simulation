@@ -250,11 +250,14 @@ ve yaralı asker geri çekilmesi korundu.
 ### 10.7 Ekonomi
 
 Yiyeceğin haritada hemen her zaman tavanda (~3000) durduğu ve açlığın ihmal edilebilir olduğu bulgusu üzerine üretim
-ölçeği 0.35 → 0.22 → 0.17'ye düşürüldü. Sonuç: **açlık ölümleri toplamın %0.2-4.7'si** (tur 3 bağımsız ölçüm: %0.2-4.7;
-benim tur 4 ölçümüm %0.2-2.8). Nüfusu belirleyen ağırlıkla `carryK` formülü (Malthus çarpanları) ve savaş; sabit
-performans tavanı (`totalCap=700`) tur 3'te 6 seed'in yalnızca 2'sinde bağlayıcıydı, tur 4'te doğum tavana yaklaşırken
-yumuşakça azalıyor (son %15'te) ve nüfus 467-622'de kalıyor. "Nüfusu yiyecek/arazi sınırlıyor" iddiası **geri çekildi**:
-ekonomi zayıf bir kısıt, ticaret ve kaynak modeli yok.
+ölçeği 0.35 → 0.22 → 0.17'ye düşürüldü. Sonuç: açlık ölümleri seed ve koşu uzunluğuna göre **toplam ölümün %0.2-6.0'ı**
+(benim ölçümüm %0.2-2.8; bağımsız tur 3: %0.2-4.7; bağımsız tur 4: %0.7-6.0, 250 yıllık koşularda %4.7-6.0).
+
+**Nüfusu belirleyen ağırlıkla sabit sayı:** `totalCap=700` doğumu, sayı 595'ten itibaren yumuşakça (son %15'te) azaltıyor.
+Bağımsız tur 4 bunu iki yoldan gösterdi: 6 seed'in hepsi yaklaşık yıl 100'de 537-690'da platoya oturuyor; `totalCap`
+2000 yapılınca aynı seed'lerde nüfus 762-960'a çıkıyor, Malthus terimi (kişi/K ≈ 0.3-0.4) neredeyse hiç devreye girmiyor.
+Önceki notumdaki "tavana dayanma yok" ifadesi **yanlıştı**, geri çekildi. "Nüfusu yiyecek/arazi sınırlıyor" iddiası da
+geri çekildi: ekonomi zayıf bir kısıt, ticaret ve kaynak modeli yok.
 
 ### 10.8 Bağımsız gözden geçirme turları
 
@@ -321,12 +324,34 @@ ve `!_dead`) sıralı: 2,2,3,4,4,5,5,5,5,5,6,7,7,7,10,10 (medyan 5), geç dönem
 isyan 13-60. En çalkantılı seed'lerde 10 krallık tavanı (`maxKingdoms`) bağlayıcı. Demografi (4 seed × 120 yıl):
 beklenen ömür 35.0-37.9, 15'e ulaşma %61-66, doğurganlık 4.1-5.1, savaş payı %5.9-10.2, açlık %0.2-2.8.
 
-**Bu tur 4 sonrası yeni bir bağımsız gözden geçirme yapıldı mı:** aşağıya bakınız (10.13, varsa).
+
+
+### 10.13 Bağımsız tur 4 (6.3/10) ve bulunan doğruluk hatası
+
+Puanlar: demografi 7.5, mekân/ekonomi 4.5, toplumsal yapı 7, birey zihni 5, savaş/siyaset 5, okunabilirlik 6.5, doğrulama
+6.5, tekrarlanabilirlik 8.5. **Ortalama 6.3; "8 verir mi" cevabı yine hayır.** Dört turun puanları: 6.2, 6.4, 6.4, 6.3
+(gözden geçirme gürültüsü içinde sabit).
+
+**Bulunan gerçek hata:** `_killer` hiç sıfırlanmıyordu. Vurulup iyileşen biri yıllar sonra yaşlılık veya hastalıktan ölünce
+yine eski saldırgana yazılıyordu: bağımsız ölçümde şiddetli ölümlerin %35-45'i yalan; bu, `kills`, "…'in elinde öldü"
+hikâyeleri, akrabaların nefreti ve intikam hedeflerini şişiriyordu. Düzeltme: vuruşa zaman damgası; ölümde yalnızca son 40
+adım içindeki bir vuruş ve doğal/doğum ölümü olmayan durum "öldürme" sayılır. Doğrulama (aynı seed): atfedilen öldürme
+toplamı 20 → 13. **Bu düzeltmeden önce yazılan tüm savaş payı, `kills` ve "şiddetli ölüm" sayıları (§10.6, §10.7, §10.10,
+§10.12) şişirilmiş atıf içeriyordu; güncel sayılar §10.14'te.**
+
+Diğer bulgular ve durumları: cinsiyet-rol ayrışması aşırı (asker yalnızca erkek, doktor/casus/tüccar çoğunlukla kadın;
+`femSoldier` bir modelleme kararı) → sınır olarak kaldı; çocuklar oyun/çıraklık yapmıyor, yaşlılar yetişkinle aynı dağılımda
+→ sınır olarak kaldı; sürekli savaş (her seed'de yılların %77-93'ünde aktif savaş) ve mikro-krallıklar → sınır olarak kaldı;
+hikâyeler evlilik/doğum ağırlıklı → kaldı; çift simge (Vakayiname) ve canlı bireyin geçmiş zamanlı özeti → **düzeltildi**.
+
+### 10.14 Doğrulama (`_killer` düzeltmesi sonrası)
+
+_(Sayılar koşu bittiğinde bu bölüme yazılacak.)_
 
 ## 11. Bilinen sınırlar
 
 - Savaş "asker düşman şehre yürür" biçiminde; baskın, yağma ve seferberlik modellenmedi.
-- Ekonomi zayıf: açlık nüfusu belirlemiyor (%1.3-2.0 ölüm), sabit performans tavanı belirliyor, ticaret ve kaynak modeli yok.
+- Ekonomi zayıf: açlık ölümü %0.2-6.0 (seed'e ve koşuya göre), nüfusu ağırlıkla sabit performans tavanı (700, yumuşatılmış) belirliyor, ticaret ve kaynak modeli yok.
 - Bireyler ağırlıklı olarak rolleriyle davranıyor; kişilik/cinsiyet/yaş etkisi ılımlı. Cinsiyete dayalı askerlik normu bir
   modelleme kararı, ayarlanabilir.
 - Köy, hane ve günlük döngü yok; yerleşim sabit şehirlerde toplanıyor, arazi insan dağılımını zayıf belirliyor (r=0.0-0.23).

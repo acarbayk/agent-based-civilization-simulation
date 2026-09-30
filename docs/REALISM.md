@@ -6,7 +6,7 @@ gözden geçirme adımı tanımlıdır. Puanlar baştan dürüstçe yazıldı.
 
 ## Araştırmadan çıkan boşluklar
 
-| Konu | Kaynak | Şu anki durum |
+| Konu | Kaynak | Başlangıçtaki durum (bu belge yazıldığında; büyük ölçüde değişti, güncel durum RESEARCH.md §10) |
 |---|---|---|
 | Ön sanayi demografisi: tarihsel toplumlarda her ikinci çocuk erginliğe ulaşmadan ölürdü (17 avcı-toplayıcı toplumda %49, [OWID](https://ourworldindata.org/child-mortality-in-the-past), Volk & Atkinson 2013); tarımsal İngiltere daha iyi (15'e ulaşma ≈%69); doğumda beklenen ömür 30-35 civarı ([Clark](https://faculty.econ.ucdavis.edu/faculty/gclark/Farewell%20to%20Alms/FTA-chapter5-a.pdf)). Hedef aralık: 15'e ulaşma %50-70, e0 28-38 | demografi | Sabit ömür (52-88), bebek ölümü yok, cinsiyet yok, doğum = "şehirde yiyecek var" |
 | Arazi, hane, gerçek verim haritası, nüfusu arkeolojik veriye karşı doğrulama ([Artificial Anasazi](https://jasss.soc.surrey.ac.uk/12/4/13.html)). Uyarı: Janssen (2009) uyumun büyük kısmının çevresel taşıma kapasitesinden geldiğini gösterdi | mekân ve ekonomi | Düz zemin, eve ait birey yok, mevsim yok |
@@ -55,4 +55,4 @@ dürüst puanımdır. Hedef: ortalama ≥8 ve hiçbir boyut <6.
 
 Öz-puan sütunu başlangıç durumunun (bu planın yazıldığı an) puanıdır; bağımsız sütun, düzeltmelerden ÖNCE, öz-puanlardan
 habersiz taze bir ajanın puanıdır. En büyük düşüşü savaş boyutu yaşadı (hata bulundu ve düzeltildi, bkz.
-RESEARCH.md §10.6). Tur 3 sonrası tur 4 düzeltmeleri yapıldı (RESEARCH.md §10.11); tur 4'ün bağımsız puanı için RESEARCH.md §10.13'e bakın (yapıldıysa).
+RESEARCH.md §10.6). Tur 3 sonrası tur 4 düzeltmeleri yapıldı (RESEARCH.md §10.11); tur 4'ün bağımsız puanı 6.3'tür (RESEARCH.md §10.13).
