@@ -34,8 +34,8 @@ iş görece düşük riskliydi; arazi ve savaş işleri daha riskli. Arazi (3) v
 
 ## Durum
 
-- Aşama 0 (temizlik): tamam.
-- Aşama 1 (demografi): tamam, kapı geçti. Doğumda beklenen ömür 31-34, 15'e ulaşma %61-68, evli kadın %81-84.
-- Aşama 2 (makro yeniden ayar): **kısmen**. 8 seed × 15.000 adımda hata 0, yok olma 0, ortalama canlı krallık 2.88, geç dönem
-  savaş/fetih 6/8 seed'de var. **Açık borç: geç dönemde isyan hiç çıkmıyor** (8 seed'de 0).
-- Aşama 5 (okunabilirlik): birey takibi, yakınlaştırma, aile ağı çizgileri, hayat çizgisi, yıllık hikâye akışı, nüfus piramidi, mevsim.
+- Aşama 0 (temizlik), 1 (demografi), 2 (makro yeniden ayar), 3 (arazi), 5 (okunabilirlik): yapıldı.
+- Aşama 4 (savaş): **kısmen.** Sefer mevsimi, düşük ölümcüllük, yalnızca savaştaki devletlere saldırı. Baskın/yağma/seferberlik yok.
+- Aşama 6 (doğrulama): bağımsız gözden geçirme 1. tur = 6.2/10; bulunan büyük hata (askerler barışta da öldürüyordu)
+  düzeltildi; 2. tur yeniden puanlama bekliyor.
+- Güncel sayılar `RESEARCH.md` §10'da.

@@ -38,3 +38,21 @@ dürüst puanımdır. Hedef: ortalama ≥8 ve hiçbir boyut <6.
 | Okunabilirlik ve his | takip, hikâye akışı, ilk izlenim | 3 | 8 |
 | Doğrulama | ölçüm, bağımsız gözden geçirme, dürüst sınırlar | 6 | 8 |
 | Tekrarlanabilirlik ve kararlılık | seed, hata yok, geniş seed taraması | 7 | 8 |
+
+## Bağımsız gözden geçirme sonuçları
+
+| Boyut | Öz-puan (ilk plan) | Bağımsız 1. tur | Hedef |
+|---|---|---|---|
+| Demografik gerçekçilik | 2 | 7 | 8 |
+| Mekân ve ekonomi | 2 | 5 | 7 |
+| Toplumsal yapı | 7 | 7 | 8 |
+| Birey zihni | 7 | 6 | 8 |
+| Savaş ve siyaset | 4 | 3.5 | 7 |
+| Okunabilirlik ve his | 3 | 7 | 8 |
+| Doğrulama ve dürüstlük | 6 | 5.5 | 8 |
+| Tekrarlanabilirlik ve kararlılık | 7 | 8.5 | 8 |
+| **Ortalama** | | **6.2** | **≥8** |
+
+Öz-puan sütunu başlangıç durumunun (bu planın yazıldığı an) puanıdır; bağımsız sütun, düzeltmelerden ÖNCE, öz-puanlardan
+habersiz taze bir ajanın puanıdır. En büyük düşüşü savaş boyutu yaşadı (hata bulundu ve düzeltildi, bkz.
+RESEARCH.md §10.6). Bir sonraki adım, düzeltmelerden sonra yeni bir bağımsız tur.
