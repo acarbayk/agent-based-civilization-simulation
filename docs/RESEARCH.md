@@ -179,9 +179,16 @@ biriken ~3000 yiyecek ve ambarlar kuraklığı tamponlar.
 
 Geç dönemde savaş, isyan ve fetih geri geldi (bir seed'de 9 savaş, 2 isyan, 3 fetih).
 
-## 10. Bilinen sınırlar
+## 10. Son doğrulama ve bilinen sınırlar
 
-- Bazı seed'lerde dünya yine tek devlete iniyor (8 seed'de 1-2 tanesi).
+Son kodla 8 seed × 20.000 adım (~285 yıl): hata 0, nüfus yok olması 0, ortalama canlı krallık 3.06, sonda
+canlı krallık dağılımı 1-2-2-3-3-3-4-4. Aynı seed iki koşuda birebir aynı sonucu veriyor; gerçek tarayıcıda
+sayfa hatasız açılıyor, aile bağlantılarıyla gezinme ve kuraklık göstergesi çalışıyor.
+
+- Geç dönem siyaseti hâlâ seyrek: 8 seed'in 5'inde t>4000 sonrası hiç savaş yok; olayların çoğu veraset ve
+  hanedan değişimi. Bireylerin hayatı (evlilik, yas, intikam, veraset) sürüyor ama büyük siyaset yer yer
+  durgun kalıyor.
+- Bir seed'de dünya tek devlete iniyor.
 - Eşikler (T=0.13, rejim yaşı, kuraklık) tek parametreli süpürmelerle seçildi; geniş bir seed taraması ve
   duyarlılık analizi yapılmadı.
 - Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor (kuzenler değil).
