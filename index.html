@@ -130,7 +130,7 @@ const rndUI=(a,b)=>a+rngUI()*(b-a);
 
 const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:1100,
   energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
-  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,tradeGrain:10,tradeKeep:45,healCost:0.6,lootEnergy:8,
+  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,tradeGrain:10,tradeKeep:45,healCost:0.6,lootEnergy:8,inherit:3.0,helpAge:8,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
@@ -312,10 +312,10 @@ function roleScores(a,t){
     DOCTOR:  0.07,
     MERCHANT:0.08 + trade*0.05,
     SPY:     0.04 + plot*0.04 };
-  let best='FARMER',bv=-1e9,U={};
+  const par=parentOf(a);let best='FARMER',bv=-1e9,U={};
   for(const r of ROLES){const share=(c[r]||0)/adults;
     const sat=clamp(1.3-share/target[r],0.08,1.3);           // rol dolunca cazibe düşer (piyasa doygunluğu)
-    U[r]=demand[r]*sat*(0.92+rng()*0.16);
+    U[r]=demand[r]*sat*(0.92+rng()*0.16)*((par&&par.role===r)?CFG.inherit:1);   // meslek mirası: ebeveynin işi daha cazip
     if(U[r]>bv){bv=U[r];best=r;}}
   return {best,U};
 }
@@ -717,7 +717,13 @@ function decide(a,t,env){
       else C.push({act:'SEEK',s:(0.2+0.45*g.ins)*(1-hunger*0.5)*(far?1:0.3),tx:far?tg.x:a.x,ty:far?tg.y:a.y,target:tg});}}
   if(!inTerr&&a.role!=='SOLDIER'&&a.role!=='MERCHANT'&&a.role!=='SPY')C.push({act:'RETURN',s:0.34,tx:home.x,ty:home.y});
   C.push({act:'WANDER',s:0.14+(a.pers.O-0.5)*0.12,tx:a.wx,ty:a.wy});
-  if(lifeStage(a)==='child'){const par=parentOf(a);if(par&&dist(a,par)>45)C.push({act:'SEEK',s:0.6,tx:par.x,ty:par.y,target:par});}          // çocuk ebeveynin yakınında kalır
+  if(lifeStage(a)==='child'){const par=parentOf(a);if(par&&dist(a,par)>45)C.push({act:'SEEK',s:0.6,tx:par.x,ty:par.y,target:par});          // çocuk ebeveynin yakınında kalır
+    if(ageYears(a)>=CFG.helpAge){                                                                                                   // büyük çocuk aileye yardım eder: yiyecek toplar, eve taşır
+      if(a.carrying)C.push({act:'DELIVER',s:0.62,tx:home.x,ty:home.y,city:home});
+      else if(env.food&&(!par||dist(a,par)<110))C.push({act:'GATHER',s:0.52*(1-hunger*0.45),tx:env.food.x,ty:env.food.y,target:env.food});}}
+  else if(lifeStage(a)==='elder'&&t.ruler!==a.id){                                                                                  // yaşlı hafif iş görür, ocak başında oturur
+    for(const c of C)if(c.act==='GATHER'||c.act==='DELIVER'||c.act==='TRADE_RUN'||c.act==='ESPIONAGE'||c.act==='PATROL'||c.act==='FORAGE'||c.act==='INVADE'||c.act==='VENGEANCE')c.s*=0.5;
+    C.push({act:'HEARTH',s:0.5,tx:home.x+((a.id%9)-4)*6,ty:home.y+(((a.id>>2)%9)-4)*6});}
   if(a.sex==='F'&&(a._nurse||a.pregUntil>0)){for(const c of C)if(c.act==='INVADE'||c.act==='TRADE_RUN'||c.act==='ESPIONAGE'||c.act==='PATROL'||c.act==='VENGEANCE')c.s*=0.25;   // hamile/emziren: eve yakın
     if(dist(a,home)>55)C.push({act:'RETURN',s:0.66,tx:home.x,ty:home.y});}
   C.sort((x,y)=>y.s-x.s);const pool=C.filter(c=>c.s>=C[0].s-0.12);return pool[(rng()*pool.length)|0];
@@ -1028,7 +1034,7 @@ function renderInspect(){const el=document.getElementById('inspect');
   if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
   const t=sim.tribes[a.tribe], dead=!!a.diedAt, yr=Math.round(dead?(a.diedAt-a.born)/CFG.yearLen:ageYears(a));
   const stage=dead?'—':STAGE_TR[lifeStage(a)];
-  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',COURT:'saray işleriyle ilgileniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor',FORAGE:'yiyecek arıyor',CLINIC:'hastalarını bekliyor',MARKET:'pazarda',LURK:'gölgede bekliyor'}[a.act];
+  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',COURT:'saray işleriyle ilgileniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor',FORAGE:'yiyecek arıyor',HEARTH:'ocak başında',CLINIC:'hastalarını bekliyor',MARKET:'pazarda',LURK:'gölgede bekliyor'}[a.act];
   const chron=`<div style="color:var(--muted);font-size:11.5px;line-height:1.5">${lifeProse(a)}</div>`;
   el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} ${a.surname} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t?t.name:'?'}</span></div>
     <div class="row"><span>unvan</span><b style="color:#e5c07b">${legendTitle(a)}</b></div>
