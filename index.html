@@ -749,7 +749,7 @@ function hazard(a,t){const y=ageYears(a);
   h*=a.frail;                                                   // kişisel kırılganlık
   if(a.energy<25)h*=2.2;                                        // yetersiz beslenme
   const se=seasonIdx(sim.tick);if((y<5&&se===2)||(y>55&&se===3))h*=1.3;   // mevsimsel ölüm: sonbaharda küçük çocuk, kışın yaşlı (tarihsel örüntü)
-  const K=carryK(t);if(t.pop>K)h*=1+0.8*(t.pop/K-1);            // Malthus: taşıma kapasitesi aşılınca ölüm artar
+  const K=carryK(t);if(t.pop>K)h*=Math.min(1.8,1+0.8*(t.pop/K-1));   // Malthus: taşıma kapasitesi aşılınca ölüm artar (üst sınırlı)
   if(t._epi)h*=t._epi.mult*((y<5||y>55)?1.4:1);                 // salgın: çocuk ve yaşlı daha kırılgan
   return Math.min(h,0.9);}
 const fecAt=y=>y<CFG.fertMin||y>CFG.fertMax?0:CFG.fecundity*clamp((CFG.fertMax-y)/14,0,1);
@@ -775,8 +775,21 @@ function conceiveAndBirth(agents,births,t_of){
     if(a.spouse==null||sim.tick<a.nextFertile||agents.length+births.length>=CFG.totalCap)continue;   // performans tavanı: yeni gebelik yok
     const sp=sim.byId.get(a.spouse);if(!sp||sp.spouse!==a.id)continue;
     const y=ageYears(a),fa=fecAt(y);if(!fa)continue;
-    const food=clamp((a.energy-30)/60),K=carryK(t),crowd=clamp(1.5-t.pop/K,0,1),sec=clamp(cityFood(t)/(Math.max(1,t.pop)*0.4)*0.5+0.5,0.35,1);
+    const food=clamp((a.energy-30)/60),K=carryK(t),crowd=clamp(1.5-t.pop/K,0.25,1),sec=clamp(cityFood(t)/(Math.max(1,t.pop)*0.4)*0.5+0.5,0.35,1);
     if(rng()<fa*food*crowd*sec/CFG.yearLen)a.pregUntil=sim.tick+Math.round(rnd(CFG.gestYears-0.05,CFG.gestYears+0.05)*CFG.yearLen);}}
+
+/* Sahipsiz kalanlar: krallığı fethedeni olmadan çöken halk yakın bir krallığa katılır; hiç krallık kalmadıysa mülteciler yenisini kurar */
+function adoptOrphans(){
+  let orphans=null;for(const a of sim.agents)if(sim.tribes[a.tribe]._dead)(orphans=orphans||[]).push(a);
+  if(!orphans)return;
+  const liveT=sim.tribes.filter(t=>!t._dead&&t.cities.length);
+  if(liveT.length){for(const a of orphans){let best=liveT[0],bd=1e18;for(const t of liveT){const c=nearestCity(t.cities,a.x,a.y),d=(c.x-a.x)**2+(c.y-a.y)**2;if(d<bd){bd=d;best=t;}}
+      a.tribe=best.id;a.color=best.color;a.rebel=false;a.goal=null;if(a.events.length<12)a.events.push({t:sim.tick,e:`${best.name} halkına katıldı`});}
+    recount();return;}
+  let cx=0,cy=0;for(const a of orphans){cx+=a.x;cy+=a.y;}cx=clamp(cx/orphans.length,60,W-60);cy=clamp(cy/orphans.length,60,H-60);
+  const color=PALETTE[nextKingId%PALETTE.length],name=KNAMES[nextKingId%KNAMES.length];nextKingId++;
+  const k=spawnKingdom(name,color,[{name:cityName(),x:cx,y:cy,food:20,hp:CFG.cityHP}],orphans,null);
+  logEvent(`Hayatta kalanlar ${name} adıyla yeni bir krallık kurdu`,color);computeTerritory();}
 
 /* ---------- Bir adım ---------- */
 function step(){
@@ -888,6 +901,7 @@ function step(){
       else logEvent(`${t.name} çöktü`,'#ff6b6b');
       for(const o of tribes)if(o.war&&o.war.target===t.id)o.war=null;recount();}}
 
+  adoptOrphans();
   // Kral kararları
   for(const t of tribes){if(t._dead)continue;if(--t.rulerCd<=0){t.rulerCd=110+((rng()*40)|0);rulerDecide(t);}}
 
