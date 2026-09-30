@@ -130,7 +130,7 @@ const rndUI=(a,b)=>a+rngUI()*(b-a);
 
 const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:1100,
   energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
-  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,tradeGrain:10,tradeKeep:45,healCost:0.6,lootEnergy:8,inherit:3.0,helpAge:8,
+  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,tradeGrain:10,tradeKeep:45,healCost:0.6,lootEnergy:8,lootUnit:2,lootProb:0.3,inherit:3.0,helpAge:8,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
@@ -325,7 +325,7 @@ function updateRoleChoice(a,t){
   const stage=lifeStage(a);
   if(stage==='child'){if(a.role!=='CHILD')a.role='CHILD';return;}
   if(stage==='elder'&&a.role==='SOLDIER'){a.role='FARMER';a.roleAge=0;if(a.events.length<12)a.events.push({t:sim.tick,e:'yaşlanınca askerlikten emekli oldu'});}
-  if(a.role==='CHILD'){a.role=chooseRole(a,t);a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`${ROLE_TR[a.role]} oldu`});return;}
+  if(a.role==='CHILD'){a.role=chooseRole(a,t);a.roleAge=0;{const par=parentOf(a);if(par&&par.role===a.role&&a.role!=='FARMER')story('çıraklık',3,`${a.name} ${a.surname}, ${par.name}'in izinden ${ROLE_TR[a.role]} oldu`,a.id);}if(a.events.length<8)a.events.push({t:sim.tick,e:`${ROLE_TR[a.role]} oldu`});return;}
   // yetişkin: çok seyrek, ancak yeni meslek belirgin şekilde iyiyse VE bir süredir bu meslekteyse değişir
   if(a.roleAge>1000 && rng()<0.0006){const {best,U}=roleScores(a,t);
     if(best!==a.role && U[best]>(U[a.role]||0)*1.55){a.role=best;a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`hayatı değişti: ${ROLE_TR[best]} oldu`});}}
@@ -354,7 +354,7 @@ function reset(){
   genTerrain(tribes);
   const food=[];for(let i=0;i<400&&food.length<180;i++){const x=rng()*W,y=rng()*H;if(rng()<Math.pow(fert[cellOf(x,y)],1.5)+0.015)food.push({x,y});}
   const K=CFG.kingdoms; nextKingId=K;
-  sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],stories:[],yrStories:[],vit:{b:0,d:0,lb:0,ld:0},climate:{mul:1,until:Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)},
+  sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],stories:[],yrStories:[],vit:{b:0,d:0,lb:0,ld:0,starve:0,epi:0,loot:0,grain:0},climate:{mul:1,until:Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)},
     rel:Array.from({length:K},()=>new Array(K).fill(0)),tr:Array.from({length:K},()=>new Array(K).fill('none')),
     border:Array.from({length:K},()=>new Array(K).fill(0)),
     truce:Array.from({length:K},()=>new Array(K).fill(0))};
@@ -700,6 +700,7 @@ function decide(a,t,env){
       C.push({act:'INVADE',s:0.7*(1-hunger*0.5)*(seasonIdx(sim.tick)===3?0.3:1),tx:tc.x,ty:tc.y,city:tc,king:o.id});}}   // sefer mevsimi: ordular kışın harekete geçmez
     if(enemy&&dE<95){const win=(a.power*a.bravery*aggMul>=enemy.power*0.9)?1:0.12,homeDef=(env.owner===a.tribe||env.owner<0)?1:0.5;
       C.push({act:'FIGHT',s:0.66*win*homeDef*(1-hunger*0.5)*(1.2-0.5*a.pers.N),tx:enemy.x,ty:enemy.y});}
+    if(a.carrying&&a._loot)C.push({act:'DELIVER',s:0.95,tx:home.x,ty:home.y,city:home});   // ganimetle eve döner
     C.push({act:'PATROL',s:0.3*(0.8+0.4*a.pers.E),tx:a.wx,ty:a.wy});}
   else if(a.role==='DOCTOR'){if(!env.wounded)C.push({act:'CLINIC',s:0.5,tx:home.x+((a.id%7)-3)*7,ty:home.y+(((a.id>>3)%7)-3)*7});   // hasta yokken şehirde bekler
     if(env.wounded)C.push({act:'HEAL',s:0.78*(0.85+0.3*a.pers.A)*(1-hunger*0.6),tx:env.wounded.x,ty:env.wounded.y,target:env.wounded});}
@@ -847,13 +848,15 @@ function step(){
     const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
     a.x=clamp(a.x+dx/dd*spd,2,W-2);a.y=clamp(a.y+dy/dd*spd,2,H-2);
     if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());enemy.energy-=dmg*CFG.dmgK;enemy._killer=a;enemy._killerT=sim.tick;}
-    if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;}}
+    if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;
+      if(!a.carrying&&dec.city.food>=CFG.lootUnit&&rng()<CFG.lootProb){dec.city.food-=CFG.lootUnit;a.carrying=true;a._loot=CFG.lootUnit;a._lootFrom=_dk?_dk.name:'düşman';}}}   // baskın: ambardan yiyecek yağmalar
     else if(dec.act==='VENGEANCE'&&dec.target){if(dist(a,dec.target)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());dec.target.energy-=dmg*CFG.dmgK;dec.target._killer=a;dec.target._killerT=sim.tick;}}
     else if(dec.act==='HEAL'&&dec.target){if(dist(a,dec.target)<CFG.healR){dec.target.energy=Math.min(CFG.energyMax,dec.target.energy+0.9);a.energy-=CFG.healCost;}}   // iyileştirme doktora enerjiye mal olur
     else if((dec.act==='EAT_FIELD'||dec.act==='GATHER')&&dec.target){if(dist(a,dec.target)<CFG.eatR&&!dec.target.gone){dec.target.gone=true;
       if(dec.act==='GATHER'&&a.energy>CFG.energyMax*0.33)a.carrying=true;else a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);}}
     else if(dec.act==='EAT_STORE'&&dec.city){if(dist(a,dec.city)<CFG.cityR&&dec.city.food>0){dec.city.food-=1;a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy*0.9);}}
-    else if(dec.act==='DELIVER'&&dec.city){if(dist(a,dec.city)<CFG.cityR){dec.city.food=Math.min(CFG.granaryCap,dec.city.food+2*(t._food||1));a.carrying=false;}}
+    else if(dec.act==='DELIVER'&&dec.city){if(dist(a,dec.city)<CFG.cityR){if(a._loot){dec.city.food=Math.min(CFG.granaryCap,dec.city.food+a._loot);sim.vit.loot=(sim.vit.loot||0)+a._loot;story('yağma',4,`${a.name} ${a.surname}, ${a._lootFrom} ambarından ganimetle döndü`,a.id);a._loot=0;}
+      else dec.city.food=Math.min(CFG.granaryCap,dec.city.food+2*(t._food||1));a.carrying=false;}}
     else if(dec.act==='TRADE_RUN'&&dec.dest){if(dist(a,dec.dest)<CFG.cityR){
       if(a.homeward){t.treasury+=9*((t._trade||1)+(t._cTrade||0));a.homeward=false;
         if(a._cargo){const hc=capital(t);hc.food=Math.min(CFG.granaryCap,hc.food+a._cargo);sim.vit.grain=(sim.vit.grain||0)+a._cargo;a._cargo=0;}}                 // tahıl ticareti: fazla yiyeceği getirdi
@@ -865,7 +868,7 @@ function step(){
 
   // Doğumlar: evli kadınlar gebe kalır, doğurur (doğum aralığı, yaş, beslenme, kalabalık)
   conceiveAndBirth(agents,births,a=>tribes[a.tribe]);sim.vit.b+=births.length;
-  if(sim.tick%CFG.yearLen===0){updateEpidemics();sim.vit.lb=sim.vit.b;sim.vit.ld=sim.vit.d;sim.vit.b=0;sim.vit.d=0;flushStories();}
+  if(sim.tick%CFG.yearLen===0){if(sim.vit.starve>=5)story('kıtlık',6,`Kıtlık: bu yıl ${sim.vit.starve} kişi açlıktan öldü`,null);if(sim.vit.epi>=5)story('salgın',6,`Salgın: bu yıl ${sim.vit.epi} kişiyi götürdü`,null);sim.vit.starve=0;sim.vit.epi=0;updateEpidemics();sim.vit.lb=sim.vit.b;sim.vit.ld=sim.vit.d;sim.vit.b=0;sim.vit.d=0;flushStories();}
   if(sim.tick%Math.round(CFG.yearLen/2)===0)matchmaking();
   for(const t of tribes){if(t._dead)continue;
     // şehir onarımı + savaş masrafı
@@ -879,7 +882,7 @@ function step(){
   for(const a of agents){
     const oldAge=!!a._natural;
     if(a.energy>0&&!oldAge){alive.push(a);continue;}
-    sim.vit.d++;
+    sim.vit.d++;if(!a._natural&&!a._childbirth&&!(a._killer&&a._killer.energy>0&&sim.tick-(a._killerT||-1e9)<=40)&&a.energy<=0)sim.vit.starve++;if(a._natural&&tribes[a.tribe]&&tribes[a.tribe]._epi)sim.vit.epi++;
     const violent=!!(a._killer&&a._killer.energy>0&&!a._natural&&!a._childbirth&&sim.tick-(a._killerT||-1e9)<=40);   // yalnızca yakın zamanlı bir vuruş 'öldürme' sayılır (eskiden hiç sıfırlanmıyordu)
     const rt=tribes[a.tribe];if(rt&&rt.ruler===a.id){a.reign=(sim.tick-(a.reignStart||0))/CFG.yearLen;rt.ruler=null;(diedRulers=diedRulers||[]).push([rt,a]);}
     if(a.spouse!=null){const sp=sim.byId.get(a.spouse);if(sp&&sp.spouse===a.id){sp.spouse=null;sp.content=clamp(sp.content-0.25);if(sp.events.length<12)sp.events.push({t:sim.tick,e:`eşi ${a.name} öldü`});}}
