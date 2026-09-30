@@ -128,9 +128,9 @@ const newSeedStr=()=>Math.floor(Math.random()*36**6).toString(36).padStart(6,'0'
 const rnd=(a,b)=>a+rng()*(b-a);
 const rndUI=(a,b)=>a+rngUI()*(b-a);
 
-const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
+const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:900,
   energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
-  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,
+  spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,tradeGrain:10,tradeKeep:45,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
@@ -145,7 +145,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
   fecundity:1.2, fertMin:16, fertMax:44, amenorrhea:[1.1,2.0], gestYears:0.75, maternalDeath:0.012,
   founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.92, dmgK:2.2,
-  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10], foodScale:0.17, foodCap:1300, femSoldier:0.1,   // femSoldier: ön sanayi iş bölümü normu (kapatmak için 1)
+  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10], foodScale:0.13, foodCap:1300, femSoldier:0.1,   // femSoldier: ön sanayi iş bölümü normu (kapatmak için 1)
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
 const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
@@ -848,7 +848,12 @@ function step(){
       if(dec.act==='GATHER'&&a.energy>CFG.energyMax*0.33)a.carrying=true;else a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);}}
     else if(dec.act==='EAT_STORE'&&dec.city){if(dist(a,dec.city)<CFG.cityR&&dec.city.food>0){dec.city.food-=1;a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy*0.9);}}
     else if(dec.act==='DELIVER'&&dec.city){if(dist(a,dec.city)<CFG.cityR){dec.city.food=Math.min(CFG.granaryCap,dec.city.food+2*(t._food||1));a.carrying=false;a.energy=Math.min(CFG.energyMax,a.energy+5);}}
-    else if(dec.act==='TRADE_RUN'&&dec.dest){if(dist(a,dec.dest)<CFG.cityR){if(a.homeward){t.treasury+=9*((t._trade||1)+(t._cTrade||0));a.homeward=false;a.energy=Math.min(CFG.energyMax,a.energy+6);}else a.homeward=true;}}
+    else if(dec.act==='TRADE_RUN'&&dec.dest){if(dist(a,dec.dest)<CFG.cityR){
+      if(a.homeward){t.treasury+=9*((t._trade||1)+(t._cTrade||0));a.homeward=false;a.energy=Math.min(CFG.energyMax,a.energy+6);
+        if(a._cargo){const hc=capital(t);hc.food=Math.min(CFG.granaryCap,hc.food+a._cargo);a._cargo=0;}}                 // tahıl ticareti: fazla yiyeceği getirdi
+      else{a.homeward=true;const O=sim.tribes[t._tradePartner];
+        if(O&&!O._dead&&O.cities.length){let src=O.cities[0];for(const c of O.cities)if(c.food>src.food)src=c;const home=capital(t);
+          const take=Math.min(CFG.tradeGrain,Math.max(0,src.food-CFG.tradeKeep));if(take>0&&src.food>home.food){src.food-=take;a._cargo=take;}}}}}
     else if(dec.act==='ESPIONAGE'&&dec.king!=null){const O=sim.tribes[dec.king];if(ownerAt(a.x,a.y)===O.id){t.plots[O.id]=(t.plots[O.id]||0)+0.45;if(O.treasury>0&&rng()<0.05){O.treasury-=1;t.treasury+=1;}}}
   }
 
