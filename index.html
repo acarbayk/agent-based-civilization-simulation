@@ -126,7 +126,7 @@ const newSeedStr=()=>Math.floor(Math.random()*36**6).toString(36).padStart(6,'0'
 const rnd=(a,b)=>a+rng()*(b-a);
 const rndUI=(a,b)=>a+rngUI()*(b-a);
 
-const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:640,
+const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
   spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
@@ -141,8 +141,8 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:640,
   // iklim: nadir kuraklıklar (Bronz Çağı çöküşü, Küçük Buzul Çağı gibi dış şoklar) durgun dengeyi bozar
   // demografi (ön sanayi): yaşa bağlı ölüm tehlikesi (yıllık), doğurganlık, Malthus, salgın
   mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
-  fecundity:1.5, fertMin:16, fertMax:44, amenorrhea:[0.9,1.6], gestYears:0.75, maternalDeath:0.012,
-  founderFamilies:8, carryMul:1.6, epiRate:0.012,
+  fecundity:1.2, fertMin:16, fertMax:44, amenorrhea:[1.1,2.0], gestYears:0.75, maternalDeath:0.012,
+  founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.8,
   climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10],
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
@@ -620,6 +620,18 @@ function socialize(a,nb){
     if(o.events.length<12)o.events.push({t:sim.tick,e:`${a.name} ${a.surname} ile evlendi`});}
 }
 
+// Eşleştirme: ön sanayi toplumlarında evlilik neredeyse evrenseldi (aile, komşuluk, görücü usulü); yılda iki kez
+function matchmaking(){
+  const by={};for(const a of sim.agents){if(a.spouse!=null&&!sim.byId.has(a.spouse))a.spouse=null;
+    if(a.spouse==null&&lifeStage(a)==='adult'&&ageYears(a)>=CFG.marryMinYears)(by[a.tribe]=by[a.tribe]||{F:[],M:[]})[a.sex].push(a);}
+  for(const k in by){const W=by[k].F,M=by[k].M;
+    for(let i=W.length-1;i>0;i--){const j=(rng()*(i+1))|0;[W[i],W[j]]=[W[j],W[i]];}
+    for(const w of W){if(w.spouse!=null||rng()>CFG.matchProb)continue;
+      let best=null,bv=-1e9;for(const m of M){if(m.spouse!=null||!canWed(w,m))continue;
+        const v=compat(w,m)+(w.rel.get(m.id)||0)/100-Math.abs(ageYears(m)-ageYears(w)-2)/12-dist(w,m)/400+rng()*0.3;if(v>bv){bv=v;best=m;}}
+      if(best&&bv>-0.6){const m=best;w.spouse=m.id;m.spouse=w.id;w.spouseName=m.name;m.spouseName=w.name;bump(w,m,30);bump(m,w,30);addMem(w,'married',0.8,0.8,m.id);addMem(m,'married',0.8,0.8,w.id);
+        if(w.events.length<12)w.events.push({t:sim.tick,e:`${m.name} ${m.surname} ile evlendi`});if(m.events.length<12)m.events.push({t:sim.tick,e:`${w.name} ${w.surname} ile evlendi`});}}}}
+
 /* ---------- Katman 1: birey kararı ---------- */
 function decide(a,t,env){
   const hunger=clamp(1-a.energy/CFG.energyMax),eat=hunger*hunger,inTerr=env.owner===a.tribe,C=[]; // eat: azalan marjinal fayda
@@ -694,7 +706,7 @@ function conceiveAndBirth(agents,births,t_of){
       a.nextFertile=sim.tick+Math.round(rnd(...CFG.amenorrhea)*CFG.yearLen);births.push(baby);
       if(CFG.mortality&&rng()<CFG.maternalDeath*a.frail){a.energy=-1;a._childbirth=true;}               // doğumda ölüm
       continue;}
-    if(a.spouse==null||sim.tick<a.nextFertile)continue;
+    if(a.spouse==null||sim.tick<a.nextFertile||agents.length+births.length>=CFG.totalCap)continue;   // performans tavanı: yeni gebelik yok
     const sp=sim.byId.get(a.spouse);if(!sp||sp.spouse!==a.id)continue;
     const y=ageYears(a),fa=fecAt(y);if(!fa)continue;
     const food=clamp((a.energy-30)/60),K=carryK(t),crowd=clamp(1.5-t.pop/K,0,1),sec=clamp(cityFood(t)/(Math.max(1,t.pop)*0.4)*0.5+0.5,0.35,1);
@@ -756,6 +768,7 @@ function step(){
   // Doğumlar: evli kadınlar gebe kalır, doğurur (doğum aralığı, yaş, beslenme, kalabalık)
   conceiveAndBirth(agents,births,a=>tribes[a.tribe]);
   if(sim.tick%CFG.yearLen===0)updateEpidemics();
+  if(sim.tick%Math.round(CFG.yearLen/2)===0)matchmaking();
   for(const t of tribes){if(t._dead)continue;
     // şehir onarımı + savaş masrafı
     for(const c of t.cities){if(sim.tick-(c._hitTick||-1e9)>90)c.hp=Math.min(CFG.cityHP,c.hp+0.03);}
@@ -792,7 +805,7 @@ function step(){
     // başkent düşerse → fetih
     if(capital(t).hp<=0){const conq=(capital(t)._lastAtk!=null)?tribes[capital(t)._lastAtk]:null;t._dead=true;t.war=null;
       if(conq&&!conq._dead){conq.treasury+=t.treasury;t.treasury=0;
-        for(const a of sim.agents)if(a.tribe===t.id){if(rng()<0.35){a.tribe=conq.id;a.color=conq.color;a.rebel=false;addMem(a,'conquered',-0.5,0.6);}else{a.energy=-1;maybeLegend(a,false,'fetihte');}}
+        for(const a of sim.agents)if(a.tribe===t.id){if(rng()<CFG.absorb){a.tribe=conq.id;a.color=conq.color;a.rebel=false;addMem(a,'conquered',-0.5,0.6);}else{a.energy=-1;maybeLegend(a,false,'fetihte');}}
         sim.agents=sim.agents.filter(a=>a.energy>0);
         for(const c of t.cities){c.hp=CFG.cityHP*0.6;conq.cities.push(c);} t.cities=[]; // şehirleri imparatorluğa kat
         conq.legit=Math.max(0.3,conq.legit-0.12); // fethedilen halk huzursuz → hafif aşırı-genişleme
