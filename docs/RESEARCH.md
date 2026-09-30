@@ -410,6 +410,20 @@ yapılandıran kişide). SOURCES.md'deki B düzeyleri değişmedi.
 nüfus 411-681. Demografi (4 seed × 120 yıl): beklenen ömür 34.6-37.4, bebek ölümü %16.3-17, 15'e ulaşma %64-65, doğurganlık
 4.5-5.1, evli kadın %77-80, açlık ölümü %1.9-9.7, savaş ölümü %6.1-10.5. **Bu tur (5) bağımsız bir turdan geçmedi.**
 
+## 10.16 Tur 6: bağımsız değerlendirme 5 ve düzeltmeler
+
+Kör değerlendirme (tur 5 kodu): ortalama **6.1** (demografi 7, mekân/ekonomi 5.5, toplum 6, birey zihni 5, savaş/siyaset 5, okunabilirlik 7, doğrulama 5, tekrarlanabilirlik 8). Hedef ≥8 hâlâ karşılanmadı.
+
+Yapılan düzeltmeler ve ölçümler (8 seed × 250 yıl, hata 0, yok oluş 0, en düşük nüfus 149):
+- Hükümdar tutarlılığı: isyanda eski hükümdar yeni krallığı kurarsa eski tahtı boşaltıp veraset başlıyor; her 50 tickte ölü/başka krallıktaki hükümdar temizleniyor. Bir seed'de tutarsız kayıt %24 → %0,7.
+- Kişilik → seçim (`CFG.persBehav`): aynı rol içinde çalışkanlık~çalışma/boş payı |r| 0,6-0,77, meraklılık~gezinme 0,2-0,8, sosyallik~buluşma 0,4-0,5. Savaş/risk korelasyonu zayıf (eylem nadir). Bu bağ tasarım gereği kurulan bir kural; "kişilik davranışı belirler" iddiasının ispatı değil, kuralın çalıştığının ölçümü.
+- Ekonomi: hekim bakımı ölüm riskini azaltıyor (`healWin`, `healProt`); hekim/tüccar hedef oranları yüke göre kayıyor; eksi ambar hatası giderildi. Hâlâ yok: ekim-hasat, hane mülkiyeti, bireysel servet.
+- Makro siyaset etkilenmedi: ortalama yaşayan krallık 6,27 (öncesi 6,27), geç savaş 56-145.
+- Arayüz: Ölçümler paneli (örnek seed, 80. yıl: beklenen ömür 36,6, 15'e ulaşma %66, doğurganlık 5,2). Panel dönem yaşam tablosu kullanıyor; "ortalama ölüm yaşı" büyüyen nüfusta beklenen ömürden çok düşük çıktığı (21,6) için kullanılmadı.
+- Türkçe ek uyumu (`ek()`).
+
+Açık kalanlar: köy/hane/gün döngüsü (1 tick ≈ 5 gün olduğu için gün döngüsü anlamlı değil), ekim-hasat ve mülkiyet, gerçek savaş taktiği, ihanet zinciri, isyan parçalanması, birincil kaynak doğrulaması (ağ engeli), nüfus üst sınırı (performans), yapılan değişikliklerin bağımsız yeniden değerlendirmesi.
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma

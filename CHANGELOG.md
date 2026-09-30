@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Tur 6 (bağımsız değerlendirme 5: 6.1)
+- Hata: isyanda hükümdar yeni krallığa geçince eski krallığın tahtı bayat kalıyordu (örnek seed'de kayıtların %24'ü tutarsız, şimdi %0,7)
+- Kişilik → seçim: çalışkanlık, cesaret/onur, sosyallik, meraklılık, uyumluluk eylem puanlarını belirgin biçimde değiştiriyor; gevşek kişiler ocak başında oyalanıyor (aynı rolde çalışkanlık ~ çalışma payı |r| ≈ 0,6-0,77; yorumcunun ölçtüğü en fazla 0,21). Risk (savaş) korelasyonu zayıf kaldı: savaş eylemi nadir
+- Ekonomi: hekim bakımı 40 tick boyunca ölüm riskini ×0,6 yapıyor; hekim ve tüccar oranları sabit değil, hasta yükü/salgın/ticarete göre kayıyor; eksi ambar hatası (küsuratlı stoktan 1 birim yeme) düzeltildi
+- Arayüz: "Ölçümler" paneli (dönem yaşam tablosundan doğumda beklenen ömür, 15'e ulaşma, doğurganlık, ölüm nedenleri, hedef aralıklarla); Türkçe ek uyumu (Mirka'nın, Kadûr'un)
+
 ### Realism pass
 - Demografi: cinsiyet, yaşa bağlı ölüm tehlikesi, evli kadından doğum, eş eşleştirmesi, salgın, kurucu aileler
 - Okunabilirlik: birey takibi, yakınlaştırma, hayat çizgisi, ağ çizgileri, yıllık hikâye akışı, nüfus piramidi, mevsimler
