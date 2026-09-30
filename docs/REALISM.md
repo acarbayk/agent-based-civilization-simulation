@@ -41,18 +41,18 @@ dürüst puanımdır. Hedef: ortalama ≥8 ve hiçbir boyut <6.
 
 ## Bağımsız gözden geçirme sonuçları
 
-| Boyut | Öz-puan (ilk plan) | Bağımsız tur 1 | Bağımsız tur 2 | Hedef |
-|---|---|---|---|---|
-| Demografik gerçekçilik | 2 | 7 | 7 | 8 |
-| Mekân ve ekonomi | 2 | 5 | 4.5 | 7 |
-| Toplumsal yapı | 7 | 7 | 7 | 8 |
-| Birey zihni | 7 | 6 | 5.5 | 8 |
-| Savaş ve siyaset | 4 | 3.5 | 6 | 7 |
-| Okunabilirlik ve his | 3 | 7 | 7 | 8 |
-| Doğrulama ve dürüstlük | 6 | 5.5 | 6 | 8 |
-| Tekrarlanabilirlik ve kararlılık | 7 | 8.5 | 8 | 8 |
-| **Ortalama** | | **6.2** | **6.4** | **≥8** |
+| Boyut | Öz-puan (ilk plan) | Bağımsız tur 1 | Bağımsız tur 2 | Bağımsız tur 3 | Hedef |
+|---|---|---|---|---|---|
+| Demografik gerçekçilik | 2 | 7 | 7 | 7.5 | 8 |
+| Mekân ve ekonomi | 2 | 5 | 4.5 | 4.5 | 7 |
+| Toplumsal yapı | 7 | 7 | 7 | 7 | 8 |
+| Birey zihni | 7 | 6 | 5.5 | 5 | 8 |
+| Savaş ve siyaset | 4 | 3.5 | 6 | 5.5 | 7 |
+| Okunabilirlik ve his | 3 | 7 | 7 | 6.5 | 8 |
+| Doğrulama ve dürüstlük | 6 | 5.5 | 6 | 7 | 8 |
+| Tekrarlanabilirlik ve kararlılık | 7 | 8.5 | 8 | 8 | 8 |
+| **Ortalama** | | **6.2** | **6.4** | **6.4** | **≥8** |
 
 Öz-puan sütunu başlangıç durumunun (bu planın yazıldığı an) puanıdır; bağımsız sütun, düzeltmelerden ÖNCE, öz-puanlardan
 habersiz taze bir ajanın puanıdır. En büyük düşüşü savaş boyutu yaşadı (hata bulundu ve düzeltildi, bkz.
-RESEARCH.md §10.6). Tur 2 sonrası tur 3 düzeltmeleri yapıldı (RESEARCH.md §10.9); yeni bir bağımsız tur henüz yapılmadı.
+RESEARCH.md §10.6). Tur 3 sonrası tur 4 düzeltmeleri yapıldı (RESEARCH.md §10.11); tur 4'ün bağımsız puanı için RESEARCH.md §10.13'e bakın (yapıldıysa).

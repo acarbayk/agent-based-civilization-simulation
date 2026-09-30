@@ -38,6 +38,6 @@ iş görece düşük riskliydi; arazi ve savaş işleri daha riskli. Arazi (3) v
 - Aşama 3 (arazi): **kısmen.** Arazi haritası, mevsim, verime bağlı yiyecek var; ama nüfusu yiyecek değil sabit performans
   tavanı sınırlıyor ve insan dağılımı araziye zayıf bağlı. Kapıdaki "verim haritası nüfusu sınırlıyor" **tutmadı.**
 - Aşama 4 (savaş): **kısmen.** Yalnızca savaştaki devletlere saldırı, sefer mevsimi, düşük ölümcüllük. Baskın/yağma/seferberlik yok.
-- Aşama 6 (doğrulama): bağımsız gözden geçirme tur 1 = 6.2, tur 2 = 6.4 (hedef ≥8, tutmadı). Tur 3 düzeltmeleri yapıldı
-  (yok olma hataları dahil); yeni bağımsız tur bekleniyor.
+- Aşama 6 (doğrulama): bağımsız gözden geçirme tur 1 = 6.2, tur 2 = 6.4, tur 3 = 6.4 (hedef ≥8, tutmadı). Tur 3 ve 4 düzeltmeleri yapıldı
+  (yok olma hataları, rol çeşitliliği, yumuşak doğum tavanı, siyaset uçları).
 - Güncel sayılar `RESEARCH.md` §10'da.
