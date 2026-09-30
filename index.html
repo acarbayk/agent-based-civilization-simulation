@@ -194,6 +194,9 @@ function computeTerritory(){const K=sim.tribes.length;
   for(const t of sim.tribes){t.land=0;t.threat=0;}
   for(let c=0;c<NCELL;c++)if(owner[c]>=0)sim.tribes[owner[c]].land++;
   for(const a of sim.agents){const o=ownerAt(a.x,a.y);if(o>=0&&o!==a.tribe)sim.tribes[o].threat++;}
+  for(const t of sim.tribes){if(t._dead||!t.cities.length)continue;let sf=0,n=0;                     // toprağın verimi: şehir çevresi ortalaması → taşıma kapasitesi
+    for(const c of t.cities){const gx=(c.x/TCELL)|0,gy=(c.y/TCELL)|0;for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||Math.hypot(dx,dy)>4)continue;sf+=fert[cx*TCY+cy];n++;}}
+    t.fertMul=n?clamp(sf/n/0.55,0.6,1.5):1;}
   // komşu krallıklar arasında paylaşılan sınır (gerilim kaynağı)
   for(let i=0;i<K;i++)sim.border[i].fill(0);
   for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy];if(o<0)continue;
@@ -201,6 +204,40 @@ function computeTerritory(){const K=sim.tribes.length;
     if(cy+1<TCY){const d=owner[cx*TCY+cy+1];if(d>=0&&d!==o){sim.border[o][d]++;sim.border[d][o]++;}}}
 }
 function ownerAt(x,y){let cx=clamp((x/TCELL)|0,0,TCX-1),cy=clamp((y/TCELL)|0,0,TCY-1);return owner[cx*TCY+cy];}
+
+/* ---------- Arazi: seed'li yükseklik/nem gürültüsü → ova, orman, tepe, dağ, nehir; verim haritası ---------- */
+const TTN=['ova','orman','tepe','dağ','nehir'],TTSPD=[1,0.85,0.8,0.55,0.75];
+let fert=new Float32Array(NCELL),ttype=new Uint8Array(NCELL),terrCv=null,riverPts=[];
+const cellOf=(x,y)=>clamp((x/TCELL)|0,0,TCX-1)*TCY+clamp((y/TCELL)|0,0,TCY-1);
+const terrSpd=(x,y)=>TTSPD[ttype[cellOf(x,y)]];
+function noiseGrid(nx,ny){const g=[];for(let i=0;i<=nx;i++){g.push([]);for(let j=0;j<=ny;j++)g[i].push(rng());}
+  return(u,v)=>{const x=u*nx,y=v*ny,i=Math.min(nx-1,x|0),j=Math.min(ny-1,y|0),fx=x-i,fy=y-j,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+    const a=g[i][j],b=g[i+1][j],c=g[i][j+1],d=g[i+1][j+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;};}
+function genTerrain(tribes){
+  const e1=noiseGrid(4,3),e2=noiseGrid(9,6),m1=noiseGrid(5,4),f1=noiseGrid(6,4);
+  for(let gx=0;gx<TCX;gx++)for(let gy=0;gy<TCY;gy++){const u=(gx+0.5)/TCX,v=(gy+0.5)/TCY,k=gx*TCY+gy;
+    const el=0.65*e1(u,v)+0.35*e2(u,v),mo=m1(u,v),fr=f1(u,v);let t,f;
+    if(el>0.64){t=3;f=0.06+0.1*rng();}else if(el>0.55){t=2;f=0.3+0.15*fr;}else if(mo>0.62){t=1;f=0.45+0.15*fr;}else{t=0;f=0.5+0.5*fr;}
+    ttype[k]=t;fert[k]=f;}
+  riverPts=[];for(let r=0;r<3;r++){const x0=rnd(60,W-60),x1=rnd(60,W-60),ph=rng()*6,amp=rnd(30,80),pts=[];
+    for(let i=0;i<=60;i++){const t=i/60,x=x0+(x1-x0)*t+amp*Math.sin(t*7+ph),y=t*H;pts.push([x,y]);
+      const gx=clamp((x/TCELL)|0,0,TCX-1),gy=clamp((y/TCELL)|0,0,TCY-1);
+      for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY)continue;const k=cx*TCY+cy;
+        if(dx===0&&dy===0){ttype[k]=4;fert[k]=Math.max(fert[k],0.95);}else if(ttype[k]!==3)fert[k]=Math.max(fert[k],0.78);}}
+    riverPts.push(pts);}
+  for(const t of tribes){const c=t.cities[0],gx=(c.x/TCELL)|0,gy=(c.y/TCELL)|0;                // başlangıç vadisi: başkentin çevresi verimli ova
+    for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||Math.hypot(dx,dy)>3.2)continue;
+      const k=cx*TCY+cy;if(ttype[k]!==4)ttype[k]=0;fert[k]=Math.max(fert[k],0.72);}}
+  paintTerrain();}
+function paintTerrain(){
+  terrCv=document.createElement('canvas');terrCv.width=W;terrCv.height=H;const g=terrCv.getContext('2d');
+  for(let gx=0;gx<TCX;gx++)for(let gy=0;gy<TCY;gy++){const k=gx*TCY+gy,t=ttype[k],f=fert[k];let col;
+    if(t===0)col=`rgb(${18+f*14|0},${34+f*40|0},${26+f*10|0})`;else if(t===1)col=`rgb(12,${30+f*22|0},22)`;
+    else if(t===2)col=`rgb(${38+f*14|0},${34+f*10|0},24)`;else if(t===3)col=`rgb(${44+((gx*7+gy*3)%5)*3},${46+((gx+gy)%4)*3},${56+((gx*5)%4)*3})`;else col='rgb(16,40,62)';
+    g.fillStyle=col;g.fillRect(gx*TCELL,gy*TCELL,TCELL,TCELL);}
+  g.lineCap='round';g.lineJoin='round';for(const pts of riverPts){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.strokeStyle='rgba(58,128,178,0.55)';g.lineWidth=7;g.stroke();g.strokeStyle='rgba(110,180,225,0.35)';g.lineWidth=2.5;g.stroke();}}
+const foodSeason=[1.0,1.35,1.0,0.3];
+function foodAt(){for(let n=0;n<8;n++){const x=rng()*W,y=rng()*H;if(rng()<Math.pow(fert[cellOf(x,y)],1.5)+0.015){sim.food.push({x,y});return;}}}
 
 /* Kurulum */
 function kingdomShell(id,name,color,cities){
@@ -309,7 +346,8 @@ function reset(){
   const tribes=[];for(let i=0;i<CFG.kingdoms;i++)tribes.push(makeKingdom(i));
   const agents=[];
   for(const t of tribes)foundFamilies(t,capital(t),agents);
-  const food=[];for(let i=0;i<180;i++)food.push({x:rng()*W,y:rng()*H});
+  genTerrain(tribes);
+  const food=[];for(let i=0;i<400&&food.length<180;i++){const x=rng()*W,y=rng()*H;if(rng()<Math.pow(fert[cellOf(x,y)],1.5)+0.015)food.push({x,y});}
   const K=CFG.kingdoms; nextKingId=K;
   sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],stories:[],yrStories:[],vit:{b:0,d:0,lb:0,ld:0},climate:{mul:1,until:Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)},
     rel:Array.from({length:K},()=>new Array(K).fill(0)),tr:Array.from({length:K},()=>new Array(K).fill('none')),
@@ -520,7 +558,7 @@ function findSettleSpot(t){
   for(let n=0;n<50;n++){const x=rnd(40,W-40),y=rnd(40,H-40),o=ownerAt(x,y);
     if(o!==-1&&o!==t.id)continue;
     let dOwn=1e9;for(const c of t.cities)dOwn=Math.min(dOwn,Math.hypot(c.x-x,c.y-y));
-    if(dOwn<110||dOwn>240)continue;
+    if(dOwn<110||dOwn>240||fert[cellOf(x,y)]<0.45)continue;
     let ok=true;for(const k of sim.tribes){if(k._dead)continue;for(const c of k.cities)if(k.id!==t.id&&Math.hypot(c.x-x,c.y-y)<95)ok=false;}
     if(ok)return{x,y};}
   return null;
@@ -694,7 +732,7 @@ function renderStories(){const el=document.getElementById('stories');if(!el||!si
 function followId(id){selectedId=id;view.follow=true;view.z=Math.max(view.z,2.4);followBtn.classList.add('primary');renderInspect();render();}
 
 /* ---------- Demografi: ölüm tehlikesi, doğurganlık, salgın ---------- */
-const carryK=t=>CFG.carryCap*(1+0.4*(t.cities.length-1))*CFG.carryMul;
+const carryK=t=>CFG.carryCap*(1+0.4*(t.cities.length-1))*CFG.carryMul*(t.fertMul||1);
 function hazard(a,t){const y=ageYears(a);
   let h=y<1?CFG.mInfant:y<5?CFG.mChild:y<15?CFG.mYouth:CFG.mBase+CFG.mGomp*Math.exp(CFG.mGompK*y);   // Gompertz-Makeham: yıllık ölüm olasılığı
   h*=a.frail;                                                   // kişisel kırılganlık
@@ -735,8 +773,8 @@ function step(){
   if(CFG.climate&&sim.tick>=sim.climate.until){
     if(sim.climate.mul<1){sim.climate={mul:1,until:sim.tick+Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)};logEvent('Kuraklık sona erdi, yağmurlar döndü','#9fb');}
     else{const yrs=rnd(...CFG.droughtYears);sim.climate={mul:rnd(...CFG.droughtFood),until:sim.tick+Math.round(yrs*CFG.yearLen)};logEvent(`Büyük kuraklık başladı (~${Math.round(yrs)} yıl): tarlalar kurudu`,'#ffb86b');}}
-  let sp=foodRate*0.95*(CFG.climate?sim.climate.mul:1);while(sp>=1){food.push({x:rng()*W,y:rng()*H});sp--;}
-  if(rng()<sp)food.push({x:rng()*W,y:rng()*H});
+  let sp=foodRate*0.95*(CFG.climate?sim.climate.mul:1)*foodSeason[seasonIdx(sim.tick)];while(sp>=1){foodAt();sp--;}
+  if(rng()<sp)foodAt();
   for(const t of tribes){t._tradePartner=null;t._plotTarget=null;let bR=-1e9,bP=0;
     for(const o of tribes){if(o.id===t.id||o._dead||o.pop===0)continue;const tr=sim.tr[t.id][o.id];
       if((tr==='trade'||tr==='ally')&&sim.rel[t.id][o.id]>bR){bR=sim.rel[t.id][o.id];t._tradePartner=o.id;}
@@ -767,8 +805,9 @@ function step(){
     if(CFG.goals&&(a.id+sim.tick)%CFG.goalEvery===0&&lifeStage(a)!=='child')chooseGoal(a);
     const dec=decide(a,t,env);a.act=dec.act;a.acts[dec.act]=(a.acts[dec.act]||0)+1;
     if((dec.act==='WANDER'||dec.act==='PATROL')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||rng()<0.012)){
-      const hc=nearestCity(t.cities,a.x,a.y);a.wx=hc.x+rnd(-260,260);a.wy=hc.y+rnd(-260,260);dec.tx=a.wx;dec.ty=a.wy;}
-    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
+      const hc=nearestCity(t.cities,a.x,a.y);let bx=0,by=0,bf=-1;for(let q=0;q<3;q++){const x=clamp(hc.x+rnd(-260,260),2,W-2),y=clamp(hc.y+rnd(-260,260),2,H-2),f=fert[cellOf(x,y)];if(f>bf){bf=f;bx=x;by=y;}}   // verimli toprağa yönelim
+      a.wx=bx;a.wy=by;dec.tx=a.wx;dec.ty=a.wy;}
+    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
     a.x=clamp(a.x+dx/dd*spd,2,W-2);a.y=clamp(a.y+dy/dd*spd,2,H-2);
     if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());enemy.energy-=dmg*4;enemy._killer=a;}
     if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;}}
@@ -881,6 +920,7 @@ function render(){
   if(view.z<=1.001){view.z=1;view.cx=W/2;view.cy=H/2;}
   {const hw=W/(2*view.z),hh=H/(2*view.z);view.cx=clamp(view.cx,hw,W-hw);view.cy=clamp(view.cy,hh,H-hh);}
   ctx.save();ctx.translate(W/2,H/2);ctx.scale(view.z,view.z);ctx.translate(-view.cx,-view.cy);
+  if(terrCv)ctx.drawImage(terrCv,0,0);
   for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy];if(o<0)continue;ctx.fillStyle=sim.tribes[o].color+'22';ctx.fillRect(cx*TCELL,cy*TCELL,TCELL,TCELL);}
   ctx.lineWidth=1;
   for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy],rN=cx+1<TCX?owner[(cx+1)*TCY+cy]:o,dN=cy+1<TCY?owner[cx*TCY+cy+1]:o;
