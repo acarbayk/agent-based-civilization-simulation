@@ -85,7 +85,106 @@ Uygulanan tasarım (parametreler `CFG` içinde):
 dağılımlı değil, açlık ve hoşnutluktan hesaplanıyor. Bilinen sınır: bazı seed'lerde 285 yılın
 sonunda tek devlet kalabiliyor; bu doğal çeşitlilik sayıldı, ama izlenmeli.
 
-## 6. Henüz incelenmeyenler
+## 6. Adım 2: kişilik, değerler, ilişkiler, aile
 
-Proje sahibinin verdiği diğer kaynaklar (toplam 10-12 olduğu söylendi, 3'ü geldi) görülemedi.
-Turchin'in yapısal-demografik kuramına yönelik eleştiriler de aranmadı; arama sonuçlarında çıkmadı.
+**Araştırma.** Sosyal simülasyonlarda Big Five kişilik ve homofili ile bağ oluşumu
+([LLM ajanlarla ortaya çıkan bağlar](https://arxiv.org/html/2510.19299)); Dunbar katmanları 5-15-50-150,
+yani ilişki sayısı sınırlı ([Calling Dunbar's numbers](https://arxiv.org/pdf/1604.02400)); evlilik piyasası
+ABM'leri: benzer olanı arama, yaş farkı tercihi ([MADAM/KAMA özeti](https://www.jasss.org/11/4/5.html),
+[Age-at-marriage](https://csde.washington.edu/downloads/toddbillarisimao.pdf)); Dwarf Fortress'ta davranış
+(facet) ve inanç (değer) ayrımı ([wiki](https://dwarffortresswiki.org/index.php/Personality_facet)).
+
+**Tasarım.** Her birey 5 kişilik özelliği (açıklık, sorumluluk, dışadönüklük, uyumluluk, kaygı) ve 4 değer
+(gelenek, cemaat, onur, merak) taşır; ebeveyn ortalamasının %50'si + yeni şans. Görüş tek yönlüdür
+(A→B ≠ B→A), birey başına 14 kayıtla sınırlıdır, yakınlarla temas ve değer/kişilik benzerliğiyle (homofili)
+artar. Evlilik: iki yetişkin, akraba değil, yaş farkı ≤12 yıl, karşılıklı görüş yeterli. Doğumlarda çocuk
+çoğunlukla evli bir çiftten gelir. Kişilik; meslek seçimini, isyan risk-kaçınmasını, korku tepkisini ve
+cesareti etkiler.
+
+**Ölçüm** (6000 adım, 4 seed):
+
+| Ölçüt | Sonuç |
+|---|---|
+| Arkadaşlık ağı kümelenmesi | 0.29-0.50 (aynı yoğunlukta rastgele ağda 0.02-0.03) |
+| Karşılıklı olumlu bağ oranı | 0.67-0.81 |
+| Akraba evliliği ihlali | 0 |
+| İki ebeveynli doğum oranı | %65-86 |
+| Evli yetişkin oranı | %12-19 → ayar sonrası %24-42 |
+| Arkadaşların uyumu / rastgele çift | 0.49-0.52 / 0.46 (homofili var ama zayıf; bağlar çoğunlukla yakınlıktan) |
+| Ebeveyn-çocuk kişilik korelasyonu | 0.15-0.29 (tasarım hedefi ≈0.25) |
+
+## 7. Adım 3: hafıza ve hedefler
+
+**Araştırma.** ACT-R taban aktivasyonu: `B = ln Σ t^-d`, `d=0.5`
+([Understanding ACT-R](https://arxiv.org/pdf/1306.0125)); Dwarf Fortress'ta sınırlı hafıza yuvaları,
+aynı olaya kişiliğe göre farklı tepki ve anıların kişiliği kalıcı değiştirmesi
+([bellek](https://dwarffortresswiki.org/index.php/DF2014:Memory_(thought)),
+[duygu](https://dwarffortresswiki.org/index.php/DF2014:Emotion)); The Sims tarzı ihtiyaç tabanlı yapay
+zekâ ([Zubek](https://robert.zubek.net/publications/Needs-based-AI-draft.pdf)); Millington §5.7 hedef *insistence*.
+
+**Tasarım.** Birey başına 10 anı yuvası (en düşük aktivasyonlu düşer). Yas, evlilik, doğum, öldürme, açlık,
+fetih ve intikam anılarına dönüşür; kaygılı kişi acıyı daha şiddetli yaşar. Anılar ruh halini ve korku tabanını
+belirler, büyük yas kaygıyı kalıcı artırır. Hedefler: intikam, eş arama, aileye dönme, dost arama; her birinin
+*insistence* değeri var ve hedef eylemleri rol eylemleriyle yarışır (histerezisli seçim).
+
+**Ölçüm** (6000 adım, 4 seed, hedefler açık ve kapalı):
+
+| Ölçüt | Hedef kapalı | Hedef açık |
+|---|---|---|
+| Eylemlerin hedef güdümlü oranı | 0 | %16-19 |
+| Evli yetişkin oranı | %35-39 | %40-45 |
+| Aynı roldeki bireyler arası davranış farkı (JSD, yüksek = daha ayrışmış) | 0.133 | 0.160 (seed'ler arası gürültü büyük) |
+| Tamamlanan intikam | 0 | 5-13 / seed (eşik düzeltmesinden sonra; ilk sürümde 0'dı) |
+
+## 8. Adım 4: hükümdar bir bireydir
+
+**Araştırma.** Hermann'ın liderlik özellik analizi: kişilik dış politika yönelimini belirler; düşük uyumluluk ve
+yüksek güvensizlik saldırganlığı artırır ([Hermann](https://www.researchgate.net/publication/253070340_Assessing_Leadership_Style_A_Trait_Analysis)).
+Veraset kuralları: net kural (primogeniture) istikrarlı, tanistry ve seçim kriz üretir
+([primogeniture](https://en.wikipedia.org/wiki/Primogeniture),
+[elective monarchy](https://en.wikipedia.org/wiki/Elective_monarchy)); Crusader Kings veraset yasaları.
+
+**Tasarım.** Krallığın hırs, kurnazlık, açgözlülük, sadakat ve yenilikçilik değerleri hükümdarın kişilik ve
+değerlerinden türer. Veraset sırası: ilk çocuk, kardeş, sonra popülerliğe göre seçim (seçim = veraset krizi,
+meşruiyet düşer). Darbe ve isyan yeni hükümdar getirir; liderler arası kişisel kimya ilişkiyi etkiler.
+
+**Ölçüm.** İlk sürümde savaş başlatan kralların hırsı genel ortalamadan farksızdı (0.52 ile 0.54, 0.64 ile
+0.62): yani kişilik neredeyse etkisizdi. Karar ağırlıkları güçlendirilip barış eşiği liderin uyumluluğuna
+bağlandı. Sonuç (8 seed × 12000 adım), 1000 krallık-örneği başına savaş:
+
+| Hükümdarın hırsı | Savaş / 1000 örnek |
+|---|---|
+| Yüksek (>0.65) | 43.9 |
+| Orta | 12.1 |
+| Düşük (<0.50) | 0.0 (210 örnek) |
+
+## 9. Adım 5: durgun denge, iklim ve rejim yaşı
+
+**Bulgu.** Adım 4 sonunda dünya 2.500-3.500 adımda (3× hızda ~15-20 sn) 1-2 krallığa iniyor ve sonsuza dek
+donuyordu: iki devlet kalıcı müttefik, teknoloji ve kültür biriktikçe meşruiyet 0.6-0.67'ye çıkıp huzursuzluk ≈0.
+Nedenler: yiyecek üretimi ihtiyacın ~20 katı (110 nüfus için adım başına ~0.14 gerekir, üretim ~2.85), haritada
+biriken ~3000 yiyecek ve ambarlar kuraklığı tamponlar.
+
+**Denenenler.**
+1. Hafif kuraklık (%20-45 verim): hiçbir etki.
+2. Şiddetli kuraklık (%3-10 verim, 2-6 yıl): nüfus çöküyor (bir seed'de 440 → 82) ve toparlanıyor, ama siyasi
+   olay yine çıkmıyor (kuraklık yine de bırakıldı: "☀ KURAKLIK" evreleri ve açlık anıları üretiyor).
+3. **Rejim yaşı:** meşruiyet hedefi, rejimin yaşıyla 70 yılda −0.30'a kadar düşer (Ibn Haldun/Turchin: asabiya
+   çürümesi; [Gavrilets ve Turchin](http://volweb2.utk.edu/~gavrila/papers/turchin-gavr.pdf)). Darbe ve bölünmede saat sıfırlanır.
+
+| 4 seed, 15.000 adım | Geç dönem olay (t>4000) | Ortalama canlı krallık |
+|---|---|---|
+| İklim yok, rejim yaşı yok | 36 / 56 / 114 / 69 | 1.67 / 1.97 / 4.0 / 2.03 |
+| **Kuraklık + rejim yaşı (son)** | 82 / 92 / 184 / 122 | 2.27 / 3.13 / 4.17 / 2.87 |
+
+Geç dönemde savaş, isyan ve fetih geri geldi (bir seed'de 9 savaş, 2 isyan, 3 fetih).
+
+## 10. Bilinen sınırlar
+
+- Bazı seed'lerde dünya yine tek devlete iniyor (8 seed'de 1-2 tanesi).
+- Eşikler (T=0.13, rejim yaşı, kuraklık) tek parametreli süpürmelerle seçildi; geniş bir seed taraması ve
+  duyarlılık analizi yapılmadı.
+- Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor (kuzenler değil).
+- Homofili zayıf; bağlar çoğunlukla yakınlığa dayanıyor.
+- LLM anlatı katmanı eklenmedi (şablon tabanlı hikâye var); ajan davranışı tamamen kural tabanlı.
+- Turchin'in yapısal-demografik kuramına yönelik eleştiriler aranmadı.

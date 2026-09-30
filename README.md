@@ -50,15 +50,13 @@ Every citizen is simulated independently.
 
 Each individual can:
 
-- Gather resources
-- Trade
-- Fight
-- Heal
-- Spy
-- Age naturally
-- Die naturally
-- Form families
-- Become legendary figures
+- Gather resources, trade, fight, heal, spy
+- Age naturally and die naturally
+- Have a personality (Big Five) and values, inherited from both parents
+- Make friends and rivals, fall in love, marry and raise children
+- Remember: grief, pride and hunger shape mood and fear
+- Pursue goals: revenge, finding a mate, staying close to family
+- Become rulers, found dynasties and become legendary figures
 
 ---
 
@@ -127,6 +125,7 @@ Examples include:
 | **V4** | Diplomacy, trade and espionage |
 | **V5** | Reputation, alliances and city management |
 | **V6** | Dynasties, legitimacy, legends and rebellions |
+| **V7** | Seeded history, Epstein-style rebellion, personalities, relationships, memory, goals, rulers as individuals, droughts |
 
 Earlier versions are preserved in the `versions/` directory.
 
@@ -162,11 +161,10 @@ Rather than scripting historical events, the goal is to allow believable civiliz
 - Economy simulation
 - Religion
 - Cultural evolution
-- Climate simulation
-- Natural disasters
+- Richer climate (beyond droughts)
 - Procedural world generation
 - Save / Load system
-- Advanced personalities
+- Optional LLM narrator for legends
 - Smarter diplomacy
 
 ---

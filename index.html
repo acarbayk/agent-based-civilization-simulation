@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Krallıklar v5 — Denge, İtibar, Medeniyet</title>
+<title>Krallıklar Simülasyonu</title>
 <style>
   :root{--bg:#0d1119;--panel:#151b28;--panel-2:#1d2536;--line:#2a3448;--ink:#e9edf5;--muted:#8c95ac;--accent:#e6a94a;
     --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
@@ -40,8 +40,8 @@
 <body>
 <div class="wrap">
   <div class="stage">
-    <h1>Krallıklar v7c · teknoloji, kültür ve isyan</h1>
-    <p class="sub">Krallıklar artık <b>teknoloji keşfediyor</b>: yenilikçiliği (innov) yüksek olan daha hızlı ilerler, 22 teknolojilik ağaçta 5 çağı tırmanır (Tarım'dan Barut'a). Teknoloji <b>savunmaya ağırlık verir</b> — küçük ama gelişmiş bir ordu, büyük ama ilkel bir orduyu tutabilir; savaşan krallık az âlim üretip tech'te geri kalır. Her nokta bir iç dünya (hoşnutluk/korku) taşır, meslek seçer, meşruiyetsiz krallıkta isyan eder. Bir bireye tıkla → hikâyesini gör.</p>
+    <h1>Krallıklar · her birey bir hayat</h1>
+    <p class="sub">Her nokta <b>kendi kişiliği ve değerleri</b> olan bir birey: sever, evlenir, çocuk yetiştirir, yas tutar, <b>intikam peşinde koşar</b>. Anıları ruh halini ve korkusunu değiştirir; hükümdarın kişiliği krallığın barış, savaş ve ihanet kararlarını belirler. Hükümdar ölünce veraset gelir, hanedanlar kurulur, meşruiyeti çöken devlette isyan çıkar. Bir bireye tıkla → kişiliğini, ailesini, dostlarını, hasımlarını, anılarını ve hedefini gör; isimlere tıklayarak aile ağında gez. <b>Seed</b> kutusu aynı tarihi yeniden oynatır.</p>
     <canvas id="world" width="900" height="520"></canvas>
     <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ doktor</span><span>◆ tüccar</span><span>✦ casus</span><span style="color:#ff6b6b">◯ isyancı</span><span style="margin-left:auto">bireye tık → ruh hâli + hikâye</span></div>
     <div class="bar"><button id="playBtn" class="primary">⏸ Duraklat</button><button id="stepBtn">⏭ Adım</button><button id="resetBtn" title="Aynı seed ile baştan başlat (aynı tarih)">↻ Sıfırla</button><input id="seedIn" title="Seed: aynı seed = aynı tarih" spellcheck="false" style="width:74px;background:#161a24;color:#dfe6f0;border:1px solid #2a3040;border-radius:6px;padding:5px 7px;font-family:var(--mono);font-size:12px"><button id="seedNewBtn" title="Yeni rastgele seed ile başlat">🎲</button><button id="techBtn">⚙ Teknoloji Ağacı</button><button id="cultBtn">◈ Kültür Ağacı</button><button id="histBtn">📜 Tarih</button><button id="chronBtn">📖 Vakayiname</button><span id="dateNow" style="margin-left:auto;font-family:var(--mono);font-size:12px;color:#8b93a5"></span></div>
@@ -135,7 +135,11 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:440,
   // sosyal katman: Dunbar-tarzı sınırlı ilişki listesi, homofili, evlilik
   relCap:14, socEvery:8, socR:34, marryMinYears:16, mateGapYears:12, marryOpinion:24, marryProb:0.7, homoK:6, contact:0.6,
   // hafıza (ACT-R güç yasası, Dwarf Fortress yuvaları) + hedefler (GOB insistence)
-  memMax:10, memDecay:0.5, goalEvery:60, goals:true, revengeOpinion:-50};
+  memMax:10, memDecay:0.5, goalEvery:60, goals:true, revengeOpinion:-50,
+  // iklim: nadir kuraklıklar (Bronz Çağı çöküşü, Küçük Buzul Çağı gibi dış şoklar) durgun dengeyi bozar
+  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10],
+  // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
+  regimeDecay:0.30, regimeYears:70};
 const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
 // isyanla doğacak yeni krallıklar için renk + isim havuzu
 const PALETTE=['#b98cff','#ff8a5c','#5cd6c0','#d64f6a','#9ec94f','#4f8cff','#f0a6d0','#c0a15c','#6ad0ff','#ff6ba3'];
@@ -284,7 +288,7 @@ function reset(){
     agents.push(makeAgent(t,b.x+rnd(-22,22),b.y+rnd(-22,22),'CHILD'));}}
   const food=[];for(let i=0;i<180;i++)food.push({x:rng()*W,y:rng()*H});
   const K=CFG.kingdoms; nextKingId=K;
-  sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],
+  sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],climate:{mul:1,until:Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)},
     rel:Array.from({length:K},()=>new Array(K).fill(0)),tr:Array.from({length:K},()=>new Array(K).fill('none')),
     border:Array.from({length:K},()=>new Array(K).fill(0)),
     truce:Array.from({length:K},()=>new Array(K).fill(0))};
@@ -299,8 +303,8 @@ function recount(){for(const t of sim.tribes){t.pop=0;t.counts={};}for(const a o
 const WD=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
 const ERA5=['Tarih Öncesi','İlk Çağ','Orta Çağ','Yeni Çağ','Yakın Çağ'];
 function dateStr(tk){const y=Math.floor(tk/CFG.yearLen),d=(tk%CFG.yearLen)+1;return `Yıl ${y} · ${d}. gün · ${WD[tk%7]}`;}
-function evIcon(x){if(x.includes('FETHETTİ')||x.includes('tahtına')||x.includes('hanedan'))return '👑';if(x.includes('veraset'))return '⚠';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
-function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu|yeni hanedan|veraset/.test(x);}
+function evIcon(x){if(x.includes('uraklık'))return x.includes('sona')?'🌧':'☀';if(x.includes('FETHETTİ')||x.includes('tahtına')||x.includes('hanedan'))return '👑';if(x.includes('veraset'))return '⚠';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
+function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu|yeni hanedan|veraset|kuraklık başladı/.test(x);}
 function logEvent(text,color){const ev={text,color,tick:sim?sim.tick:0};
   sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
   (sim.chronicle=sim.chronicle||[]).unshift(ev);if(sim.chronicle.length>500)sim.chronicle.pop();
@@ -386,7 +390,7 @@ function updateSociety(){
     const totLand=Math.max(1,sim.tribes.reduce((s,k)=>s+(k._dead?0:k.land),0));
     const dominance=clamp((t.land/totLand-0.5)/0.4);   // sadece AŞIRI hâkimiyette (>%50 toprak) devreye girer
     const span=clamp((t.cities.length-2)/5);                   // aşırı genişleme: büyük devlette çekirdek bölgenin bağı (asabiya) gevşer — Turchin, Tainter
-    const target=clamp(0.86-crowd*0.32-elite*0.4-scarce*0.35-war*0.35-dominance*0.3-span*CFG.overreach+t._gov+(t._cLegit||0),0.15,0.94);
+    const target=clamp(0.86-crowd*0.32-elite*0.4-scarce*0.35-war*0.35-dominance*0.3-span*CFG.overreach-clamp((sim.tick-t.born)/(CFG.regimeYears*CFG.yearLen))*CFG.regimeDecay+t._gov+(t._cLegit||0),0.15,0.94);
     t.legit+=(target-t.legit)*0.05;                    // yavaş, yumuşak kayış
     doResearch(t); doCulture(t);                       // teknoloji + kültür
     // İsyan (Epstein): grievance = zorluk × meşruiyetsizlik. İç dünya (hoşnutluk/korku) EŞİĞİ belirler.
@@ -414,7 +418,7 @@ function trySecede(t){
   t._uStreak=t.unrest>=CFG.secedeFrac?t._uStreak+1:0;            // huzursuzluk birkaç yıl sürmeli (Goldstone/Turchin: kriz birikir)
   if(t.pop<14||t._uStreak<CFG.secedeSustain||sim.tick<t._seceCd)return;
   if(t.cities.length<2){                                         // tek şehirli devlet bölünemez: saray darbesi, yeni hanedan
-    t.legit=Math.max(t.legit,0.62);t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;
+    t.legit=Math.max(t.legit,0.62);t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;t.born=sim.tick;   // yeni rejim, saat sıfırlanır
     const reb=sim.agents.filter(a=>a.tribe===t.id&&a.rebel&&lifeStage(a)==='adult');
     for(const a of sim.agents)if(a.tribe===t.id)a.rebel=false;
     logEvent(`⚑ ${t.name}'de saray darbesi`,t.color);
@@ -434,7 +438,7 @@ function trySecede(t){
   if(t.cities.length>=4){let nc=null,nd=1e18;for(const c of t.cities)if(c!==bestCity){const d=(c.x-bestCity.x)**2+(c.y-bestCity.y)**2;if(d<nd){nd=d;nc=c;}}if(nc)takeCities.push(nc);}
   for(const c of takeCities){const idx=t.cities.indexOf(c);if(idx>=0)t.cities.splice(idx,1);}
   const k=spawnKingdom(name,color,takeCities.map(c=>({name:c.name,x:c.x,y:c.y,food:12,hp:CFG.cityHP})),founders,t.id);
-  t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;k._seceCd=sim.tick+CFG.secedeCool;   // bölünmeden sonra soğuma
+  t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;k._seceCd=sim.tick+CFG.secedeCool;t.born=Math.max(t.born,sim.tick-CFG.regimeYears*CFG.yearLen*0.4);   // bölünmeden sonra soğuma
   logEvent(`⚑ ${t.name}'de İSYAN! Yeni krallık doğdu: ${name}`,color);
   if(t.cities.length===0){t._dead=true;t.war=null;logEvent(`${t.name} isyanla dağıldı`,'#ff6b6b');
     for(const o of sim.tribes)if(o.war&&o.war.target===t.id)o.war=null;
@@ -453,9 +457,9 @@ function applyRuler(t){const r=sim.byId.get(t.ruler);if(!r)return;const P=r.pers
   t.loyalty =traitClamp(0.12+0.45*V.trad+0.35*P.A);                                 // sadakat: gelenekçi ve uyumlu
   t.innov   =traitClamp(0.12+0.55*P.O+0.25*V.curio);}                               // yenilikçilik: açık ve meraklı
 function setRuler(t,a,how){t.ruler=a.id;a.reignStart=sim.tick;
-  if(a.surname!==t.dynasty){if(t.dynasty&&sim.tick>0)logEvent(`👑 ${t.name}'de yeni hanedan: ${a.surname}`,t.color);t.dynasty=a.surname;}
+  if(a.surname!==t.dynasty){if(t.dynasty&&sim.tick>0)logEvent(`${t.name}'de yeni hanedan: ${a.surname}`,t.color);t.dynasty=a.surname;}
   a.events.push({t:sim.tick,e:`${t.name} hükümdarı oldu (${how})`});
-  if(sim.tick>0)logEvent(`👑 ${a.name} ${a.surname}, ${t.name} tahtına çıktı (${how})`,t.color);
+  if(sim.tick>0)logEvent(`${a.name} ${a.surname}, ${t.name} tahtına çıktı (${how})`,t.color);
   t.succ[how]=(t.succ[how]||0)+1;applyRuler(t);
   // kişisel kimya: diğer hükümdarlarla ilk ilişki
   for(const o of sim.tribes){if(o.id===t.id||o._dead||o.ruler==null)continue;const r=sim.byId.get(o.ruler);if(r){const d=compat(a,r)*8;sim.rel[t.id][o.id]+=d;sim.rel[o.id][t.id]+=d;}}}
@@ -468,7 +472,7 @@ function succeed(t,old,alive){
     if(!heir){const sib=kin.filter(c=>c!==old&&sharesParent(c,old)).sort((x,y)=>x.born-y.born);if(sib.length){heir=sib[0];how='kardeş';}}}
   if(!heir){let bv=-1;for(const c of kin){let pop=c.kills*0.15;for(const o of kin)if((o.rel.get(c.id)||0)>25)pop++;if(pop>bv){bv=pop;heir=c;}}how='seçim';}
   if(how==='kardeş'&&old)t.legit=Math.max(0.15,t.legit-0.04);                                     // kardeş: küçük sarsıntı
-  else if(how==='seçim'&&old){t.legit=Math.max(0.15,t.legit-0.10);logEvent(`⚠ ${t.name}'de veraset krizi`,'#ffb86b');}   // varis yok: kriz
+  else if(how==='seçim'&&old){t.legit=Math.max(0.15,t.legit-0.10);logEvent(`${t.name}'de veraset krizi`,'#ffb86b');}   // varis yok: kriz
   setRuler(t,heir,how);}
 
 /* ---------- Katman 2: KRAL kararı ---------- */
@@ -644,7 +648,10 @@ function maybeLegend(a,oldAge,where){
 /* ---------- Bir adım ---------- */
 function step(){
   const {agents,food,tribes}=sim;sim.tick++;
-  let sp=foodRate*0.95;while(sp>=1){food.push({x:rng()*W,y:rng()*H});sp--;}
+  if(CFG.climate&&sim.tick>=sim.climate.until){
+    if(sim.climate.mul<1){sim.climate={mul:1,until:sim.tick+Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)};logEvent('Kuraklık sona erdi, yağmurlar döndü','#9fb');}
+    else{const yrs=rnd(...CFG.droughtYears);sim.climate={mul:rnd(...CFG.droughtFood),until:sim.tick+Math.round(yrs*CFG.yearLen)};logEvent(`Büyük kuraklık başladı (~${Math.round(yrs)} yıl): tarlalar kurudu`,'#ffb86b');}}
+  let sp=foodRate*0.95*(CFG.climate?sim.climate.mul:1);while(sp>=1){food.push({x:rng()*W,y:rng()*H});sp--;}
   if(rng()<sp)food.push({x:rng()*W,y:rng()*H});
   for(const t of tribes){t._tradePartner=null;t._plotTarget=null;let bR=-1e9,bP=0;
     for(const o of tribes){if(o.id===t.id||o._dead||o.pop===0)continue;const tr=sim.tr[t.id][o.id];
@@ -788,7 +795,7 @@ function step(){
 let animT=0;
 function render(){
   animT++;
-  const dn=document.getElementById('dateNow');if(dn)dn.textContent=dateStr(sim.tick);
+  const dn=document.getElementById('dateNow');if(dn)dn.textContent=dateStr(sim.tick)+(sim.climate&&sim.climate.mul<1?'  ·  ☀ KURAKLIK':'');
   ctx.clearRect(0,0,W,H);
   for(let cx=0;cx<TCX;cx++)for(let cy=0;cy<TCY;cy++){const o=owner[cx*TCY+cy];if(o<0)continue;ctx.fillStyle=sim.tribes[o].color+'22';ctx.fillRect(cx*TCELL,cy*TCELL,TCELL,TCELL);}
   ctx.lineWidth=1;
@@ -959,10 +966,13 @@ document.getElementById('cultKing').onchange=e=>renderCultureTree(+e.target.valu
 function lifeProse(a){
   const t=sim.tribes[a.tribe],yr=e=>Math.floor((e.t||0)/CFG.yearLen);
   const cap=s=>s.charAt(0).toLocaleUpperCase('tr')+s.slice(1);
-  const sents=(a.events||[]).map(e=>`Yıl ${yr(e)}: ${e.e}`);
-  let p=`${t?t.name:'?'} halkının ${a.gen}. neslinden ${a.name} ${a.surname}. `;
+  const sents=(a.events||[]).map(e=>(e.t||0)<0?e.e:`Yıl ${yr(e)}: ${e.e}`);
+  let p=`${t?t.name:'?'} halkının ${a.gen}. neslinden ${a.name} ${a.surname}; ${persWords(a)} biriydi. `;
   p+=sents.map(cap).join('. ')+'.';
   if(a.kills>0&&!a.diedAt)p+=` Şimdiye dek ${a.kills} düşman devirdi.`;
+  if(a.children.length)p+=` ${a.children.length} çocuğu oldu${a.spouseName?` (eşi ${a.spouseName})`:''}.`;
+  const top=[...(a.mem||[])].sort((x,y)=>memAct(y)*Math.abs(y.val)-memAct(x)*Math.abs(x.val))[0];
+  if(top)p+=` En çok aklında kalan: ${MEM_TR[top.type]||top.type} (Yıl ${Math.floor(top.t/CFG.yearLen)}).`;
   return p;}
 function renderHistory(){
   const el=document.getElementById('histBody');const L=sim.legends||[];
