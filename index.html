@@ -145,7 +145,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
   fecundity:1.2, fertMin:16, fertMax:44, amenorrhea:[1.1,2.0], gestYears:0.75, maternalDeath:0.012,
   founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.92, dmgK:2.2,
-  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10],
+  climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10], foodScale:0.35, foodCap:1300,
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
 const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
@@ -320,6 +320,7 @@ const chooseRole=(a,t)=>roleScores(a,t).best;
 function updateRoleChoice(a,t){
   const stage=lifeStage(a);
   if(stage==='child'){if(a.role!=='CHILD')a.role='CHILD';return;}
+  if(stage==='elder'&&a.role==='SOLDIER'){a.role='FARMER';a.roleAge=0;if(a.events.length<12)a.events.push({t:sim.tick,e:'yaşlanınca askerlikten emekli oldu'});}
   if(a.role==='CHILD'){a.role=chooseRole(a,t);a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`${ROLE_TR[a.role]} oldu`});return;}
   // yetişkin: çok seyrek, ancak yeni meslek belirgin şekilde iyiyse VE bir süredir bu meslekteyse değişir
   if(a.roleAge>1000 && rng()<0.0006){const {best,U}=roleScores(a,t);
@@ -376,6 +377,7 @@ function logEvent(text,color){const ev={text,color,tick:sim?sim.tick:0};
       <span style="color:#5b6376;font-family:var(--mono);font-size:9.5px;min-width:34px">Y${yr}</span>
       <span style="font-size:11px">${evIcon(e.text)}</span>
       <span style="color:${e.color||'#8c95ac'};font-size:11.5px;line-height:1.35;font-weight:${maj?600:400}">${e.text}</span></div>`;}).join('');}
+const atWar=(x,y)=>{const A=sim.tribes[x],B=sim.tribes[y];return !!((A&&A.war&&A.war.target===y)||(B&&B.war&&B.war.target===x));};
 const living=t=>sim.tribes.filter(o=>o.id!==t.id&&o.pop>0&&!o._dead);
 function armyStrength(t){let s=t.treasury*0.02+1;for(const a of sim.agents)if(a.tribe===t.id&&a.role==='SOLDIER')s+=effPower(a)*a.bravery;return s;}
 const power=t=>armyStrength(t)+t.pop*0.4+t.cities.length*3;
@@ -746,10 +748,10 @@ function hazard(a,t){const y=ageYears(a);
 const fecAt=y=>y<CFG.fertMin||y>CFG.fertMax?0:CFG.fecundity*clamp((CFG.fertMax-y)/14,0,1);
 function updateEpidemics(){
   for(const t of sim.tribes){if(t._dead)continue;
-    if(t._epi&&sim.tick>=t._epi.until){t._epi=null;logEvent(`${t.name}'de salgın sona erdi`,'#9fb');continue;}
+    if(t._epi&&sim.tick>=t._epi.until){t._epi=null;continue;}
     if(!t._epi){let r=CFG.epiRate*Math.pow(t.pop/100,1.5);
       for(const o of sim.tribes)if(o._epi&&!o._dead&&o.id!==t.id&&sim.tr[t.id][o.id]!=='none')r*=8;         // ticaret yollarıyla yayılır
-      if(rng()<r){t._epi={until:sim.tick+Math.round(rnd(0.5,1.2)*CFG.yearLen),mult:rnd(3,5)};logEvent(`${t.name}'de salgın başladı`,'#ff9b5b');}}}}
+      if(rng()<r){t._epi={until:sim.tick+Math.round(rnd(0.5,1.2)*CFG.yearLen),mult:rnd(3,5)};if(t.pop>=60)logEvent(`${t.name}'de salgın başladı`,'#ff9b5b');}}}}
 function conceiveAndBirth(agents,births,t_of){
   for(const a of agents){if(a.sex!=='F')continue;const t=t_of(a);if(!t||t._dead)continue;
     if(a.pregUntil>0){
@@ -775,7 +777,7 @@ function step(){
   if(CFG.climate&&sim.tick>=sim.climate.until){
     if(sim.climate.mul<1){sim.climate={mul:1,until:sim.tick+Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)};logEvent('Kuraklık sona erdi, yağmurlar döndü','#9fb');}
     else{const yrs=rnd(...CFG.droughtYears);sim.climate={mul:rnd(...CFG.droughtFood),until:sim.tick+Math.round(yrs*CFG.yearLen)};logEvent(`Büyük kuraklık başladı (~${Math.round(yrs)} yıl): tarlalar kurudu`,'#ffb86b');}}
-  let sp=foodRate*0.95*(CFG.climate?sim.climate.mul:1)*foodSeason[seasonIdx(sim.tick)];while(sp>=1){foodAt();sp--;}
+  let sp=foodRate*0.95*CFG.foodScale*(CFG.climate?sim.climate.mul:1)*foodSeason[seasonIdx(sim.tick)];while(sp>=1){foodAt();sp--;}
   if(rng()<sp)foodAt();
   for(const t of tribes){t._tradePartner=null;t._plotTarget=null;let bR=-1e9,bP=0;
     for(const o of tribes){if(o.id===t.id||o._dead||o.pop===0)continue;const tr=sim.tr[t.id][o.id];
@@ -793,7 +795,8 @@ function step(){
     if(CFG.mortality&&a.energy>0&&(rng()<hazard(a,t)/CFG.yearLen||ageYears(a)>=CFG.maxAge)){a.energy=-1;a._natural=true;}
     const nb=ag.near(a.x,a.y);
     let enemy=null,ebd=Math.min(a.sense,CFG.senseCap)**2,wounded=null,wbd=CFG.healR**2;
-    for(const o of nb){if(o.tribe!==a.tribe){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<ebd){ebd=d;enemy=o;}}
+    for(const o of nb){if(o.tribe!==a.tribe){if(!atWar(a.tribe,o.tribe)||lifeStage(o)==='child')continue;   // düşman: yalnızca savaştaki devletin bireyi; çocuklar hedef değil
+        let d=(o.x-a.x)**2+(o.y-a.y)**2;if(o.role!=='SOLDIER')d*=6.25;if(d<ebd){ebd=d;enemy=o;}}
       else if(a.role==='DOCTOR'&&o!==a&&o.energy<70){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<wbd){wbd=d;wounded=o;}}}
     const env={enemy,wounded,food:a.carrying?null:nearest(fg.near(a.x,a.y),a.x,a.y,a.sense),owner:ownerAt(a.x,a.y)};
     // İÇ DÜNYA: tok+güvende+meşru krallık → hoşnutluk artar; aç/tehdit → düşer, korku yükselir
@@ -862,6 +865,7 @@ function step(){
    if(diedRulers)for(const [t,old] of diedRulers)if(!t._dead)succeed(t,old,aliveSet);
    if(sim.tick%50===0)for(const t of tribes)if(!t._dead&&t.ruler==null)succeed(t,null,aliveSet);}
 
+  for(const t of tribes){if(t._dead)continue;if(t.pop===0){if(!t._emptyT)t._emptyT=sim.tick;else if(sim.tick-t._emptyT>35){t._dead=true;t.war=null;for(const o of tribes)if(o.war&&o.war.target===t.id)o.war=null;logEvent(`${t.name} halksız kalıp yok oldu`,'#ff6b6b');}}else t._emptyT=0;}
   for(const t of tribes){if(t._dead)continue;
     // ikincil şehirler yıkılabilir
     for(let i=t.cities.length-1;i>=1;i--){if(t.cities[i].hp<=0){logEvent(`🔥 ${t.name}'in ${t.cities[i].name} şehri yıkıldı`,'#ff9b5b');t.cities.splice(i,1);}}
@@ -904,7 +908,7 @@ function step(){
 
   if(sim.tick%16===0)updateSociety();   // meşruiyet + isyan + ayrılıkçılık
   {let j=0;for(let i=0;i<food.length;i++){const f=food[i];if(!f.gone)food[j++]=f;}food.length=j;}   // yenenleri tek geçişte ayıkla
-  if(food.length>3000)food.splice(0,food.length-3000);
+  if(food.length>CFG.foodCap)food.splice(0,food.length-CFG.foodCap);
   if(sim.tick%14===0)computeTerritory();
   if(sim.tick%12===0)updateStats();
   if(selectedId!=null&&sim.tick%6===0)renderInspect();
@@ -971,7 +975,8 @@ function renderPyramid(){const el=document.getElementById('pyramid');if(!el||!si
   let h=`<div style="font-size:11px;color:var(--muted);margin-bottom:6px">${sim.agents.length} kişi · geçen yıl <b style="color:#7ee081">+${sim.vit.lb}</b> doğum, <b style="color:#ff9b5b">−${sim.vit.ld}</b> ölüm · ${SEASONS[seasonIdx(sim.tick)]}</div><div style="display:grid;grid-template-columns:1fr 36px 1fr;gap:3px 4px;align-items:center;font-size:9.5px;color:var(--muted)">`;
   for(let b=7;b>=0;b--){h+=`<div style="display:flex;justify-content:flex-end"><div style="height:7px;width:${M[b]/mx*100}%;background:#7aa2f7;border-radius:2px 0 0 2px"></div></div><div style="text-align:center;font-family:var(--mono)">${b*10}${b===7?'+':''}</div><div><div style="height:7px;width:${F[b]/mx*100}%;background:#f0a6d0;border-radius:0 2px 2px 0"></div></div>`;}
   el.innerHTML=h+'</div><div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:4px"><span>erkek</span><span>yaş</span><span>kadın</span></div>';}
-function updateStats(){renderPyramid();document.querySelector('#stats tbody').innerHTML=sim.tribes.map(t=>{
+function updateStats(){renderPyramid();const deadIds=sim.tribes.filter(t=>t._dead).map(t=>t.id),hide=new Set(deadIds.slice(0,Math.max(0,deadIds.length-3)));
+  document.querySelector('#stats tbody').innerHTML=(hide.size?`<tr><td style="color:var(--muted);font-size:11px">${hide.size} eski krallık düştü</td><td></td></tr>`:'')+sim.tribes.filter(t=>!hide.has(t.id)).map(t=>{
   if(t._dead)return `<tr><td style="opacity:.45"><span class="kname">${t.name}</span><div class="krow">düştü</div></td><td style="text-align:right">—</td></tr>`;
   const c=t.counts;return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></span>
     <span class="kname">${t.name}</span>
