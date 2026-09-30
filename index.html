@@ -135,7 +135,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
   legitStart:0.80, carryCap:70, riskK:2.3, rebelThresh:0.13, visionR:95, epstein:true,        // Epstein (2002): k=2.3, T=0.1 (burada 0.13: ölçümle ayarlandı, docs/RESEARCH.md)
-  secedeFrac:0.28, secedeSustain:6, secedeCool:420, overreach:0.30, maxKingdoms:10,
+  secedeFrac:0.14, secedeSustain:6, secedeCool:420, overreach:0.30, maxKingdoms:10,
   // sosyal katman: Dunbar-tarzı sınırlı ilişki listesi, homofili, evlilik
   relCap:14, socEvery:8, socR:34, marryMinYears:16, mateGapYears:12, marryOpinion:24, marryProb:0.7, homoK:6, contact:0.6,
   // hafıza (ACT-R güç yasası, Dwarf Fortress yuvaları) + hedefler (GOB insistence)
@@ -447,7 +447,7 @@ function updateSociety(){
   for(const t of sim.tribes){if(t._dead)continue;
     const pop=Math.max(1,t.pop), cap=CFG.carryCap*(1+0.4*(t.cities.length-1));
     // Turchin sürücüleri (yumuşatılmış): sağlıklı krallık istikrarlı kalır, sadece gerçek stres çökertir
-    const crowd=clamp(pop/cap), elite=clamp(((t.counts.SOLDIER||0)/pop-0.28)/0.4),
+    const crowd=clamp(pop/cap), elite=clamp(((t.counts.SOLDIER||0)/Math.max(1,pop-(t.counts.CHILD||0))-0.28)/0.4),
           scarce=clamp(1-cityFood(t)/(pop*0.6)), war=t.weariness/100;
     const totLand=Math.max(1,sim.tribes.reduce((s,k)=>s+(k._dead?0:k.land),0));
     const dominance=clamp((t.land/totLand-0.5)/0.4);   // sadece AŞIRI hâkimiyette (>%50 toprak) devreye girer
@@ -471,7 +471,8 @@ function updateSociety(){
       } else a.rebel = grievance > (0.10 + a.risk*0.22 + a.fear*0.18);   // eski kural
       if(a.rebel)rebels++;
     }
-    t.unrest=kin.length?rebels/kin.length:0;
+    let nAd=0;for(const a of kin)if(lifeStage(a)!=='child')nAd++;
+    t.unrest=nAd?rebels/nAd:0;                            // yetişkinler üzerinden (çocuklar isyan etmez; eski eşikler yetişkin ağırlıklı nüfusla ayarlıydı)
     trySecede(t);
   }
 }
