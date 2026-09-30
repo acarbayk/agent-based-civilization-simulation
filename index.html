@@ -298,13 +298,13 @@ function roleScores(a,t){
   const trade=t._tradePartner!=null?1:0, plot=t._plotTarget!=null?1:0;
   const demand={                                             // talep: sinyaller + kişilik
     FARMER:  0.50 + scarce*0.6 + (a.pers.C-0.5)*0.16 + (a.vals.trad-0.5)*0.10,
-    SOLDIER: 0.20 + danger*0.6 + a.bravery*0.3 + t.ambition*0.2 + (a.vals.honor-0.5)*0.20 - (a.pers.A-0.5)*0.10,
+    SOLDIER: 0.28 + danger*0.6 + a.bravery*0.3 + t.ambition*0.2 + (a.vals.honor-0.5)*0.20 - (a.pers.A-0.5)*0.10,
     DOCTOR:  0.34 + clamp(pop/90)*0.2 + (a.pers.A-0.5)*0.20 + (a.vals.comm-0.5)*0.08,
     MERCHANT:0.32 + trade*0.35 + t.greed*0.2 + (a.pers.E-0.5)*0.16,
     SPY:     0.26 + plot*0.4 + t.cunning*0.2 + (a.pers.O-0.5)*0.10 - (a.pers.A-0.5)*0.12 };
   const target={                                             // sağlıklı oran (doygunluk eşiği) — sinyalle kayar
     FARMER:  0.42 + scarce*0.18,
-    SOLDIER: 0.07 + danger*0.18,
+    SOLDIER: 0.12 + danger*0.28,
     DOCTOR:  0.07,
     MERCHANT:0.08 + trade*0.05,
     SPY:     0.04 + plot*0.04 };
@@ -447,7 +447,7 @@ function updateSociety(){
   for(const t of sim.tribes){if(t._dead)continue;
     const pop=Math.max(1,t.pop), cap=CFG.carryCap*(1+0.4*(t.cities.length-1));
     // Turchin sürücüleri (yumuşatılmış): sağlıklı krallık istikrarlı kalır, sadece gerçek stres çökertir
-    const crowd=clamp(pop/cap), elite=clamp(((t.counts.SOLDIER||0)/Math.max(1,pop-(t.counts.CHILD||0))-0.15)/0.3),
+    const crowd=clamp(pop/cap), elite=clamp(((t.counts.SOLDIER||0)/Math.max(1,pop-(t.counts.CHILD||0))-0.28)/0.4),
           scarce=clamp(1-cityFood(t)/(pop*0.6)), war=t.weariness/100;
     const totLand=Math.max(1,sim.tribes.reduce((s,k)=>s+(k._dead?0:k.land),0));
     const dominance=clamp((t.land/totLand-0.5)/0.4);   // sadece AŞIRI hâkimiyette (>%50 toprak) devreye girer
