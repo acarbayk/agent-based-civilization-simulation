@@ -177,19 +177,82 @@ biriken ~3000 yiyecek ve ambarlar kuraklığı tamponlar.
 
 Geç dönemde savaş, isyan ve fetih geri geldi (bir seed'de 9 savaş, 2 isyan, 3 fetih).
 
-## 10. Son doğrulama ve bilinen sınırlar
+## 10. Gerçekçilik turu (demografi, okunabilirlik, arazi, makro yeniden ayar, savaş)
 
-Son kodla 8 seed × 20.000 adım (~285 yıl): hata 0, nüfus yok olması 0, ortalama canlı krallık 3.06, sonda
-canlı krallık dağılımı 1-2-2-3-3-3-4-4. Aynı seed iki koşuda birebir aynı sonucu veriyor; gerçek tarayıcıda
-sayfa hatasız açılıyor, aile bağlantılarıyla gezinme ve kuraklık göstergesi çalışıyor.
+Plan ve ölçüt: `PLAN.md`, `REALISM.md`. Kaynaklar ve doğrulama düzeyleri: `SOURCES.md`.
 
-- Geç dönem siyaseti hâlâ seyrek: 8 seed'in 5'inde t>4000 sonrası hiç savaş yok; olayların çoğu veraset ve
-  hanedan değişimi. Bireylerin hayatı (evlilik, yas, intikam, veraset) sürüyor ama büyük siyaset yer yer
-  durgun kalıyor.
-- Bir seed'de dünya tek devlete iniyor.
-- Eşikler (T=0.13, rejim yaşı, kuraklık) tek parametreli süpürmelerle seçildi; geniş bir seed taraması ve
-  duyarlılık analizi yapılmadı.
-- Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor (kuzenler değil).
-- Homofili zayıf; bağlar çoğunlukla yakınlığa dayanıyor.
-- LLM anlatı katmanı eklenmedi (şablon tabanlı hikâye var); ajan davranışı tamamen kural tabanlı.
-- Turchin'in yapısal-demografik kuramına yönelik eleştiriler aranmadı.
+### 10.1 Test düzeneği hatası (düzeltildi)
+
+Başsız test ortamı tuvali 900×700 sanıyordu; gerçek sayfada 900×520. Tüm erken başsız ölçümler (demografi, churn,
+geç dönem siyaseti) %35 daha geniş bir haritada yapılmıştı. Düzeltildi ve **bu turdaki tüm ölçümler 900×520'de
+yeniden yapıldı**. Önceki bölümlerdeki (5-9) sayılar 900×700 haritadadır, bu yüzden tarihsel referans olarak okunmalı.
+
+### 10.2 Demografi
+
+Cinsiyet, yaşa bağlı ölüm tehlikesi (Gompertz-Makeham: bebek 0.15, 1-4 yaş 0.03, 5-14 yaş 0.008, yetişkin
+`0.008+0.00004·e^(0.095·yaş)` yıllık, kişisel kırılganlık, açlık, Malthus, salgın, mevsim), evli kadından gebelik ve
+doğum aralığı, doğumda ölüm, eş eşleştirmesi (yılda iki kez), kurucu aileler. 8 seed × 120 yıl:
+
+| Ölçüt | Sonuç | Hedef aralık (SOURCES.md #7, #8) |
+|---|---|---|
+| Doğumda beklenen ömür | 27.7-34.1 | 28-38 (bir seed sınırın hemen altında) |
+| Bebek ölümü | %17-19 | %13-25 |
+| 15 yaşa ulaşma | %57-65 | %50-70 |
+| Toplam doğurganlık | 4.8-6.6 | ön sanayi evli-doğal doğurganlık ≈5-7 (kesin kaynak doğrulanamadı) |
+| 15-45 yaş kadınlardan evli | %74-85 | yüksek (tarihsel olarak evrensele yakın; kesin sayı doğrulanamadı) |
+
+Not: ilk denemede evli oranı %33-41'de kaldı (toplam doğurganlık 3.1-4.1) ve nüfus 4 seed'in 3'ünde eriyordu; eşleştirme
+eklenince doğurganlık aşırı yükseldi (5.3-7.4) ve ayar iki turda yapıldı.
+
+### 10.3 Okunabilirlik
+
+Birey takibi (kamera, fare tekeri), seçili bireyin aile ve dost/hasım ağı çizgileri, hayat çizgisi (evlilik, çocuk,
+hükümdarlık, ölüm), yılda en ilginç 3 olayı türe göre seçen hikâye akışı, nüfus piramidi ve yıllık doğum/ölüm,
+mevsim etiketi ve tonu, hükümdar yıldızı. Tarayıcıda hatasız çalıştığı ve bağlantıların gezildiği test edildi.
+Bir hikâye akışı kusuru (tek türe boğulma) ölçülüp düzeltildi.
+
+### 10.4 Arazi
+
+Seed'li yükseklik ve nem gürültüsünden ova, orman, tepe, dağ; üç nehir; başkent çevresinde verimli vadi; verime
+ve mevsime bağlı yiyecek yeri; araziye göre hareket hızı; şehir çevresi verimine bağlı taşıma kapasitesi; verimli yere
+yönelen dolaşma. Ölçüm (4 seed, 85 yıl): yiyecek yoğunluğu ile verim arasında r=0.38-0.57; şehir çevresi verim
+çarpanı 1.02-1.38. **İnsan dağılımı ile verim arasındaki ilişki zayıf** (r=0.0-0.23): yerleşimler sabit başkent ve
+şehirlerin çevresinde toplanıyor; arazi yiyeceği ve kapasiteyi belirliyor, yerleşim desenini zayıf belirliyor.
+
+### 10.5 Makro yeniden ayar
+
+Demografi sonrası siyaset durgunlaştı: geç dönemde isyan hiç çıkmıyordu. Teşhis: huzursuzluk oranı çocukları
+paydaya katıyordu (nüfusun %35-40'ı çocuk) ve bölünme eşiği (%28) çocuk azlığıyla ayarlıydı; meşruiyet 85 yıl tabanda
+kalırken yetişkinlerin yalnızca %12-16'sı isyan ediyordu. Huzursuzluk yetişkinler üzerinden hesaplandı, eşik %14'e çekildi.
+
+| 8 seed × 15.000 adım | Geç dönem isyan | Ortalama canlı krallık |
+|---|---|---|
+| Öncesi | 0 (toplam) | 2.48 |
+| Sonrası | 59 (toplam), 8 seed'in hepsinde ≥4 | 4.22 |
+
+### 10.6 Savaş: negatif sonuç dahil
+
+- Sefer mevsimi eklendi (askerler kışın yürümez).
+- Savaş ölümlerinin toplam ölümler içindeki payı %21-37 çıktı (hedefim ≤%15). Çarpışma hasarı 4→2.2, fetihte öldürme
+  %20→%8, yaralı asker geri çekilme eklendi: pay ortalama %24'e indi (aralık %13.6-34.8).
+- **Denenen ve geri alınan:** barış zamanı asker payını düşürmek. Epstein kuralında asker sayısı baskıyı belirlediği
+  için isyan 177'ye, savaş 530'a fırladı, ortalama 8 krallık, kaotik dünya; savaş payı da düşmedi. Geri alındı.
+- Sonuç: **savaş ölüm payı hedefi tutmadı.** Devlet düzeyinde bir toplum için hâlâ yüksek olduğunu düşünüyorum; ancak
+  tarihsel referans sayıyı doğrulayamadım (SOURCES.md #9), bu yüzden "yüksek" yargım bir varsayım.
+
+### 10.7 Son doğrulama
+
+12 seed × 15.000 adım (214 yıl): hata 0, nüfus yok olması 0, ortalama canlı krallık 4.89, sondaki canlı krallık
+1-7 (medyan 3), tüm seed'lerde geç dönem savaş (13-61), isyan (3-24) ve fetih var. En düşük nüfus 147. Aynı seed aynı
+sonucu veriyor.
+
+## 11. Bilinen sınırlar
+
+- Savaş ölüm payı (ortalama %24) yüksek; baskın, yağma ve seferberlik modellenmedi (savaş "asker şehre yürür" biçiminde).
+- Köy, hane ve günlük döngü yok; yerleşim sabit şehirlerde toplanıyor, arazi insan dağılımını zayıf belirliyor.
+- Bazı seed'lerde dünya sonunda tek devlete iniyor (12'de 1).
+- Eşikler (isyan, rejim yaşı, kuraklık, doğurganlık) tek parametreli süpürmelerle seçildi, duyarlılık analizi yok.
+- Sayısal hedef aralıkların birincil kaynakları bu oturumdan açılamadı (SOURCES.md).
+- Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor.
+- LLM anlatı katmanı yok; hikâyeler şablon tabanlı, davranış kural tabanlı.
+- Ölçümler Node `vm` + Chromium düzeneğinde; gerçek cihaz başarımı ölçülmedi.
