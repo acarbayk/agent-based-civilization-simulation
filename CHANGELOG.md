@@ -12,6 +12,8 @@
 - Test düzeneği hatası düzeltildi (tuval yüksekliği 700 → 520)
 - Savaş hatası: askerler barışta ve ittifak döneminde de öldürüyordu; artık yalnızca savaştaki devletler, çocuklar hedef değil
 - Çocuklar ebeveynin yakınında, hamile/emziren kadınlar eve yakın, kişilik eylem puanlarında, kardeşlere benzersiz ad
+- Doğruluk hatası: `_killer` hiç sıfırlanmıyordu (şiddetli ölümlerin %35-45'i yanlış atfediliyordu); artık yalnızca son 40 adımdaki vuruş sayılır
+- Rol-özel boşta işler, yumuşak doğum tavanı, bölünme asgarileri, varsayılan hız 1×
 - Yok olma hataları: sahipsiz halk yeni/yakın krallığa katılır; Malthus doğurganlığı sıfırlamaz
 
 ### Added

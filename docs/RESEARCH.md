@@ -346,7 +346,23 @@ hikâyeler evlilik/doğum ağırlıklı → kaldı; çift simge (Vakayiname) ve 
 
 ### 10.14 Doğrulama (`_killer` düzeltmesi sonrası)
 
-_(Sayılar koşu bittiğinde bu bölüme yazılacak.)_
+**Demografi** (`_killer` düzeltmesinden sonra, 4 seed × 120 yıl; bölünme kalibrasyonundan önce, o ayar siyaseti etkiler):
+beklenen ömür 35.6-37.9, bebek ölümü %16.5-17.3, 15'e ulaşma %63-64, toplam doğurganlık 4.3-4.9, 15-45 yaş kadınlardan
+evli %75-84, **savaş ölümü payı %3.5-7.6** (düzeltme öncesi %5.9-10.2: yani şişme gerçekmiş), açlık ölümü %1.1-4.9.
+
+**Siyaset** (16 seed × 250 yıl: 12 kendi seçtiğim + `falcon`, `pixel9`, `zebra`, `mango`), iki adım:
+
+| Ayar | Ortalama canlı krallık | Sondaki canlı krallık (sıralı) | Not |
+|---|---|---|---|
+| `_killer` düzeltmesi, bölünme asgarisi 40 nüfus/10 kurucu/6 süre | 7.28 | 2,2,6,6,7,7,8,8,8,8,8,9,9,10,10,10 (medyan 8) | aşırı parçalı, 6 seed 9-10'luk tavana dayanıyor |
+| **Son:** asgari 70 nüfus, 14 kurucu, 8 süre | **4.63** | 1,2,2,3,3,3,3,3,3,3,4,4,4,5,6,6 (**medyan 3**) | dengeli |
+
+Son ayar, 16 seed × 250 yıl: hata 0, nüfus yok olması 0, en düşük nüfus 137, geç dönem savaş 37-121, isyan 13-44, darbe 0-22,
+hiçbir seed 10 krallık tavanına dayanmıyor, hiçbir seed donmuyor (en sessiz seed'de bile 37 savaş), bir seed sonda tek devlete
+iniyor. Aynı seed aynı sonucu veriyor.
+
+**Bu son iki ayar (`_killer` düzeltmesi ve bölünme kalibrasyonu) bağımsız bir turdan geçmedi;** puanlar (6.2, 6.4, 6.4, 6.3)
+bunlardan önceki sürümlere aittir.
 
 ## 11. Bilinen sınırlar
 
