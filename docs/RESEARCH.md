@@ -364,17 +364,68 @@ iniyor. Aynı seed aynı sonucu veriyor.
 **Bu son iki ayar (`_killer` düzeltmesi ve bölünme kalibrasyonu) bağımsız bir turdan geçmedi;** puanlar (6.2, 6.4, 6.4, 6.3)
 bunlardan önceki sürümlere aittir.
 
+### 10.15 Kalan zayıflıkların sırayla düzeltilmesi (tur 5)
+
+Bağımsız turların tekrarlayan zayıflıkları tek tek ele alındı; her adım ölçümle kapatıldı.
+
+**1. Ekonomi: gerçek kök neden enerji sızıntısıydı.** Yiyecek üretimi (~0.34/adım) talebin (~0.8/adım) çok altındayken nüfus
+ayakta duruyordu; sebep "bedava enerji" kaynaklarıydı: teslim eden çiftçiye +5, sefer bitiren tüccara +6 enerji, iyileştirirken
+doktora −0.02 (hastaya +0.9: enerji yaratıyordu), öldürene +22. Bunlar kaldırıldı/küçültüldü (teslimde ve seferde 0, iyileştirme
+doktora 0.6, ganimet enerjisi 8): kapalı bir enerji hesabı. Ardından üretim ölçeği yeniden ayarlandı:
+
+| foodScale | Nüfus (son 30 yıl) | Açlık ölümü payı |
+|---|---|---|
+| 0.18 (seçilen) | 600-702 | %3.7-8.4 |
+| 0.26 | 671-902 | %0-0.8 (yiyecek sınırlamıyor) |
+| 0.36 | 695-967 | %0-0.3 |
+
+Gözden geçiricinin karşı-testi (tavanı 2500 yapmak) bu sürümde: nüfus farkı **%0.0** (4/4 seed), yani nüfusu artık sabit tavan
+değil yiyecek belirliyor (tavan performans emniyeti olarak 1100'e yükseltildi). Tahıl ticareti: tüccar ortağın en dolu ambarından
+fazla yiyeceği kendi başkentine taşır; 120 yılda 265-860 birim (toplam talebe göre küçük, bu yüzden etkisi **ılımlı**; ticaret
+açık/kapalı karşılaştırması seed'ler arası tutarsız çıktı, yani kanıtlanmış bir fayda iddiasında bulunmuyorum).
+Bu, §10.7'deki "ekonomi zayıf bir kısıt" bulgusunun çözümüdür; o bölüm geçmiş durumu anlatır.
+
+**2. Bireysel davranış (4 seed, 5000 adım, öncesi → sonrası):** 8+ yaş çocuklar aileye yardım eder (yiyecek toplayıp taşır):
+eylemlerin %0 → %5-10'u; yaşlılar hafif iş görür ve ocak başında oturur: %0 → %9-13; yaşlı ve yetişkin çiftçilerin davranış
+mesafesi (JSD) 0.08-0.12 → 0.14-0.17; meslek mirası (ebeveynin işi daha cazip, çarpan 3.0): yetişkinin ebeveyniyle aynı meslekte
+olma oranı %29-39 → %42-49 (rastgele düzey ≈%35; etki pazar doygunluğu tarafından sınırlanıyor, tasarım gereği).
+
+**3. Baskın ve yağma:** asker düşman şehre ulaşınca ambardan 2 birim yiyecek yağmalar ve eve taşır (ganimet düşmanın ambarından
+eksilir; çiftçi verimliliği çarpanı uygulanmaz). Büyük bir yan etki bulundu: yağma siyaseti kaotikleştirdi (8 seed × 250 yıl,
+ortalama canlı krallık): yağma kapalı 6.4, %8 → 7.7, %30 → 7.8. Sebep: yağmalanan ambar boşalır, o devlet "çaresiz" savaşa girer
+(zincirleme). Çözüm: yalnızca güvenli stokun (60) üstündeki ambarlar yağmalanır, olasılık %8; bölünme asgarisi 70/14 → 90/18.
+Sonuç: 7.12 (yalnızca güvenlik) → **6.19** (8 seed). 120 yılda yağma 136-272 birim. Yağma bir ekonomik mekanizma ve hikâye
+kaynağı olarak duruyor, ama **siyaseti kuvvetle besleyen bir etken; bu yüzden sınırlandırıldı.**
+
+**4. Hikâye çeşitliliği:** yeni türler: yağma, kıtlık (yılda ≥5 açlık ölümü), salgın (yılda ≥5 ölüm), çıraklık (çocuk ebeveyninin
+mesleğini seçti). Yıllık akışta (son 40 hikâye) 8-9 tür görünüyor (öncesi ağırlıkla evlilik/doğum).
+
+**5. Kaynak doğrulaması:** yeniden denendi; arxiv.org, ourworldindata.org, api.crossref.org, api.semanticscholar.org dahil tüm
+akademik alan adları ağ politikasıyla kapalı. **Düzeltilemedi**; çözüm ortam ayarında ağ erişimini genişletmek (ortamı
+yapılandıran kişide). SOURCES.md'deki B düzeyleri değişmedi.
+
+**Son doğrulama (tüm düzeltmeler açık):** 16 seed (12 kendi seçtiğim + `falcon`, `pixel9`, `zebra`, `mango`) × 17.500 adım
+(250 yıl): hata 0, nüfus yok olması 0, en düşük nüfus 147, ortalama canlı krallık 6.27, sondaki canlı krallık sıralı
+3,4,5,5,5,5,5,6,6,6,7,7,8,9,9,10 (medyan 6; yalnızca 1 seed 10'luk tavanda), geç dönem savaş 74-169, isyan 30-57, darbe 4-22,
+nüfus 411-681. Demografi (4 seed × 120 yıl): beklenen ömür 34.6-37.4, bebek ölümü %16.3-17, 15'e ulaşma %64-65, doğurganlık
+4.5-5.1, evli kadın %77-80, açlık ölümü %1.9-9.7, savaş ölümü %6.1-10.5. **Bu tur (5) bağımsız bir turdan geçmedi.**
+
 ## 11. Bilinen sınırlar
 
-- Savaş "asker düşman şehre yürür" biçiminde; baskın, yağma ve seferberlik modellenmedi.
-- Ekonomi zayıf: açlık ölümü %0.2-6.0 (seed'e ve koşuya göre), nüfusu ağırlıkla sabit performans tavanı (700, yumuşatılmış) belirliyor, ticaret ve kaynak modeli yok.
-- Bireyler ağırlıklı olarak rolleriyle davranıyor; kişilik/cinsiyet/yaş etkisi ılımlı. Cinsiyete dayalı askerlik normu bir
-  modelleme kararı, ayarlanabilir.
+- Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma
+  siyaseti kaotikleştirdiği için sınırlandı (§10.15). %20-31 şiddetli ölüm aynı devlet içinde (kan davası).
+- Ekonomi sade: tek kaynak (yiyecek); nüfusu artık yiyecek belirliyor (tavan karşı-testi %0 fark, açlık ölümü %1.9-9.7) ama tahıl
+  ticareti küçük (120 yılda 265-860 birim), para/zanaat/mülkiyet modeli yok.
+- Bireyler hâlâ ağırlıklı olarak rolleriyle davranıyor; kişilik/cinsiyet/yaş etkisi ılımlı (çocuk yardımı, yaşlı ocağı ve meslek
+  mirası eklendi, §10.15). Cinsiyete dayalı askerlik normu bir modelleme kararı, ayarlanabilir; rol-cinsiyet ayrışması aşırı (asker
+  neredeyse yalnızca erkek, doktor/casus/tüccar çoğunlukla kadın).
 - Köy, hane ve günlük döngü yok; yerleşim sabit şehirlerde toplanıyor, arazi insan dağılımını zayıf belirliyor (r=0.0-0.23).
-- Siyasetin canlılığı seed'e çok bağlı (savaş 24-180); en çalkantılı seed'lerde 10 krallık tavanı bağlıyor, ve çok sayıda 1-3 şehirlik mikro-krallık kurulup ölüyor.
-- (Tur 3 gözden geçiricisi çöküş sonrası %70-80 nüfus düşüşünü yeniden üretemedi; bu iddia belgeden çıkarıldı.)
-- Beklenen ömür hedef aralığın üst ucunda/biraz üstünde; hedef aralıkların gerekçesi zayıf (SOURCES.md, çoğu düzey B).
-- Bu ortamda ölçülen: eşikler (isyan, rejim yaşı, kuraklık, doğurganlık, kıtlık) tek parametreli süpürmelerle seçildi.
+- Siyasetin canlılığı seed'e çok bağlı (savaş 74-169); çok sayıda 1-3 şehirlik mikro-krallık kurulup ölüyor; ortalama canlı krallık
+  (6.3) hedeflediğimden (4-6) yüksek.
+- Beklenen ömür hedef aralığın üst ucunda; hedef aralıkların gerekçesi zayıf (SOURCES.md, çoğu düzey B) ve birincil kaynaklar ağ
+  politikası yüzünden açılamıyor.
+- Eşikler (isyan, rejim yaşı, kuraklık, doğurganlık, kıtlık, yağma, bölünme asgarileri) tek parametreli süpürmelerle seçildi,
+  duyarlılık analizi yok.
 - Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor.
 - LLM anlatı katmanı yok; hikâyeler şablon tabanlı, davranış kural tabanlı.
 - Bireyin hafızası 10 yuvalı ve az çeşitli; hedefler 4 türle sınırlı.

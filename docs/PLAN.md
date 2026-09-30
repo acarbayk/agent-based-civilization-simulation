@@ -35,9 +35,10 @@ iş görece düşük riskliydi; arazi ve savaş işleri daha riskli. Arazi (3) v
 ## Durum
 
 - Aşama 0 (temizlik), 1 (demografi), 2 (makro yeniden ayar), 5 (okunabilirlik): yapıldı.
-- Aşama 3 (arazi): **kısmen.** Arazi haritası, mevsim, verime bağlı yiyecek var; ama nüfusu yiyecek değil sabit performans
-  tavanı sınırlıyor ve insan dağılımı araziye zayıf bağlı. Kapıdaki "verim haritası nüfusu sınırlıyor" **tutmadı.**
-- Aşama 4 (savaş): **kısmen.** Yalnızca savaştaki devletlere saldırı, sefer mevsimi, düşük ölümcüllük. Baskın/yağma/seferberlik yok.
-- Aşama 6 (doğrulama): bağımsız gözden geçirme tur 1 = 6.2, tur 2 = 6.4, tur 3 = 6.4 (hedef ≥8, tutmadı). Tur 3 ve 4 düzeltmeleri yapıldı
-  (yok olma hataları, rol çeşitliliği, yumuşak doğum tavanı, siyaset uçları).
+- Aşama 3 (arazi/ekonomi): **yapıldı** (tur 5): kapalı enerji hesabı, yiyecek nüfusu belirliyor (tavan karşı-testi %0 fark), tahıl
+  ticareti (ılımlı etki). Köy/hane ve günlük döngü yok.
+- Aşama 4 (savaş): **kısmen.** Yalnızca savaştaki devletlere saldırı, sefer mevsimi, düşük ölümcüllük, sınırlı ambar yağması.
+  Seferberlik ve gerçek baskın taktiği yok.
+- Aşama 6 (doğrulama): bağımsız gözden geçirme tur 1 = 6.2, tur 2 = 6.4, tur 3 = 6.4, tur 4 = 6.3 (hedef ≥8, tutmadı). Tur 5
+  (kalan zayıflıkların düzeltilmesi) bağımsız turdan geçmedi. Kaynak doğrulaması ağ politikası yüzünden yapılamıyor.
 - Güncel sayılar `RESEARCH.md` §10'da.
