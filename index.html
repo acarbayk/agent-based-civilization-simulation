@@ -130,7 +130,8 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:440,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
   yearLen:70, childYears:14, elderYears:55, lifeMin:52, lifeMax:88,
   // isyan (Epstein) + döngü (Turchin)
-  legitStart:0.80, carryCap:70, riskK:2.3, rebelThresh:0.05, secedeFrac:0.28, maxKingdoms:10};
+  legitStart:0.80, carryCap:70, riskK:2.3, rebelThresh:0.13, visionR:95, epstein:true,        // Epstein (2002): k=2.3, T=0.1 (burada 0.13: ölçümle ayarlandı, docs/RESEARCH.md)
+  secedeFrac:0.28, secedeSustain:6, secedeCool:420, overreach:0.30, maxKingdoms:10};
 const KINGS=[{name:'Solari',color:'#e6a94a'},{name:'Cyan',color:'#4fc9e0'},{name:'Veren',color:'#f06a9a'},{name:'Lumen',color:'#7ee081'}];
 // isyanla doğacak yeni krallıklar için renk + isim havuzu
 const PALETTE=['#b98cff','#ff8a5c','#5cd6c0','#d64f6a','#9ec94f','#4f8cff','#f0a6d0','#c0a15c','#6ad0ff','#ff6ba3'];
@@ -191,7 +192,7 @@ function kingdomShell(id,name,color,cities){
     ambition:rnd(.2,.9),cunning:rnd(.15,.8),greed:rnd(.3,.9),loyalty:rnd(.25,.95),
     innov:rnd(.25,.85),research:0,techs:{},era:1,_mil:1,_def:1,_food:1,_trade:1,_res:1,_gov:0,
     culture:0,civics:{},cultId:'—',_cLegit:0,_cContent:0,_cTrade:0,
-    plots:{},war:null,rulerCd:40+((id*17)%60)};}
+    plots:{},war:null,rulerCd:40+((id*17)%60),_uStreak:0,_seceCd:0};}
 function makeKingdom(i){const k=KINGS[i],pad=95,spots=[[pad,pad],[W-pad,pad],[pad,H-pad],[W-pad,H-pad]];const [bx,by]=spots[i%spots.length];
   return kingdomShell(i,k.name,k.color,[{name:'Başkent',x:bx,y:by,food:16,hp:CFG.cityHP}]);}
 // Matrisleri bir satır/sütun büyüt (yeni krallık için)
@@ -359,7 +360,7 @@ function doCulture(t){
     logEvent(`◈ ${t.name} bir gelenek benimsedi: ${CULTS[best].tr}`,t.color);}
 }
 function updateSociety(){
-  const kinBy={};for(const a of sim.agents)(kinBy[a.tribe]=kinBy[a.tribe]||[]).push(a);
+  const kinBy={},vg=makeGrid(CFG.visionR);for(const a of sim.agents){(kinBy[a.tribe]=kinBy[a.tribe]||[]).push(a);vg.add(a);}
   for(const t of sim.tribes){if(t._dead)continue;
     const pop=Math.max(1,t.pop), cap=CFG.carryCap*(1+0.4*(t.cities.length-1));
     // Turchin sürücüleri (yumuşatılmış): sağlıklı krallık istikrarlı kalır, sadece gerçek stres çökertir
@@ -367,7 +368,8 @@ function updateSociety(){
           scarce=clamp(1-cityFood(t)/(pop*0.6)), war=t.weariness/100;
     const totLand=Math.max(1,sim.tribes.reduce((s,k)=>s+(k._dead?0:k.land),0));
     const dominance=clamp((t.land/totLand-0.5)/0.4);   // sadece AŞIRI hâkimiyette (>%50 toprak) devreye girer
-    const target=clamp(0.86-crowd*0.32-elite*0.4-scarce*0.35-war*0.35-dominance*0.3+t._gov+(t._cLegit||0),0.15,0.94);
+    const span=clamp((t.cities.length-2)/5);                   // aşırı genişleme: büyük devlette çekirdek bölgenin bağı (asabiya) gevşer — Turchin, Tainter
+    const target=clamp(0.86-crowd*0.32-elite*0.4-scarce*0.35-war*0.35-dominance*0.3-span*CFG.overreach+t._gov+(t._cLegit||0),0.15,0.94);
     t.legit+=(target-t.legit)*0.05;                    // yavaş, yumuşak kayış
     doResearch(t); doCulture(t);                       // teknoloji + kültür
     // İsyan (Epstein): grievance = zorluk × meşruiyetsizlik. İç dünya (hoşnutluk/korku) EŞİĞİ belirler.
@@ -376,8 +378,14 @@ function updateSociety(){
     for(const a of kin){
       if(lifeStage(a)==='child'){a.rebel=false;continue;}
       const hardship=clamp(0.40+a.hardship0*0.3-a.content*0.20+(1-a.energy/CFG.energyMax)*0.3);
-      const grievance=hardship*illeg;
-      a.rebel = grievance > (0.10 + a.risk*0.22 + a.fear*0.18);   // cesaret/korku eşiği
+      const grievance=hardship*illeg;                              // G = H(1-L)
+      if(CFG.epstein){
+        // Epstein 2002: P = 1-exp(-k·C/A), N = R·P, isyan ⇔ G-N > T. C: görüşteki asker ("cop"), A: kendisi dahil aktif isyancı
+        let C=0,A=1;for(const o of vg.near(a.x,a.y)){if(o===a||o.tribe!==a.tribe||dist(a,o)>CFG.visionR)continue;
+          if(o.role==='SOLDIER')C++;else if(o.rebel)A++;}
+        const P=1-Math.exp(-CFG.riskK*C/A), N=a.risk*P+a.fear*0.18;   // korku ek algılanan risk
+        a.rebel = grievance-N > CFG.rebelThresh;
+      } else a.rebel = grievance > (0.10 + a.risk*0.22 + a.fear*0.18);   // eski kural
       if(a.rebel)rebels++;
     }
     t.unrest=kin.length?rebels/kin.length:0;
@@ -385,7 +393,14 @@ function updateSociety(){
   }
 }
 function trySecede(t){
-  if(t._dead||t.pop<14||sim.tribes.filter(o=>!o._dead).length>=CFG.maxKingdoms||t.unrest<CFG.secedeFrac)return;
+  if(t._dead)return;
+  t._uStreak=t.unrest>=CFG.secedeFrac?t._uStreak+1:0;            // huzursuzluk birkaç yıl sürmeli (Goldstone/Turchin: kriz birikir)
+  if(t.pop<14||t._uStreak<CFG.secedeSustain||sim.tick<t._seceCd)return;
+  if(t.cities.length<2){                                         // tek şehirli devlet bölünemez: saray darbesi, yeni hanedan
+    t.legit=Math.max(t.legit,0.62);t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;
+    for(const a of sim.agents)if(a.tribe===t.id)a.rebel=false;
+    logEvent(`⚑ ${t.name}'de saray darbesi: yeni hanedan iktidarda`,t.color);return;}
+  if(sim.tribes.filter(o=>!o._dead).length>=CFG.maxKingdoms)return;
   const rebels=sim.agents.filter(a=>a.tribe===t.id&&a.rebel);
   if(rebels.length<8)return;
   // en çok isyancının toplandığı şehri odak seç
@@ -400,6 +415,7 @@ function trySecede(t){
   if(t.cities.length>=4){let nc=null,nd=1e18;for(const c of t.cities)if(c!==bestCity){const d=(c.x-bestCity.x)**2+(c.y-bestCity.y)**2;if(d<nd){nd=d;nc=c;}}if(nc)takeCities.push(nc);}
   for(const c of takeCities){const idx=t.cities.indexOf(c);if(idx>=0)t.cities.splice(idx,1);}
   const k=spawnKingdom(name,color,takeCities.map(c=>({name:c.name,x:c.x,y:c.y,food:12,hp:CFG.cityHP})),founders,t.id);
+  t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;k._seceCd=sim.tick+CFG.secedeCool;   // bölünmeden sonra soğuma
   logEvent(`⚑ ${t.name}'de İSYAN! Yeni krallık doğdu: ${name}`,color);
   if(t.cities.length===0){t._dead=true;t.war=null;logEvent(`${t.name} isyanla dağıldı`,'#ff6b6b');
     for(const o of sim.tribes)if(o.war&&o.war.target===t.id)o.war=null;
