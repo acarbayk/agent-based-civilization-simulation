@@ -144,7 +144,7 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:700,
   // demografi (ön sanayi): yaşa bağlı ölüm tehlikesi (yıllık), doğurganlık, Malthus, salgın
   mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
   fecundity:1.2, fertMin:16, fertMax:44, amenorrhea:[1.1,2.0], gestYears:0.75, maternalDeath:0.012,
-  founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.8,
+  founderFamilies:8, carryMul:1.6, epiRate:0.012, matchProb:0.4, absorb:0.92, dmgK:2.2,
   climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10],
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
@@ -682,6 +682,7 @@ function decide(a,t,env){
   const enemy=env.enemy,dE=enemy?dist(a,enemy):1e9;
   const home=nearestCity(t.cities,a.x,a.y);
   if(enemy&&dE<70&&a.role!=='SOLDIER')C.push({act:'FLEE',s:clamp((70-dE)/70)*1.1,tx:a.x*2-enemy.x,ty:a.y*2-enemy.y});
+  else if(enemy&&dE<90&&a.role==='SOLDIER'&&a.energy<CFG.energyMax*0.35)C.push({act:'FLEE',s:0.95,tx:a.x*2-enemy.x,ty:a.y*2-enemy.y});   // yaralı asker geri çekilir
   if(env.food&&hunger>0.3)C.push({act:'EAT_FIELD',s:0.3+eat*1.1,tx:env.food.x,ty:env.food.y,target:env.food});
   if(hunger>0.25&&home.food>0)C.push({act:'EAT_STORE',s:0.25+eat*1.15,tx:home.x,ty:home.y,city:home});
   if(a.role==='FARMER'){if(a.carrying)C.push({act:'DELIVER',s:0.82,tx:home.x,ty:home.y,city:home});
@@ -810,9 +811,9 @@ function step(){
       a.wx=bx;a.wy=by;dec.tx=a.wx;dec.ty=a.wy;}
     const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
     a.x=clamp(a.x+dx/dd*spd,2,W-2);a.y=clamp(a.y+dy/dd*spd,2,H-2);
-    if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());enemy.energy-=dmg*4;enemy._killer=a;}
+    if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());enemy.energy-=dmg*CFG.dmgK;enemy._killer=a;}
     if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;}}
-    else if(dec.act==='VENGEANCE'&&dec.target){if(dist(a,dec.target)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());dec.target.energy-=dmg*4;dec.target._killer=a;}}
+    else if(dec.act==='VENGEANCE'&&dec.target){if(dist(a,dec.target)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(0.8+0.5*rng());dec.target.energy-=dmg*CFG.dmgK;dec.target._killer=a;}}
     else if(dec.act==='HEAL'&&dec.target){if(dist(a,dec.target)<CFG.healR){dec.target.energy=Math.min(CFG.energyMax,dec.target.energy+0.9);a.energy-=0.02;}}
     else if((dec.act==='EAT_FIELD'||dec.act==='GATHER')&&dec.target){if(dist(a,dec.target)<CFG.eatR&&!dec.target.gone){dec.target.gone=true;
       if(dec.act==='GATHER'&&a.energy>CFG.energyMax*0.33)a.carrying=true;else a.energy=Math.min(CFG.energyMax,a.energy+CFG.foodEnergy);}}
