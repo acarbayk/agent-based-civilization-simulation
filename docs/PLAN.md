@@ -26,3 +26,16 @@ aşamaya geçilmez.
 - Kaynakla doğrulanamayan sayı hedef olarak kullanılmaz veya "belirsiz" diye işaretlenir.
 - Bir aşama hedefi tutturamazsa sebep ve denenenler belgelenir; ölçüt gevşetilmez.
 - Tüm sonuçlar bu ortamın ölçüm düzeneğindedir (Node `vm` + Chromium); gerçek cihaz performansı ölçülmedi.
+
+## Sıra değişikliği (kayıt)
+
+Aşama 5 (okunabilirlik) planlanandan önce yapıldı. Gerekçe: en büyük "hissettirme" açığı yaşamın görünmemesiydi ve
+iş görece düşük riskliydi; arazi ve savaş işleri daha riskli. Arazi (3) ve savaş (4) sonra geliyor.
+
+## Durum
+
+- Aşama 0 (temizlik): tamam.
+- Aşama 1 (demografi): tamam, kapı geçti. Doğumda beklenen ömür 31-34, 15'e ulaşma %61-68, evli kadın %81-84.
+- Aşama 2 (makro yeniden ayar): **kısmen**. 8 seed × 15.000 adımda hata 0, yok olma 0, ortalama canlı krallık 2.88, geç dönem
+  savaş/fetih 6/8 seed'de var. **Açık borç: geç dönemde isyan hiç çıkmıyor** (8 seed'de 0).
+- Aşama 5 (okunabilirlik): birey takibi, yakınlaştırma, aile ağı çizgileri, hayat çizgisi, yıllık hikâye akışı, nüfus piramidi, mevsim.
