@@ -196,7 +196,7 @@ function kingdomShell(id,name,color,cities){
     ambition:rnd(.2,.9),cunning:rnd(.15,.8),greed:rnd(.3,.9),loyalty:rnd(.25,.95),
     innov:rnd(.25,.85),research:0,techs:{},era:1,_mil:1,_def:1,_food:1,_trade:1,_res:1,_gov:0,
     culture:0,civics:{},cultId:'—',_cLegit:0,_cContent:0,_cTrade:0,
-    plots:{},war:null,rulerCd:40+((id*17)%60),_uStreak:0,_seceCd:0};}
+    plots:{},war:null,rulerCd:40+((id*17)%60),_uStreak:0,_seceCd:0,ruler:null,dynasty:null,succ:{}};}
 function makeKingdom(i){const k=KINGS[i],pad=95,spots=[[pad,pad],[W-pad,pad],[pad,H-pad],[W-pad,H-pad]];const [bx,by]=spots[i%spots.length];
   return kingdomShell(i,k.name,k.color,[{name:'Başkent',x:bx,y:by,food:16,hp:CFG.cityHP}]);}
 // Matrisleri bir satır/sütun büyüt (yeni krallık için)
@@ -209,6 +209,8 @@ function spawnKingdom(name,color,cities,foundingAgents,fromId){
   const k=kingdomShell(id,name,color,cities); k.legit=0.9; sim.tribes.push(k); growMatrices();
   for(const a of foundingAgents){a.tribe=id;a.color=color;a.rebel=false;a.events.push({t:sim.tick,e:`${name} krallığını kurdu`});}
   if(fromId!=null){sim.rel[id][fromId]=sim.rel[fromId][id]=-70;sim.truce[id][fromId]=sim.truce[fromId][id]=sim.tick+1500;} // düşman ama ana krallık hemen saldıramaz
+  sim.byId=sim.byId||new Map();for(const a of foundingAgents)sim.byId.set(a.id,a);
+  {const c=foundingAgents.filter(a=>lifeStage(a)==='adult');if(c.length)setRuler(k,pickRuler(c),'isyan önderi');}
   recount();return k;}
 const capital=t=>t.cities[0];
 function nearestCity(cities,x,y){let best=cities[0],bd=1e18;for(const c of cities){const d=(c.x-x)**2+(c.y-y)**2;if(d<bd){bd=d;best=c;}}return best;}
@@ -288,15 +290,17 @@ function reset(){
     truce:Array.from({length:K},()=>new Array(K).fill(0))};
   recount();
   for(const a of agents){updateRoleChoice(a,tribes[a.tribe]);recount();} // kurucu nesil: doygunlukla dengeli dağılır
-  recount();computeTerritory();selectedId=null;renderInspect();updateStats();
+  recount();sim.byId=new Map(agents.map(a=>[a.id,a]));
+  for(const t of tribes){const c=agents.filter(a=>a.tribe===t.id&&lifeStage(a)==='adult');if(c.length)setRuler(t,pickRuler(c),'kurucu');}
+  computeTerritory();selectedId=null;renderInspect();updateStats();
   logEvent('Dört krallık kuruldu. Tarih başlıyor.','#aab');
 }
 function recount(){for(const t of sim.tribes){t.pop=0;t.counts={};}for(const a of sim.agents){const t=sim.tribes[a.tribe];t.pop++;t.counts[a.role]=(t.counts[a.role]||0)+1;}}
 const WD=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
 const ERA5=['Tarih Öncesi','İlk Çağ','Orta Çağ','Yeni Çağ','Yakın Çağ'];
 function dateStr(tk){const y=Math.floor(tk/CFG.yearLen),d=(tk%CFG.yearLen)+1;return `Yıl ${y} · ${d}. gün · ${WD[tk%7]}`;}
-function evIcon(x){if(x.includes('FETHETTİ'))return '👑';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
-function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu/.test(x);}
+function evIcon(x){if(x.includes('FETHETTİ')||x.includes('tahtına')||x.includes('hanedan'))return '👑';if(x.includes('veraset'))return '⚠';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
+function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu|yeni hanedan|veraset/.test(x);}
 function logEvent(text,color){const ev={text,color,tick:sim?sim.tick:0};
   sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
   (sim.chronicle=sim.chronicle||[]).unshift(ev);if(sim.chronicle.length>500)sim.chronicle.pop();
@@ -411,8 +415,10 @@ function trySecede(t){
   if(t.pop<14||t._uStreak<CFG.secedeSustain||sim.tick<t._seceCd)return;
   if(t.cities.length<2){                                         // tek şehirli devlet bölünemez: saray darbesi, yeni hanedan
     t.legit=Math.max(t.legit,0.62);t._uStreak=0;t._seceCd=sim.tick+CFG.secedeCool;
+    const reb=sim.agents.filter(a=>a.tribe===t.id&&a.rebel&&lifeStage(a)==='adult');
     for(const a of sim.agents)if(a.tribe===t.id)a.rebel=false;
-    logEvent(`⚑ ${t.name}'de saray darbesi: yeni hanedan iktidarda`,t.color);return;}
+    logEvent(`⚑ ${t.name}'de saray darbesi`,t.color);
+    if(reb.length){const old=sim.byId.get(t.ruler),nr=pickRuler(reb);if(old){bump(old,nr,-60);bump(nr,old,-60);}setRuler(t,nr,'darbe');}return;}
   if(sim.tribes.filter(o=>!o._dead).length>=CFG.maxKingdoms)return;
   const rebels=sim.agents.filter(a=>a.tribe===t.id&&a.rebel);
   if(rebels.length<8)return;
@@ -437,6 +443,33 @@ function trySecede(t){
   t.legit=Math.min(0.7,t.legit+0.08); // baskı biraz düşer ama imparatorluk hâlâ istikrarsız
   computeTerritory();
 }
+
+/* ---------- Hükümdar: krallığın tutumu liderin kişiliğinden gelir (Hermann: kişilik → dış politika) ---------- */
+const traitClamp=v=>clamp(v,0.1,0.95);
+function applyRuler(t){const r=sim.byId.get(t.ruler);if(!r)return;const P=r.pers,V=r.vals;
+  t.ambition=traitClamp(0.12+0.35*(1-P.A)+0.25*V.honor+0.25*P.E);                   // hırs: sert, onurlu, girişken lider
+  t.cunning =traitClamp(0.08+0.40*(1-P.A)+0.30*P.O+0.20*P.C);                       // kurnazlık: güvensiz, açık, planlı
+  t.greed   =traitClamp(0.20+0.35*(1-V.comm)+0.30*P.E);                             // açgözlülük: cemaate az bağlı
+  t.loyalty =traitClamp(0.12+0.45*V.trad+0.35*P.A);                                 // sadakat: gelenekçi ve uyumlu
+  t.innov   =traitClamp(0.12+0.55*P.O+0.25*V.curio);}                               // yenilikçilik: açık ve meraklı
+function setRuler(t,a,how){t.ruler=a.id;a.reignStart=sim.tick;
+  if(a.surname!==t.dynasty){if(t.dynasty&&sim.tick>0)logEvent(`👑 ${t.name}'de yeni hanedan: ${a.surname}`,t.color);t.dynasty=a.surname;}
+  a.events.push({t:sim.tick,e:`${t.name} hükümdarı oldu (${how})`});
+  if(sim.tick>0)logEvent(`👑 ${a.name} ${a.surname}, ${t.name} tahtına çıktı (${how})`,t.color);
+  t.succ[how]=(t.succ[how]||0)+1;applyRuler(t);
+  // kişisel kimya: diğer hükümdarlarla ilk ilişki
+  for(const o of sim.tribes){if(o.id===t.id||o._dead||o.ruler==null)continue;const r=sim.byId.get(o.ruler);if(r){const d=compat(a,r)*8;sim.rel[t.id][o.id]+=d;sim.rel[o.id][t.id]+=d;}}}
+function pickRuler(cands){let best=null,bv=-1e9;for(const a of cands){const v=0.5*a.pers.E+0.3*a.vals.honor+0.2*a.pers.C+rng()*0.15;if(v>bv){bv=v;best=a;}}return best;}
+function succeed(t,old,alive){
+  const kin=[];for(const a of sim.agents)if(a.tribe===t.id&&lifeStage(a)!=='child')kin.push(a);if(!kin.length){t.ruler=null;return;}
+  let heir=null,how='';
+  if(old){const kids=old.children.map(id=>sim.byId.get(id)).filter(c=>c&&alive.has(c)&&c.tribe===t.id&&lifeStage(c)!=='child').sort((x,y)=>x.born-y.born);
+    if(kids.length){heir=kids[0];how='evlat';}
+    if(!heir){const sib=kin.filter(c=>c!==old&&sharesParent(c,old)).sort((x,y)=>x.born-y.born);if(sib.length){heir=sib[0];how='kardeş';}}}
+  if(!heir){let bv=-1;for(const c of kin){let pop=c.kills*0.15;for(const o of kin)if((o.rel.get(c.id)||0)>25)pop++;if(pop>bv){bv=pop;heir=c;}}how='seçim';}
+  if(how==='kardeş'&&old)t.legit=Math.max(0.15,t.legit-0.04);                                     // kardeş: küçük sarsıntı
+  else if(how==='seçim'&&old){t.legit=Math.max(0.15,t.legit-0.10);logEvent(`⚠ ${t.name}'de veraset krizi`,'#ffb86b');}   // varis yok: kriz
+  setRuler(t,heir,how);}
 
 /* ---------- Katman 2: KRAL kararı ---------- */
 function declareWar(t,o,betrayal){
@@ -468,7 +501,7 @@ function rulerDecide(t){
   if(t._dead)return;const others=living(t);if(!others.length)return;
   if(t.war){const o=sim.tribes[t.war.target];
     if(!o||o._dead){t.war=null;t.weariness*=0.5;}
-    else if((t.weariness>58||t.pop<o.pop*0.55||capital(t).hp<40||o.weariness>62)&&(sim.tick-(t.war.start||0)>250||capital(t).hp<36)){makePeace(t,o);}
+    else if((t.weariness>58-20*((sim.byId.get(t.ruler)||{pers:{A:0.5}}).pers.A-0.5)||t.pop<o.pop*0.55||capital(t).hp<40||o.weariness>62)&&(sim.tick-(t.war.start||0)>250||capital(t).hp<36)){makePeace(t,o);}
     return;}
   // en güçlü krallık (denge için)
   let strongest=t;for(const k of sim.tribes)if(!k._dead&&power(k)>power(strongest))strongest=k;
@@ -487,8 +520,8 @@ function rulerDecide(t){
     const scheming=(plot>18&&t.cunning>0.5); // kurnaz kral açık savaş yerine ihaneti bekler
     if(t.weariness<24&&notStrongest&&!truced&&(t.legit>0.35||desperate)){
       if(plot>=CFG.plotMature&&edge>1.05) C.push({a:'BETRAY',o,s:0.5+t.ambition*0.4+(1-t.loyalty)*0.4});
-      else if(!scheming&&rel<-16&&edge>1.14) C.push({a:'INVADE',o,s:0.3+t.ambition*0.4+clamp(edge-1)*0.5+(desperate?0.5:0)});
-      else if(!scheming&&edge>1.28&&(t.ambition>0.55||desperate)) C.push({a:'INVADE',o,s:0.22+t.ambition*0.5+clamp(edge-1.28)*0.6+(desperate?0.5:0)});
+      else if(!scheming&&rel<-16&&edge>1.14) C.push({a:'INVADE',o,s:0.2+t.ambition*0.7+clamp(edge-1)*0.5+(desperate?0.5:0)});
+      else if(!scheming&&edge>1.28&&(t.ambition>0.55||desperate)) C.push({a:'INVADE',o,s:0.1+t.ambition*0.8+clamp(edge-1.28)*0.6+(desperate?0.5:0)});
     }
   }
   // BARIŞ TEMETTÜSÜ: genişle, medeniyet kur (savaş yerine)
@@ -586,7 +619,8 @@ function decide(a,t,env){
     else if(a.carrying)C.push({act:'DELIVER',s:0.7,tx:home.x,ty:home.y,city:home});}
   else if(a.role==='SPY'){const pt=t._plotTarget;if(pt!=null&&!sim.tribes[pt]._dead){const tc=capital(sim.tribes[pt]);
     C.push({act:'ESPIONAGE',s:0.6,tx:tc.x,ty:tc.y,king:pt});}}
-  if(CFG.goals&&a.goal&&lifeStage(a)!=='child'){const tg=sim.byId.get(a.goal.target);
+  if(t.ruler===a.id){const cp=capital(t),far=dist(a,cp)>34;C.push({act:'COURT',s:0.9*(1-hunger*0.4),tx:far?cp.x:a.x,ty:far?cp.y:a.y});}   // hükümdar sarayda kalır
+  if(CFG.goals&&a.goal&&a.id!==t.ruler&&lifeStage(a)!=='child'){const tg=sim.byId.get(a.goal.target);
     if(tg&&tg.energy>0){const g=a.goal,far=dist(a,tg)>CFG.socR*0.7;
       if(g.type==='REVENGE')C.push({act:'VENGEANCE',s:0.25+0.6*g.ins*(1-hunger*0.5),tx:tg.x,ty:tg.y,target:tg});
       else C.push({act:'SEEK',s:(0.2+0.45*g.ins)*(1-hunger*0.5)*(far?1:0.3),tx:far?tg.x:a.x,ty:far?tg.y:a.y,target:tg});}}
@@ -600,10 +634,10 @@ function nearest(items,x,y,maxR){let best=null,bd=maxR*maxR;for(const it of item
 function maybeLegend(a,oldAge,where){
   const yrs=Math.round(ageYears(a));
   const founder=a.events.some(e=>e.e.includes('krallığını kurdu'));
-  if(!(a.kills>=8||a.gen>=6||yrs>=82||founder))return;
+  if(!(a.kills>=8||a.gen>=6||yrs>=82||founder||a.reign>=10))return;
   a.diedAt=sim.tick; a.deathCause=oldAge?'yaşlılıktan':(a._slainBy||where);
   a.events.push({t:sim.tick,e:oldAge?`${yrs} yaşında huzur içinde öldü`:(a._slainBy?`${a._slainBy} tarafından öldürüldü`:(where==='savaşta'?'savaşta can verdi':'fetih sırasında can verdi'))});
-  a._sig=a.kills*3+a.gen*2+Math.round(yrs/8)+(founder?12:0);   // önem: sadece en büyükler kalır
+  a._sig=a.kills*3+a.gen*2+Math.round(yrs/8)+(founder?12:0)+Math.round(a.reign||0);   // önem: sadece en büyükler kalır
   sim.legends.push(a); sim.legends.sort((x,y)=>(y._sig||0)-(x._sig||0));
   if(sim.legends.length>16)sim.legends.length=16;}
 
@@ -680,11 +714,12 @@ function step(){
   }
 
   // Ölümler + fetih/yıkım
-  const alive=[];
+  const alive=[];let diedRulers=null;
   for(const a of agents){
     const oldAge=ageYears(a)>=a.lifespan;
     if(a.energy>0&&!oldAge){alive.push(a);continue;}
     const violent=!!(a._killer&&a._killer.energy>0);
+    const rt=tribes[a.tribe];if(rt&&rt.ruler===a.id){a.reign=(sim.tick-(a.reignStart||0))/CFG.yearLen;rt.ruler=null;(diedRulers=diedRulers||[]).push([rt,a]);}
     if(a.spouse!=null){const sp=sim.byId.get(a.spouse);if(sp&&sp.spouse===a.id){sp.spouse=null;sp.content=clamp(sp.content-0.25);if(sp.events.length<12)sp.events.push({t:sim.tick,e:`eşi ${a.name} öldü`});}}
     for(const rid of [a.spouse,...a.parents,...a.children]){const r=rid!=null?sim.byId.get(rid):null;if(r&&r!==a){addMem(r,'kinLost',violent?-0.9:-0.6,rid===a.spouse?0.95:0.75,a.id);   // yas
         if(r.rel.has(a.id)&&r.goal&&r.goal.target===a.id)r.goal=null;}}
@@ -697,6 +732,9 @@ function step(){
       if(k.events.length<10)k.events.push({t:sim.tick,e:`${a.name} ${a.surname}'i devirdi`});}
     maybeLegend(a,oldAge,'savaşta');}
   for(const b of births)alive.push(b);sim.agents=alive;recount();
+  {const aliveSet=new Set(alive);                                                   // hükümdar öldü → veraset; hükümdarsız krallık → seçim
+   if(diedRulers)for(const [t,old] of diedRulers)if(!t._dead)succeed(t,old,aliveSet);
+   if(sim.tick%50===0)for(const t of tribes)if(!t._dead&&t.ruler==null)succeed(t,null,aliveSet);}
 
   for(const t of tribes){if(t._dead)continue;
     // ikincil şehirler yıkılabilir
@@ -723,6 +761,7 @@ function step(){
       const atWar=ti.war&&ti.war.target===j;
       if(!atWar){const baseline=sim.tr[i][j]==='ally'?48:sim.tr[i][j]==='trade'?28:2;
         sim.rel[i][j]+=(baseline-sim.rel[i][j])*0.05;                                  // affetme: tabana toparlan
+        if(ti.ruler!=null&&tj.ruler!=null){const ra=sim.byId.get(ti.ruler),rb=sim.byId.get(tj.ruler);if(ra&&rb)sim.rel[i][j]+=0.25*compat(ra,rb);}   // liderlerin kişisel kimyası
         if(sim.tr[i][j]!=='ally'){const fr=clamp(sim.border[i][j]/24)*1.7*(sim.tr[i][j]==='trade'?0.5:1);sim.rel[i][j]-=fr;} // sınır gerilimi
       }
       // düşük ilişkide antlaşma bozulur
@@ -789,7 +828,7 @@ function updateStats(){document.querySelector('#stats tbody').innerHTML=sim.trib
   if(t._dead)return `<tr><td style="opacity:.45"><span class="kname">${t.name}</span><div class="krow">düştü</div></td><td style="text-align:right">—</td></tr>`;
   const c=t.counts;return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></span>
     <span class="kname">${t.name}</span>
-    <div class="krow">şehir ${t.cities.length} · toprak ${t.land} · <b>${ERA5[t.era-1]}</b> (${Object.keys(t.techs).length} tech)${t.cultId&&t.cultId!=='—'?` · <span style="color:#c9a3e5">◈ ${t.cultId}</span>`:''} · meşruiyet ${(t.legit*100)|0}%${t.unrest>0.15?` · <span style="color:#ff6b6b">huzursuzluk ${(t.unrest*100)|0}%</span>`:''}</div>
+    <div class="krow">${t.ruler!=null&&sim.byId.get(t.ruler)?`👑 <a href="#" onclick="selectLegend(${t.ruler});return false" style="color:#e5c07b">${sim.byId.get(t.ruler).name}</a> (${t.dynasty}) · `:''}şehir ${t.cities.length} · toprak ${t.land} · <b>${ERA5[t.era-1]}</b> (${Object.keys(t.techs).length} tech)${t.cultId&&t.cultId!=='—'?` · <span style="color:#c9a3e5">◈ ${t.cultId}</span>`:''} · meşruiyet ${(t.legit*100)|0}%${t.unrest>0.15?` · <span style="color:#ff6b6b">huzursuzluk ${(t.unrest*100)|0}%</span>`:''}</div>
     <div class="roles"><span>●${c.FARMER||0}</span><span>▲${c.SOLDIER||0}</span><span>✚${c.DOCTOR||0}</span><span>◆${c.MERCHANT||0}</span><span>✦${c.SPY||0}</span><span style="opacity:.6">çocuk ${c.CHILD||0}</span></div>
     <div class="status">${kStatus(t)}</div></td><td style="text-align:right;font-family:var(--mono)">${t.pop}</td></tr>`;}).join('');renderLegends();}
 const STAGE_TR={child:'çocuk',adult:'yetişkin',elder:'yaşlı'};
@@ -805,7 +844,7 @@ function renderInspect(){const el=document.getElementById('inspect');
   if(!a){el.innerHTML='<div class="empty">Bir bireye tıkla.</div>';return;}
   const t=sim.tribes[a.tribe], dead=!!a.diedAt, yr=Math.round(dead?(a.diedAt-a.born)/CFG.yearLen:ageYears(a));
   const stage=dead?'—':STAGE_TR[lifeStage(a)];
-  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor'}[a.act];
+  const actTR={FLEE:'kaçıyor',FIGHT:'savaşıyor',INVADE:'işgale yürüyor',HEAL:'iyileştiriyor',EAT_FIELD:'tarlada yiyor',EAT_STORE:'şehirde yiyor',GATHER:'topluyor',DELIVER:'şehre taşıyor',TRADE_RUN:'ticaret yolunda',ESPIONAGE:'casusluk yapıyor',PATROL:'devriye',RETURN:'eve dönüyor',WANDER:'geziniyor',COURT:'saray işleriyle ilgileniyor',VENGEANCE:'intikam peşinde',SEEK:'biriyle buluşmaya gidiyor'}[a.act];
   const chron=`<div style="color:var(--muted);font-size:11.5px;line-height:1.5">${lifeProse(a)}</div>`;
   el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} ${a.surname} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t?t.name:'?'}</span></div>
     <div class="row"><span>unvan</span><b style="color:#e5c07b">${legendTitle(a)}</b></div>
@@ -839,6 +878,8 @@ function memHTML(a){if(!a.mem||!a.mem.length)return '';
   const goal=a.goal&&!a.diedAt?({REVENGE:'intikam',MATE:'eş arıyor',KIN:'ailesinin yanında olmak',FRIEND:'dostunu görmek'}[a.goal.type]||''):'';
   return (goal?`<div class="row"><span>hedef</span><b>${goal}</b></div>`:'')+`<div style="margin-top:4px;color:var(--muted);font-size:10.5px;line-height:1.45">anılar: ${top.map(m=>`${m.val<0?'▾':'▴'} ${MEM_TR[m.type]||m.type} (Y${Math.floor(m.t/CFG.yearLen)})`).join(' · ')}</div>`;}
 function legendTitle(a){
+  if(sim.tribes[a.tribe]&&sim.tribes[a.tribe].ruler===a.id&&!a.diedAt)return 'Hükümdar';
+  if(a.reign>=10)return 'Uzun Hükümdar';
   if(a.events&&a.events.some(e=>e.e.includes('krallığını kurdu')))return 'Kurucu';
   if(a.kills>=8)return 'Büyük Fatih'; if(a.kills>=5)return 'Fatih'; if(a.kills>=3)return 'Savaşçı';
   if(a.gen>=5)return 'Hanedan Atası'; if(a.gen>=4)return 'Soylu';
