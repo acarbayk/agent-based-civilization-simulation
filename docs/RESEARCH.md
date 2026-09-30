@@ -8,8 +8,7 @@ mevcut kod yorumlarındaki referanslardır.
 ## 1. Tekrarlanabilirlik (Adım 1'in dayanağı)
 
 - Deterministik bir simülasyon için seed'li bir PRNG şarttır. JavaScript'te `Math.random()` seed
-  alamaz; küçük ve hızlı seçenekler `mulberry32`, `sfc32`, `xoshiro128**`. Bu projede `mulberry32`
-  kullanıldı.
+  alamaz; küçük ve hızlı seçenekler `mulberry32`, `sfc32`, `xoshiro128**`. Başlangıçta `mulberry32` kullanıldı; yazarı 2022'de artık önermediğini belirtti (tüm 32-bit değerleri üretmiyor), bu yüzden `sfc32`'ye geçildi (bkz. SOURCES.md #21).
   ([Mulberry32 açıklaması](https://www.4rknova.com/blog/2026/03/01/mulberry32-rng),
   [Blobs in Games: PRNG](https://simblob.blogspot.com/2022/05/upgrading-prng.html))
 - Ajan tabanlı modellerde iyi uygulama: rastgele akışlarını karar türüne göre ayırmak, böylece bir
@@ -88,11 +87,11 @@ sonunda tek devlet kalabiliyor; bu doğal çeşitlilik sayıldı, ama izlenmeli.
 ## 6. Adım 2: kişilik, değerler, ilişkiler, aile
 
 **Araştırma.** Sosyal simülasyonlarda Big Five kişilik ve homofili ile bağ oluşumu
-([LLM ajanlarla ortaya çıkan bağlar](https://arxiv.org/html/2510.19299)); Dunbar katmanları 5-15-50-150,
-yani ilişki sayısı sınırlı ([Calling Dunbar's numbers](https://arxiv.org/pdf/1604.02400)); evlilik piyasası
+([LLM ajanlarla ortaya çıkan bağlar](https://arxiv.org/html/2510.19299); ön baskı, yalnızca ilham); Dunbar katmanları (kuramsal 5-15-50-150; telefon verisinde ölçülen 4-11-30-129, kat ≈2.7),
+yani ilişki sayısı sınırlı ([MacCarron ve ark. 2016](https://arxiv.org/pdf/1604.02400)); evlilik piyasası
 ABM'leri: benzer olanı arama, yaş farkı tercihi ([MADAM/KAMA özeti](https://www.jasss.org/11/4/5.html),
 [Age-at-marriage](https://csde.washington.edu/downloads/toddbillarisimao.pdf)); Dwarf Fortress'ta davranış
-(facet) ve inanç (değer) ayrımı ([wiki](https://dwarffortresswiki.org/index.php/Personality_facet)).
+(facet) ve inanç (değer) ayrımı ([wiki](https://dwarffortresswiki.org/index.php/Personality_facet), oyun mekaniği; bilimsel kanıt değil).
 
 **Tasarım.** Her birey 5 kişilik özelliği (açıklık, sorumluluk, dışadönüklük, uyumluluk, kaygı) ve 4 değer
 (gelenek, cemaat, onur, merak) taşır; ebeveyn ortalamasının %50'si + yeni şans. Görüş tek yönlüdür
@@ -116,9 +115,9 @@ cesareti etkiler.
 ## 7. Adım 3: hafıza ve hedefler
 
 **Araştırma.** ACT-R taban aktivasyonu: `B = ln Σ t^-d`, `d=0.5`
-([Understanding ACT-R](https://arxiv.org/pdf/1306.0125)); Dwarf Fortress'ta sınırlı hafıza yuvaları,
+([Anderson & Schooler 1991; tanıtım: arXiv](https://arxiv.org/pdf/1306.0125)); Dwarf Fortress'ta sınırlı hafıza yuvaları,
 aynı olaya kişiliğe göre farklı tepki ve anıların kişiliği kalıcı değiştirmesi
-([bellek](https://dwarffortresswiki.org/index.php/DF2014:Memory_(thought)),
+([bellek](https://dwarffortresswiki.org/index.php/DF2014:Memory_%28thought%29),
 [duygu](https://dwarffortresswiki.org/index.php/DF2014:Emotion)); The Sims tarzı ihtiyaç tabanlı yapay
 zekâ ([Zubek](https://robert.zubek.net/publications/Needs-based-AI-draft.pdf)); Millington §5.7 hedef *insistence*.
 
@@ -138,11 +137,10 @@ belirler, büyük yas kaygıyı kalıcı artırır. Hedefler: intikam, eş arama
 
 ## 8. Adım 4: hükümdar bir bireydir
 
-**Araştırma.** Hermann'ın liderlik özellik analizi: kişilik dış politika yönelimini belirler; düşük uyumluluk ve
+**Araştırma.** Hermann'ın liderlik özellik analizi (LTA, 7 özellik): kişilik dış politika yönelimini belirler (bizim eşlememiz Big Five'dan, LTA'dan türetilmedi); düşük uyumluluk ve
 yüksek güvensizlik saldırganlığı artırır ([Hermann](https://www.researchgate.net/publication/253070340_Assessing_Leadership_Style_A_Trait_Analysis)).
 Veraset kuralları: net kural (primogeniture) istikrarlı, tanistry ve seçim kriz üretir
-([primogeniture](https://en.wikipedia.org/wiki/Primogeniture),
-[elective monarchy](https://en.wikipedia.org/wiki/Elective_monarchy)); Crusader Kings veraset yasaları.
+([Kokkonen & Sundell 2014, APSR](https://www.cambridge.org/core/journals/american-political-science-review/article/abs/delivering-stabilityprimogeniture-and-autocratic-survival-in-european-monarchies-10001800/2399079C174599A840E5230E8827609C): primogeniture 960 hükümdarlık veride görevde kalma olasılığını 2 kattan fazla artırıyor); Crusader Kings veraset yasaları.
 
 **Tasarım.** Krallığın hırs, kurnazlık, açgözlülük, sadakat ve yenilikçilik değerleri hükümdarın kişilik ve
 değerlerinden türer. Veraset sırası: ilk çocuk, kardeş, sonra popülerliğe göre seçim (seçim = veraset krizi,

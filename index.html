@@ -115,16 +115,18 @@ const W=cv.width,H=cv.height;
 const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v;
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 /* Seed'li rastgelelik: aynı seed = aynı tarih. Simülasyon `rng`, arayüz tıklamaları `rngUI` kullanır (akışlar karışmaz). */
-function mulberry32(a){return()=>{a=(a+0x6D2B79F5)>>>0;let t=Math.imul(a^(a>>>15),a|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
-function hashSeed(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}
-  h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return(h^(h>>>16))>>>0;}
+// sfc32 (Doty-Humphrey): 128-bit durum, PractRand'ı geçer; mulberry32'nin yazarı artık onu önermiyor. Tohum: xmur3 karması.
+function sfc32(a,b,c,d){return()=>{a>>>=0;b>>>=0;c>>>=0;d>>>=0;let t=(a+b)|0;a=b^(b>>>9);b=(c+(c<<3))|0;c=(c<<21)|(c>>>11);d=(d+1)|0;t=(t+d)|0;c=(c+t)|0;return(t>>>0)/4294967296;};}
+function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}
+  return()=>{h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return(h^=h>>>16)>>>0;};}
+const makeRng=str=>{const g=xmur3(str),r=sfc32(g(),g(),g(),g());for(let i=0;i<15;i++)r();return r;};
 let SEED='',rng=Math.random,rngUI=Math.random;
-function setSeed(str){SEED=String(str);const n=hashSeed(SEED);rng=mulberry32(n);rngUI=mulberry32(n^0x9e3779b9);}
+function setSeed(str){SEED=String(str);rng=makeRng(SEED);rngUI=makeRng(SEED+'#ui');}
 const newSeedStr=()=>Math.floor(Math.random()*36**6).toString(36).padStart(6,'0');
 const rnd=(a,b)=>a+rng()*(b-a);
 const rndUI=(a,b)=>a+rngUI()*(b-a);
 
-const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:440,
+const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:640,
   energyStart:100,energyMax:135,drain:0.05,foodEnergy:44,eatR:7,cityR:18,combatR:12,
   spawnCost:9,reproEnergy:95,mutation:0.12,senseCap:95,healR:26,cityHP:240,plotMature:60,maxCities:4,granaryCap:140,
   // yaşam döngüsü (Sugarscape): 1 yıl ≈ 70 adım; çocuk<14y, yaşlı>55y; ömür değişken
@@ -137,6 +139,10 @@ const CFG={kingdoms:4,startPop:14,perKingCap:110,totalCap:440,
   // hafıza (ACT-R güç yasası, Dwarf Fortress yuvaları) + hedefler (GOB insistence)
   memMax:10, memDecay:0.5, goalEvery:60, goals:true, revengeOpinion:-50,
   // iklim: nadir kuraklıklar (Bronz Çağı çöküşü, Küçük Buzul Çağı gibi dış şoklar) durgun dengeyi bozar
+  // demografi (ön sanayi): yaşa bağlı ölüm tehlikesi (yıllık), doğurganlık, Malthus, salgın
+  mortality:true, mInfant:0.15, mChild:0.03, mYouth:0.008, mBase:0.008, mGomp:0.00004, mGompK:0.095, maxAge:100,
+  fecundity:1.5, fertMin:16, fertMax:44, amenorrhea:[0.9,1.6], gestYears:0.75, maternalDeath:0.012,
+  founderFamilies:8, carryMul:1.6, epiRate:0.012,
   climate:true, droughtGapYears:[22,55], droughtYears:[2,6], droughtFood:[0.03,0.10],
   // rejim yaşı: hanedanlar 3-4 kuşakta gevşer (Ibn Haldun / Turchin: asabiya çürümesi)
   regimeDecay:0.30, regimeYears:70};
@@ -224,15 +230,16 @@ const V4=['trad','comm','honor','curio'];             // gelenek, cemaat, onur, 
 const g01=()=>clamp(0.5+(rng()+rng()+rng()-1.5)*0.4);  // ≈ normal, 0-1
 function inheritTraits(p,p2,src,keys){const o={};                              // kalıtım: %50 ebeveyn ortalaması + %50 yeni şans (varyans korunur)
   for(const k of keys){const m=p?(p2?(p[src][k]+p2[src][k])/2:p[src][k]):null;o[k]=m==null?g01():clamp(0.5*m+0.5*g01());}return o;}
-function makeAgent(king,x,y,role,parentAgent,parent2){
+function makeAgent(king,x,y,role,parentAgent,parent2,opt){
+  opt=opt||{};
   const mut=(v,mn,mx)=>clamp(v*(1+(rng()*2-1)*CFG.mutation),mn,mx);
   const p=parentAgent, base=p||{speed:1.1+rng()*0.8,sense:60+rng()*35,power:1.5+rng()*2};
   const surname=p?p.surname:makeSurname();
   const pers=inheritTraits(p,parent2,'pers',T5), vals=inheritTraits(p,parent2,'vals',V4);   // Big Five + değerler: ebeveyn ortalaması + rastgele
   // başlangıç ajanları yetişkin doğsun; sonradan doğanlar bebek
-  const startAdult=!p, born=(sim?sim.tick:0)-(startAdult?rnd(CFG.childYears,40)*CFG.yearLen:0);
-  const a={id:nextId++,name:makeName(),surname,gen:p?(p.gen+1):1,tribe:king.id,color:king.color,role,x,y,wx:x,wy:y,
-    energy:p?CFG.reproEnergy:CFG.energyStart,born,age:0,lifespan:rnd(CFG.lifeMin,CFG.lifeMax),
+  const born=(sim?sim.tick:0)-(opt.age!=null?opt.age*CFG.yearLen:(p?0:rnd(CFG.childYears,40)*CFG.yearLen));
+  const a={id:nextId++,name:makeName(),surname:opt.surname||surname,gen:p?(p.gen+1):1,tribe:king.id,color:king.color,role,x,y,wx:x,wy:y,
+    energy:p?CFG.reproEnergy:CFG.energyStart,born,age:0,sex:opt.sex||(rng()<0.5?'F':'M'),frail:Math.exp((rng()+rng()+rng()-1.5)*0.5),pregUntil:0,nextFertile:0,
     carrying:false,act:'WANDER',homeward:false,kills:0,rebel:false,events:[],roleAge:0,
     hardship0:rng(),risk:clamp(0.55*(1-pers.O)+0.45*pers.N),  // kişisel zorluk + risk-kaçınması (kişilikten: az açık/kaygılı = temkinli)
     pers,vals,parents:p?(parent2?[p.id,parent2.id]:[p.id]):[],parentNames:p?(parent2?[p.name,parent2.name]:[p.name]):[],spouse:null,spouseName:null,children:[],childNames:[],rel:new Map(),mem:[],memMood:0,trauma:0,goal:null,acts:{},
@@ -279,13 +286,26 @@ function updateRoleChoice(a,t){
     if(best!==a.role && U[best]>(U[a.role]||0)*1.55){a.role=best;a.roleAge=0;if(a.events.length<8)a.events.push({t:sim.tick,e:`hayatı değişti: ${ROLE_TR[best]} oldu`});}}
 }
 const cityFood=t=>t.cities.reduce((s,c)=>s+c.food,0);
+// Kurucu nesil: aileler (çift + çocuklar), bekârlar ve dullar; yaş dağılımı ön sanayi toplumuna benzer
+function foundFamilies(t,b,agents){
+  const at=()=>[b.x+rnd(-24,24),b.y+rnd(-24,24)];
+  const link=(par,kid)=>{par.children.push(kid.id);par.childNames.push(kid.name);bump(par,kid,60);bump(kid,par,60);};
+  for(let f=0;f<CFG.founderFamilies;f++){
+    const ha=rnd(20,46),wa=clamp(ha-rnd(-3,7),17,44);
+    const h=makeAgent(t,...at(),'CHILD',null,null,{age:ha,sex:'M'}),w=makeAgent(t,...at(),'CHILD',null,null,{age:wa,sex:'F'});
+    h.spouse=w.id;w.spouse=h.id;h.spouseName=w.name;w.spouseName=h.name;bump(h,w,60);bump(w,h,60);
+    agents.push(h,w);
+    const maxKids=Math.max(0,Math.floor((wa-16)/2.6));const nk=Math.min(maxKids,Math.floor(rnd(0,5.2)));
+    for(let k=0;k<nk;k++){const ca=k*rnd(2,3.4)+rnd(0,1.2);if(ca>wa-16)break;
+      const c=makeAgent(t,...at(),'CHILD',h,w,{age:ca});link(h,c);link(w,c);agents.push(c);}}
+  for(let n=0;n<6;n++)agents.push(makeAgent(t,...at(),'CHILD',null,null,{age:rnd(15,34)}));                       // bekâr gençler
+}
 function reset(){
   setSeed(SEED||newSeedStr()); nextId=1; sim=null;   // eski koşunun tick'i yeni doğumlara sızmasın
   initTerritory();
   const tribes=[];for(let i=0;i<CFG.kingdoms;i++)tribes.push(makeKingdom(i));
   const agents=[];
-  for(const t of tribes){const b=capital(t);for(let n=0;n<CFG.startPop;n++){
-    agents.push(makeAgent(t,b.x+rnd(-22,22),b.y+rnd(-22,22),'CHILD'));}}
+  for(const t of tribes)foundFamilies(t,capital(t),agents);
   const food=[];for(let i=0;i<180;i++)food.push({x:rng()*W,y:rng()*H});
   const K=CFG.kingdoms; nextKingId=K;
   sim={tribes,agents,food,tick:0,feed:[],chronicle:[],legends:[],climate:{mul:1,until:Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)},
@@ -303,8 +323,8 @@ function recount(){for(const t of sim.tribes){t.pop=0;t.counts={};}for(const a o
 const WD=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
 const ERA5=['Tarih Öncesi','İlk Çağ','Orta Çağ','Yeni Çağ','Yakın Çağ'];
 function dateStr(tk){const y=Math.floor(tk/CFG.yearLen),d=(tk%CFG.yearLen)+1;return `Yıl ${y} · ${d}. gün · ${WD[tk%7]}`;}
-function evIcon(x){if(x.includes('uraklık'))return x.includes('sona')?'🌧':'☀';if(x.includes('FETHETTİ')||x.includes('tahtına')||x.includes('hanedan'))return '👑';if(x.includes('veraset'))return '⚠';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
-function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu|yeni hanedan|veraset|kuraklık başladı/.test(x);}
+function evIcon(x){if(x.includes('salgın'))return x.includes('sona')?'✚':'☠';if(x.includes('uraklık'))return x.includes('sona')?'🌧':'☀';if(x.includes('FETHETTİ')||x.includes('tahtına')||x.includes('hanedan'))return '👑';if(x.includes('veraset'))return '⚠';if(x.includes('İSYAN')||x.includes('dağıldı'))return '⚑';if(x.includes('savaş açtı')||x.includes('saldır'))return '⚔';if(x.includes('keşfetti'))return '⚙';if(x.includes('yıkıldı')||x.includes('çöktü'))return '🔥';if(x.includes('kuruldu')||x.includes('krallık doğdu')||x.includes('şehir kurdu'))return '✦';if(x.includes('barış')||x.includes('ittifak'))return '🕊';return '•';}
+function evMajor(x){return /FETHETTİ|İSYAN|dağıldı|çöktü|krallık doğdu|kuruldu|yeni hanedan|veraset|kuraklık başladı|salgın başladı/.test(x);}
 function logEvent(text,color){const ev={text,color,tick:sim?sim.tick:0};
   sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
   (sim.chronicle=sim.chronicle||[]).unshift(ev);if(sim.chronicle.length>500)sim.chronicle.pop();
@@ -560,7 +580,7 @@ function addMem(a,type,val,sal,who){
 const MEM_TR={kinLost:'sevdiği birini kaybetti',killed:'birini öldürdü',married:'evlendi',birth:'çocuğu doğdu',conquered:'krallığı fethedildi',hunger:'açlıktan kırıldı',avenged:'intikamını aldı'};
 
 /* ---------- Hedefler: GOB — her hedefin bir "insistence" değeri var, en baskın olan seçilir ---------- */
-function canWed(a,o){return a!==o&&a.spouse==null&&o.spouse==null&&o.tribe===a.tribe&&lifeStage(o)==='adult'&&!kinPair(a,o)
+function canWed(a,o){return a!==o&&a.sex!==o.sex&&a.spouse==null&&o.spouse==null&&o.tribe===a.tribe&&lifeStage(o)==='adult'&&!kinPair(a,o)
   &&ageYears(o)>=CFG.marryMinYears&&Math.abs(ageYears(a)-ageYears(o))<=CFG.mateGapYears;}
 function chooseGoal(a){
   let best=null;const take=(type,target,ins)=>{if(!best||ins>best.ins)best={type,target,ins};};
@@ -591,7 +611,7 @@ function socialize(a,nb){
   if(!o)return;
   bump(a,o,CFG.homoK*compat(a,o)+CFG.contact+2*(a.pers.A-0.5));            // temas (+1) + homofili + algılayanın uyumluluğu
   bump(o,a,CFG.homoK*compat(o,a)+CFG.contact+2*(o.pers.A-0.5));
-  if(a.spouse==null&&o.spouse==null&&lifeStage(a)==='adult'&&lifeStage(o)==='adult'&&!kinPair(a,o)
+  if(a.sex!==o.sex&&a.spouse==null&&o.spouse==null&&lifeStage(a)==='adult'&&lifeStage(o)==='adult'&&!kinPair(a,o)
      &&ageYears(a)>=CFG.marryMinYears&&ageYears(o)>=CFG.marryMinYears&&Math.abs(ageYears(a)-ageYears(o))<=CFG.mateGapYears
      &&(a.rel.get(o.id)||0)>CFG.marryOpinion&&(o.rel.get(a.id)||0)>CFG.marryOpinion-4&&rng()<CFG.marryProb){
     a.spouse=o.id;o.spouse=a.id;a.spouseName=o.name;o.spouseName=a.name;bump(a,o,25);bump(o,a,25);
@@ -639,11 +659,46 @@ function maybeLegend(a,oldAge,where){
   const yrs=Math.round(ageYears(a));
   const founder=a.events.some(e=>e.e.includes('krallığını kurdu'));
   if(!(a.kills>=8||a.gen>=6||yrs>=82||founder||a.reign>=10))return;
-  a.diedAt=sim.tick; a.deathCause=oldAge?'yaşlılıktan':(a._slainBy||where);
-  a.events.push({t:sim.tick,e:oldAge?`${yrs} yaşında huzur içinde öldü`:(a._slainBy?`${a._slainBy} tarafından öldürüldü`:(where==='savaşta'?'savaşta can verdi':'fetih sırasında can verdi'))});
+  a.diedAt=sim.tick; a.deathCause=oldAge?(yrs>=60?'yaşlılıktan':'hastalıktan'):(a._slainBy||where);
+  a.events.push({t:sim.tick,e:oldAge?(yrs>=60?`${yrs} yaşında huzur içinde öldü`:`${yrs} yaşında hastalıktan öldü`):(a._slainBy?`${a._slainBy} tarafından öldürüldü`:({savaşta:'savaşta can verdi',fetihte:'fetih sırasında can verdi',açlıktan:'açlıktan öldü',doğumda:'doğum sırasında öldü'}[where]||'öldü'))});
   a._sig=a.kills*3+a.gen*2+Math.round(yrs/8)+(founder?12:0)+Math.round(a.reign||0);   // önem: sadece en büyükler kalır
   sim.legends.push(a); sim.legends.sort((x,y)=>(y._sig||0)-(x._sig||0));
   if(sim.legends.length>16)sim.legends.length=16;}
+
+/* ---------- Demografi: ölüm tehlikesi, doğurganlık, salgın ---------- */
+const carryK=t=>CFG.carryCap*(1+0.4*(t.cities.length-1))*CFG.carryMul;
+function hazard(a,t){const y=ageYears(a);
+  let h=y<1?CFG.mInfant:y<5?CFG.mChild:y<15?CFG.mYouth:CFG.mBase+CFG.mGomp*Math.exp(CFG.mGompK*y);   // Gompertz-Makeham: yıllık ölüm olasılığı
+  h*=a.frail;                                                   // kişisel kırılganlık
+  if(a.energy<25)h*=2.2;                                        // yetersiz beslenme
+  const K=carryK(t);if(t.pop>K)h*=1+0.8*(t.pop/K-1);            // Malthus: taşıma kapasitesi aşılınca ölüm artar
+  if(t._epi)h*=t._epi.mult*((y<5||y>55)?1.4:1);                 // salgın: çocuk ve yaşlı daha kırılgan
+  return Math.min(h,0.9);}
+const fecAt=y=>y<CFG.fertMin||y>CFG.fertMax?0:CFG.fecundity*clamp((CFG.fertMax-y)/14,0,1);
+function updateEpidemics(){
+  for(const t of sim.tribes){if(t._dead)continue;
+    if(t._epi&&sim.tick>=t._epi.until){t._epi=null;logEvent(`${t.name}'de salgın sona erdi`,'#9fb');continue;}
+    if(!t._epi){let r=CFG.epiRate*Math.pow(t.pop/100,1.5);
+      for(const o of sim.tribes)if(o._epi&&!o._dead&&o.id!==t.id&&sim.tr[t.id][o.id]!=='none')r*=8;         // ticaret yollarıyla yayılır
+      if(rng()<r){t._epi={until:sim.tick+Math.round(rnd(0.5,1.2)*CFG.yearLen),mult:rnd(3,5)};logEvent(`${t.name}'de salgın başladı`,'#ff9b5b');}}}}
+function conceiveAndBirth(agents,births,t_of){
+  for(const a of agents){if(a.sex!=='F')continue;const t=t_of(a);if(!t||t._dead)continue;
+    if(a.pregUntil>0){
+      if(sim.tick<a.pregUntil)continue;
+      a.pregUntil=0;const fa=a.spouse!=null?sim.byId.get(a.spouse):null;const father=fa&&fa.spouse===a.id?fa:null;
+      const city=nearestCity(t.cities,a.x,a.y);
+      const baby=father?makeAgent(t,a.x+rnd(-6,6),a.y+rnd(-6,6),'CHILD',father,a):makeAgent(t,a.x+rnd(-6,6),a.y+rnd(-6,6),'CHILD',a,null);
+      for(const q of (father?[father,a]:[a])){q.children.push(baby.id);q.childNames.push(baby.name);bump(q,baby,60);bump(baby,q,60);addMem(q,'birth',0.7,0.7,baby.id);
+        if(q.events.length<12)q.events.push({t:sim.tick,e:`bir çocuğu oldu: ${baby.name}`});
+        for(const sid of q.children){const sb=sim.byId.get(sid);if(sb&&sb!==baby){bump(baby,sb,25);bump(sb,baby,25);}}}
+      a.nextFertile=sim.tick+Math.round(rnd(...CFG.amenorrhea)*CFG.yearLen);births.push(baby);
+      if(CFG.mortality&&rng()<CFG.maternalDeath*a.frail){a.energy=-1;a._childbirth=true;}               // doğumda ölüm
+      continue;}
+    if(a.spouse==null||sim.tick<a.nextFertile)continue;
+    const sp=sim.byId.get(a.spouse);if(!sp||sp.spouse!==a.id)continue;
+    const y=ageYears(a),fa=fecAt(y);if(!fa)continue;
+    const food=clamp((a.energy-30)/60),K=carryK(t),crowd=clamp(1.5-t.pop/K,0,1),sec=clamp(cityFood(t)/(Math.max(1,t.pop)*0.4)*0.5+0.5,0.35,1);
+    if(rng()<fa*food*crowd*sec/CFG.yearLen)a.pregUntil=sim.tick+Math.round(rnd(CFG.gestYears-0.05,CFG.gestYears+0.05)*CFG.yearLen);}}
 
 /* ---------- Bir adım ---------- */
 function step(){
@@ -666,6 +721,7 @@ function step(){
   for(const a of agents){
     const t=tribes[a.tribe];a.age++;a.energy-=CFG.drain*(0.7+0.4*a.speed);
     updateRoleChoice(a,t);   // çocukluk→meslek + ataletli yeniden değerlendirme
+    if(CFG.mortality&&a.energy>0&&(rng()<hazard(a,t)/CFG.yearLen||ageYears(a)>=CFG.maxAge)){a.energy=-1;a._natural=true;}
     const nb=ag.near(a.x,a.y);
     let enemy=null,ebd=Math.min(a.sense,CFG.senseCap)**2,wounded=null,wbd=CFG.healR**2;
     for(const o of nb){if(o.tribe!==a.tribe){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<ebd){ebd=d;enemy=o;}}
@@ -697,23 +753,10 @@ function step(){
     else if(dec.act==='ESPIONAGE'&&dec.king!=null){const O=sim.tribes[dec.king];if(ownerAt(a.x,a.y)===O.id){t.plots[O.id]=(t.plots[O.id]||0)+0.45;if(O.treasury>0&&rng()<0.05){O.treasury-=1;t.treasury+=1;}}}
   }
 
-  // Doğumlar
-  const total=agents.length;
-  let adultsBy=null;const adultsOf=id=>{if(!adultsBy){adultsBy={};for(const a of agents)if(lifeStage(a)==='adult')(adultsBy[a.tribe]=adultsBy[a.tribe]||[]).push(a);}return adultsBy[id]||[];};
+  // Doğumlar: evli kadınlar gebe kalır, doğurur (doğum aralığı, yaş, beslenme, kalabalık)
+  conceiveAndBirth(agents,births,a=>tribes[a.tribe]);
+  if(sim.tick%CFG.yearLen===0)updateEpidemics();
   for(const t of tribes){if(t._dead)continue;
-    let cost=CFG.spawnCost;if(t.war&&t.treasury>=4){cost-=2;t.treasury-=4;}
-    let city=null;for(const c of t.cities)if(c.food>=cost){city=c;break;}
-    if(city&&t.pop<CFG.perKingCap&&total+births.length<CFG.totalCap){city.food-=cost;
-      const kin=adultsOf(t.id);let p=null,p2=null;
-      const wed=kin.filter(x=>x.spouse!=null&&sim.byId.get(x.spouse)&&sim.byId.get(x.spouse).spouse===x.id&&lifeStage(sim.byId.get(x.spouse))==='adult');
-      if(wed.length&&rng()<0.85){p=wed[(rng()*wed.length)|0];p2=sim.byId.get(p.spouse);}      // çocuk çoğunlukla evli bir çiftten
-      else if(kin.length)p=kin[(rng()*kin.length)|0];
-      const baby=makeAgent(t,city.x+rnd(-12,12),city.y+rnd(-12,12),'CHILD',p||null,p2);
-      if(p){for(const q of (p2?[p,p2]:[p])){q.children.push(baby.id);q.childNames.push(baby.name);bump(q,baby,60);bump(baby,q,60);
-          addMem(q,'birth',0.7,0.7,baby.id);
-          if(q.events.length<12)q.events.push({t:sim.tick,e:`bir çocuğu oldu: ${baby.name}`});
-          for(const sid of q.children){const sb=sim.byId.get(sid);if(sb&&sb!==baby){bump(baby,sb,25);bump(sb,baby,25);}}}}
-      births.push(baby);}
     // şehir onarımı + savaş masrafı
     for(const c of t.cities){if(sim.tick-(c._hitTick||-1e9)>90)c.hp=Math.min(CFG.cityHP,c.hp+0.03);}
     if(t.war)capital(t).food=Math.max(0,capital(t).food-0.02);
@@ -723,7 +766,7 @@ function step(){
   // Ölümler + fetih/yıkım
   const alive=[];let diedRulers=null;
   for(const a of agents){
-    const oldAge=ageYears(a)>=a.lifespan;
+    const oldAge=!!a._natural;
     if(a.energy>0&&!oldAge){alive.push(a);continue;}
     const violent=!!(a._killer&&a._killer.energy>0);
     const rt=tribes[a.tribe];if(rt&&rt.ruler===a.id){a.reign=(sim.tick-(a.reignStart||0))/CFG.yearLen;rt.ruler=null;(diedRulers=diedRulers||[]).push([rt,a]);}
@@ -737,7 +780,7 @@ function step(){
       if(k.goal&&k.goal.type==='REVENGE'&&k.goal.target===a.id){k.goal=null;addMem(k,'avenged',0.7,0.8,a.id);if(k.events.length<12)k.events.push({t:sim.tick,e:`${a.name} ${a.surname}'i devirip intikamını aldı`});}
       a._slainBy=`${k.name} ${k.surname}`;
       if(k.events.length<10)k.events.push({t:sim.tick,e:`${a.name} ${a.surname}'i devirdi`});}
-    maybeLegend(a,oldAge,'savaşta');}
+    maybeLegend(a,oldAge,a._childbirth?'doğumda':violent?'savaşta':'açlıktan');}
   for(const b of births)alive.push(b);sim.agents=alive;recount();
   {const aliveSet=new Set(alive);                                                   // hükümdar öldü → veraset; hükümdarsız krallık → seçim
    if(diedRulers)for(const [t,old] of diedRulers)if(!t._dead)succeed(t,old,aliveSet);
@@ -856,7 +899,7 @@ function renderInspect(){const el=document.getElementById('inspect');
   el.innerHTML=`<div class="big" style="color:${a.color}">${a.name} ${a.surname} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${t?t.name:'?'}</span></div>
     <div class="row"><span>unvan</span><b style="color:#e5c07b">${legendTitle(a)}</b></div>
     <div class="row"><span>${dead?'öldü':'rol / evre'}</span><b>${dead?a.deathCause:ROLE_TR[a.role]+' · '+stage}</b></div>
-    <div class="row"><span>yaş</span><b>${yr} yıl</b></div>
+    <div class="row"><span>yaş</span><b>${yr} yıl · ${a.sex==='F'?'kadın':'erkek'}</b></div>
     <div class="row"><span>nesil / soy</span><b>${a.gen}. ${a.surname}</b></div>
     <div class="row"><span>kişilik</span><b>${persWords(a)}</b></div>
     <div style="margin:2px 0 4px">${traitBars(a)}</div>
