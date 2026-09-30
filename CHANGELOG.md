@@ -10,6 +10,9 @@
 - Savaş: sefer mevsimi, düşük ölümcüllük, yaralı asker geri çekilmesi
 - RNG: mulberry32 → sfc32; kaynak kaydı `docs/SOURCES.md`, plan `docs/PLAN.md`
 - Test düzeneği hatası düzeltildi (tuval yüksekliği 700 → 520)
+- Savaş hatası: askerler barışta ve ittifak döneminde de öldürüyordu; artık yalnızca savaştaki devletler, çocuklar hedef değil
+- Çocuklar ebeveynin yakınında, hamile/emziren kadınlar eve yakın, kişilik eylem puanlarında, kardeşlere benzersiz ad
+- Yok olma hataları: sahipsiz halk yeni/yakın krallığa katılır; Malthus doğurganlığı sıfırlamaz
 
 ### Added
 - Bireyin zihni: Big Five kişilik + 4 değer (ebeveynden kalıtım), tek yönlü görüş haritası, homofili, evlilik, gerçek ebeveyn/çocuk bağı

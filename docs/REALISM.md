@@ -28,7 +28,7 @@ gözden geçirme adımı tanımlıdır. Puanlar baştan dürüstçe yazıldı.
 Her boyutun yanındaki kanıt ölçülür. İlk sütun, bu belge yazılırken (Adım 1-5 tamamlandıktan sonra) benim
 dürüst puanımdır. Hedef: ortalama ≥8 ve hiçbir boyut <6.
 
-| Boyut | Kanıt | Şimdi | Hedef |
+| Boyut | Kanıt | Başlangıç öz-puanı (eski) | Hedef |
 |---|---|---|---|
 | Demografik gerçekçilik | doğumda beklenen ömür 28-38, bebek ölümü %13-25, 15'e ulaşma %50-70, nüfus piramidi | 2 | 8 |
 | Mekân ve ekonomi | arazi, mevsim, hane, yerleşim | 2 | 7 |
@@ -41,18 +41,18 @@ dürüst puanımdır. Hedef: ortalama ≥8 ve hiçbir boyut <6.
 
 ## Bağımsız gözden geçirme sonuçları
 
-| Boyut | Öz-puan (ilk plan) | Bağımsız 1. tur | Hedef |
-|---|---|---|---|
-| Demografik gerçekçilik | 2 | 7 | 8 |
-| Mekân ve ekonomi | 2 | 5 | 7 |
-| Toplumsal yapı | 7 | 7 | 8 |
-| Birey zihni | 7 | 6 | 8 |
-| Savaş ve siyaset | 4 | 3.5 | 7 |
-| Okunabilirlik ve his | 3 | 7 | 8 |
-| Doğrulama ve dürüstlük | 6 | 5.5 | 8 |
-| Tekrarlanabilirlik ve kararlılık | 7 | 8.5 | 8 |
-| **Ortalama** | | **6.2** | **≥8** |
+| Boyut | Öz-puan (ilk plan) | Bağımsız tur 1 | Bağımsız tur 2 | Hedef |
+|---|---|---|---|---|
+| Demografik gerçekçilik | 2 | 7 | 7 | 8 |
+| Mekân ve ekonomi | 2 | 5 | 4.5 | 7 |
+| Toplumsal yapı | 7 | 7 | 7 | 8 |
+| Birey zihni | 7 | 6 | 5.5 | 8 |
+| Savaş ve siyaset | 4 | 3.5 | 6 | 7 |
+| Okunabilirlik ve his | 3 | 7 | 7 | 8 |
+| Doğrulama ve dürüstlük | 6 | 5.5 | 6 | 8 |
+| Tekrarlanabilirlik ve kararlılık | 7 | 8.5 | 8 | 8 |
+| **Ortalama** | | **6.2** | **6.4** | **≥8** |
 
 Öz-puan sütunu başlangıç durumunun (bu planın yazıldığı an) puanıdır; bağımsız sütun, düzeltmelerden ÖNCE, öz-puanlardan
 habersiz taze bir ajanın puanıdır. En büyük düşüşü savaş boyutu yaşadı (hata bulundu ve düzeltildi, bkz.
-RESEARCH.md §10.6). Bir sonraki adım, düzeltmelerden sonra yeni bir bağımsız tur.
+RESEARCH.md §10.6). Tur 2 sonrası tur 3 düzeltmeleri yapıldı (RESEARCH.md §10.9); yeni bir bağımsız tur henüz yapılmadı.

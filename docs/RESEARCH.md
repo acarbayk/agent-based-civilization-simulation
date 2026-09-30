@@ -191,21 +191,18 @@ yeniden yapıldı**. Önceki bölümlerdeki (5-9) sayılar 900×700 haritadadır
 
 Cinsiyet, yaşa bağlı ölüm tehlikesi (Gompertz-Makeham: bebek 0.15, 1-4 yaş 0.03, 5-14 yaş 0.008, yetişkin
 `0.008+0.00004·e^(0.095·yaş)` yıllık, kişisel kırılganlık, açlık, Malthus, salgın, mevsim), evli kadından gebelik ve
-doğum aralığı, doğumda ölüm, eş eşleştirmesi (yılda iki kez), kurucu aileler. 8 seed × 120 yıl:
+doğum aralığı, doğumda ölüm, eş eşleştirmesi (yılda iki kez), kurucu aileler. Son sürüm, 4 seed × 120 yıl:
 
-| Ölçüt | Sonuç (4 seed, 120 yıl, savaş düzeltmesinden sonra) | Hedef aralık (SOURCES.md #7, #8) |
+| Ölçüt | Sonuç | Hedef aralık (SOURCES.md #7, #8) |
 |---|---|---|
-| Doğumda beklenen ömür | 33.9-38.0 | 28-38 |
-| Bebek ölümü | %16-20 | %13-25 |
-| 15 yaşa ulaşma | %59-66 | %50-70 |
-| Toplam doğurganlık | 4.2-5.1 | ön sanayi ≈4-7 (kesin kaynak doğrulanamadı) |
-| 15-45 yaş kadınlardan evli | %81-84 | yüksek (kesin sayı doğrulanamadı) |
+| Doğumda beklenen ömür | 35.0-39.4 | 28-38 (**iki seed'de 38'in biraz üstünde**; bağımsız kohort ölçümü 37-40) |
+| Bebek ölümü | %15-18 | %13-25 |
+| 15 yaşa ulaşma | %63-67 | %50-70 |
+| Toplam doğurganlık | 4.4-5.2 | ön sanayi ≈4-7 (kesin kaynak doğrulanamadı) |
+| 15-45 yaş kadınlardan evli | %78-85 | yüksek (kesin sayı doğrulanamadı) |
 
-Not (savaş düzeltmesinden önce, 8 seed): beklenen ömür 27.7-34.1, 15'e ulaşma %57-65; fark, barış dönemi öldürmelerinin
-kaldırılmasından geliyor (bkz. 10.6).
-
-Not: ilk denemede evli oranı %33-41'de kaldı (toplam doğurganlık 3.1-4.1) ve nüfus 4 seed'in 3'ünde eriyordu; eşleştirme
-eklenince doğurganlık aşırı yükseldi (5.3-7.4) ve ayar iki turda yapıldı.
+Not: bu sayılar savaşın barış döneminde öldürmesini düzelttikten sonra ölçüldü; öncesinde beklenen ömür 27.7-34.1 idi.
+Hedef aralıkların gerekçesi zayıf (birincil kaynaklar okunamadı), bu yüzden "hedefi aştı" yerine "aralığın üst ucunda" demek daha doğru.
 
 ### 10.3 Okunabilirlik
 
@@ -236,51 +233,89 @@ kalırken yetişkinlerin yalnızca %12-16'sı isyan ediyordu. Huzursuzluk yetiş
 ### 10.6 Savaş: bağımsız gözden geçirmenin bulduğu hata
 
 İlk savaş turunda savaş ölümlerinin toplam ölümler içindeki payı ortalama %24'tü (%13.6-34.8) ve bunu "baskın ve
-yağma modellenmedi" diye açıklamıştım. **Bu teşhis yanlıştı.** Bağımsız gözden geçirme (taze bir ajan) kodu ve 3 seed'i
-inceleyip asıl nedeni buldu: `enemy` seçimi yalnızca `o.tribe !== a.tribe` koşuluna bakıyordu; savaş, ittifak veya
-ticaret durumu hiç kontrol edilmiyordu. Askerler barış ve ittifak dönemlerinde de öldürüyordu (askerlerin
-öldürmelerinin ~%90'ı savaşta olmayan devletler arasında; kurbanların yarısı kadın, %12-15'i çocuk).
+yağma modellenmedi" diye açıklamıştım. **Bu teşhis yanlıştı.** Bağımsız gözden geçirme kodu ve 3 seed'i inceleyip asıl
+nedeni buldu: `enemy` seçimi yalnızca `o.tribe !== a.tribe` koşuluna bakıyordu; savaş, ittifak veya ticaret durumu hiç
+kontrol edilmiyordu. Askerler barış ve ittifak dönemlerinde de öldürüyordu (askerlerin öldürmelerinin ~%90'ı savaşta
+olmayan devletler arasında).
 
-Düzeltme: düşman yalnızca savaştaki devletin bireyi; silahlılar tercih ediliyor (silahsızlar 2.5 kat uzak sayılır);
-çocuklar hedef değil; yaşlı askerler emekli oluyor. Gözden geçiricinin kendi betiğiyle (gerçek tarayıcı, 14.000 adım,
-3 seed) doğrulandı: barış dönemi öldürmeleri %90'dan yaklaşık %11-14'e (c1 29/214, c2 8/35, c3 23/287) indi; kalanlar
-çoğunlukla bireysel intikam avları. **Savaşın ölüm payı %24'ten %2.9-5.2'ye düştü** (4 seed).
+Düzeltme: düşman yalnızca savaştaki devletin bireyi; silahlılar tercih ediliyor; çocuklar hedef değil; yaşlı askerler
+emekli oluyor. İkinci bağımsız tur devletler arası savaş-dışı öldürmeyi %0.1-0.4 ölçtü (ittifak 0). Savaşın toplam
+ölümlerdeki payı seed'e göre çok değişken: benim 4 seed'imde %5.4-9.2, bağımsız turda %1.6-14. Tek bir aralık verilemez.
+Kalan savaş-dışı ve devlet-içi öldürmeler büyük olasılıkla intikam avları (kan davası); bu doğrulanmadı.
 
 Denenip geri alınan: barış zamanı asker payını düşürmek (Epstein kuralında asker sayısı baskıyı belirlediği için
-isyan 177'ye, savaş 530'a fırladı). Sefer mevsimi (kışın yürüyüş yok), çarpışma hasarı 4→2.2, fetihte öldürme
-%20→%8 ve yaralı asker geri çekilmesi korundu.
+isyan 177'ye, savaş 530'a fırladı). Sefer mevsimi (kışın yürüyüş yok), çarpışma hasarı 4→2.2, fetihte öldürme %20→%8
+ve yaralı asker geri çekilmesi korundu.
 
-### 10.7 Ekonomi baskısı
+### 10.7 Ekonomi
 
-Gözden geçirici, yiyeceğin haritada hemen her zaman tavanda (~3000) olduğunu ve açlık ölümünün ihmal edilebilir
-olduğunu buldu. Üretim ölçeği 0.35'e, sonra 0.22'ye düşürüldü, harita tavanı 1300 yapıldı. Sonuç: açlık ölümleri
-toplam ölümlerin %0.1-2.1'i (bir seed'de 33 ölüm); **nüfus hâlâ açlıktan çok performans tavanına (700) dayanıyor.**
-Ekonomi bu haliyle zayıf bir kısıt; gerçek bir kaynak/ticaret modeli yok.
+Yiyeceğin haritada hemen her zaman tavanda (~3000) durduğu ve açlığın ihmal edilebilir olduğu bulgusu üzerine
+üretim ölçeği 0.35 → 0.22 → 0.17'ye düşürüldü. Sonuç: **açlık ölümleri hâlâ toplam ölümlerin yalnızca %1.3-2.0'ı** ve
+nüfus çoğu seed'de 600-700'de duruyor, yani sabit performans tavanına (`totalCap=700`, doğumları durdurur) dayanıyor.
+"Nüfusu yiyecek/arazi sınırlıyor" iddiası **geri çekildi**: ekonomi zayıf bir kısıt, ticaret ve kaynak modeli yok.
+(Denenen 0.14 ölçeği açlığı %4-8'e çıkardı ama siyaseti aşırı çalkantılı yaptı, bkz. 10.9.)
 
-### 10.8 Son doğrulama (düzeltmeler sonrası)
+### 10.8 Bağımsız gözden geçirme turları
 
-12 seed × 15.000 adım (214 yıl): hata 0, nüfus yok olması 0, ortalama canlı krallık 5.26, sondaki canlı krallık
-1-5 (sıralı: 1,2,2,3,3,3,3,4,4,4,4,5; "canlı" = `pop>0` ve `!_dead`), geç dönem savaş 12-105, isyan 6-39.
-Halksız kalan "hayalet" devletler artık kaldırılıyor. Aynı seed aynı sonucu veriyor.
+| Boyut | Tur 1 | Tur 2 |
+|---|---|---|
+| Demografi | 7 | 7 |
+| Mekân ve ekonomi | 5 | 4.5 |
+| Toplumsal yapı | 7 | 7 |
+| Birey zihni | 6 | 5.5 |
+| Savaş ve siyaset | 3.5 | 6 |
+| Okunabilirlik ve his | 7 | 7 |
+| Doğrulama ve dürüstlük | 5.5 | 6 |
+| Tekrarlanabilirlik ve kararlılık | 8.5 | 8 |
+| **Ortalama** | **6.2** | **6.4** |
 
-**Bağımsız gözden geçirme (ilk tur, düzeltmelerden önce): ortalama 6.2/10.** Puanlar: demografi 7, mekân/ekonomi 5,
-toplumsal yapı 7, birey zihni 6, savaş/siyaset 3.5, okunabilirlik 7, doğrulama/dürüstlük 5.5,
-tekrarlanabilirlik/kararlılık 8.5. Yukarıdaki düzeltmeler bu turdan sonra yapıldı; yeniden puanlama ayrı bir turda.
+İki tur da "talepkâr bir gözden geçirme 8 vermez" sonucuna vardı. Tur 2'nin ana bulguları: nüfusu sabit tavan sınırlıyor,
+davranış rol tablosuna bağlı (cinsiyet, yaş, kişilik silik), uzun koşuda siyaset 2 devlete iniyor, savaş payı
+değişken, küçük isim ve hikâye kusurları, belgelerde bayat sayılar.
+
+### 10.9 Tur 3 (tur 2 bulgularına yanıt)
+
+| Değişiklik | Ölçüm (4 seed, 5000 adım, öncesi → sonrası) |
+|---|---|
+| Çocuk ebeveynin yakınında kalır | ebeveyne 70 birim yakın çocuk %28-35 → %96-98 |
+| Hamile/emziren kadın eve yakın kalır, riskli işleri azaltır | emziren annenin şehre yakın olması: ölçülemedi (bayrak yoktu) → %90-98 |
+| Kadınlarda askerlik eğilimi ×0.35 (tarihsel iş bölümü normu; `CFG.femSoldier`, 1 yapılırsa kapanır) | askerlerde kadın payı %42-53 → %7-27 |
+| Kişilik eylem puanlarına katıldı (sorumluluk→toplama/teslim, kaygı→çarpışma, dışadönüklük→devriye, uyumluluk→iyileştirme, açıklık→dolaşma) | çiftçilerin dolaşma oranı standart sapması 0.144-0.157 → 0.151-0.195 (~%12); rol-içi davranış farkı (JSD) 0.15-0.21 → 0.17-0.19 (**değişmedi**) |
+| Kardeşlere benzersiz ad | tur 2'de görülen çift ad giderildi (test edilmedi, koda bakıldı) |
+
+Kişiliğin davranış üzerindeki etkisi **ılımlı** kaldı; bireyler hâlâ ağırlıklı olarak rolleriyle tanımlanıyor.
+
+**Tur 3'te bulunan iki gerçek hata (yok olma):** tek bir seed'de tüm nüfus yok oldu.
+1. Fethedeni olmadan çöken krallığın halkı sahipsiz kalıyordu ve ölü krallığa bağlı kadınlar doğum yapamıyordu.
+   Düzeltme: sahipsiz kalanlar en yakın canlı krallığa katılır; hiç krallık kalmadıysa mülteciler yenisini kurar.
+2. Tek şehre inmiş, aşırı kalabalık bir krallıkta Malthus terimi doğurganlığı sıfıra indiriyordu (60 yıl doğum yok,
+   yaş yapısında delik, çöküş). Düzeltme: doğurganlık alt sınırı 0.25, ölüm artışı üst sınırı ×1.8.
+
+**Denge ayarı yolu (dürüst kayıt):** aşırı genişleme 0.40 + kıtlık 0.14 → siyaset aşırı çalkantılı (ortalama 7.4 krallık,
+250 yılda 45-194 savaş, 20-100 darbe). 0.32 + 0.17 → yok olma hatası ortaya çıktı (parametre değil, yukarıdaki iki
+hata). Hatalar düzeltilince son ayar 0.32/0.17'de kaldı.
+
+### 10.10 Son doğrulama (tur 3 sonrası)
+
+12 seed × 17.500 adım (250 yıl): hata 0, nüfus yok olması 0, en düşük nüfus 121, ortalama canlı krallık 5.85,
+sondaki canlı krallık (`pop>0` ve `!_dead`) sıralı: 1,1,1,1,2,3,5,5,5,6,7,9 (medyan 4), tüm seed'lerde geç dönem savaş
+(15-172), isyan (5-55) ve fetih; darbe 1-65. Aynı seed aynı sonucu veriyor.
 
 ## 11. Bilinen sınırlar
 
-- Savaş "asker düşman şehre yürür" biçiminde; baskın, yağma ve seferberlik modellenmedi (ama artık yalnızca savaştaki
-  devletlere saldırılıyor).
-- Ekonomi zayıf: açlık nüfusu belirlemiyor, ticaret ve kaynak modeli yok.
+- Savaş "asker düşman şehre yürür" biçiminde; baskın, yağma ve seferberlik modellenmedi.
+- Ekonomi zayıf: açlık nüfusu belirlemiyor (%1.3-2.0 ölüm), sabit performans tavanı belirliyor, ticaret ve kaynak modeli yok.
+- Bireyler ağırlıklı olarak rolleriyle davranıyor; kişilik/cinsiyet/yaş etkisi ılımlı. Cinsiyete dayalı askerlik normu bir
+  modelleme kararı, ayarlanabilir.
 - Köy, hane ve günlük döngü yok; yerleşim sabit şehirlerde toplanıyor, arazi insan dağılımını zayıf belirliyor (r=0.0-0.23).
-- Bazı seed'lerde dünya sonunda tek devlete iniyor (12'de 1).
-- Kadın oranı %44-48 (gözden geçirici ölçümü): savaş ve doğumda ölümden.
-- Eşikler (isyan, rejim yaşı, kuraklık, doğurganlık, kıtlık) tek parametreli süpürmelerle seçildi, duyarlılık analizi yok.
-- Sayısal hedef aralıkların birincil kaynakları bu oturumdan açılamadı (SOURCES.md; çoğu düzey B).
+- 12 seed'in 4'ünde dünya 250. yılda tek devlete iniyor; siyasetin canlılığı seed'e çok bağlı (savaş 15-172).
+- Bazı seed'lerde nüfus bir çöküş sonrası %70-80 düşüp toparlanıyor.
+- Beklenen ömür hedef aralığın üst ucunda/biraz üstünde; hedef aralıkların gerekçesi zayıf (SOURCES.md, çoğu düzey B).
+- Bu ortamda ölçülen: eşikler (isyan, rejim yaşı, kuraklık, doğurganlık, kıtlık) tek parametreli süpürmelerle seçildi.
 - Akraba evliliği yalnızca birinci derece ve kardeşler için engelleniyor.
 - LLM anlatı katmanı yok; hikâyeler şablon tabanlı, davranış kural tabanlı.
 - Bireyin hafızası 10 yuvalı ve az çeşitli; hedefler 4 türle sınırlı.
-- Ölçümler Node `vm` + Chromium düzeneğinde; gerçek cihaz başarımı ölçülmedi (gözden geçirici: 4-6 ms/adım, tek adım
-  sıçraması 130-510 ms).
-- Gözden geçiricinin bildirdiği "sayfa açılınca İncele paneli boş" hatası bu ortamda **tekrarlanamadı** (panel hükümdarı
-  gösteriyor).
+- Ölçümler Node `vm` + Chromium düzeneğinde (bağımsız gözden geçirme: 3-5 ms/adım, sıçrama 130-510 ms); gerçek cihaz
+  başarımı ölçülmedi.
+- Hikâyelerde "Yıl 13: casus oldu" gibi satırlar takvim yılıdır (yaş değil); bir kusur değil, ama okuyanı yanıltabilir.
+- Gözden geçiricinin "sayfa açılınca İncele paneli boş" bulgusu bu ortamda **tekrarlanamadı**.

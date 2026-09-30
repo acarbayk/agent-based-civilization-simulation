@@ -7,7 +7,7 @@ yüzden ilk o yapılır; arayüz en son, çünkü gösterilecek şeyler oturdukt
 ## Kural: her aşama bir "kapı"dan geçer
 
 Bir aşama ancak şu üçü tamamsa kapanır: (1) **ölçüm** hedef aralıkta, (2) **regresyon** yok (aynı seed aynı sonuç,
-hata yok, 8 seed × 285 yıl), (3) **belge** güncel (ölçüm tablosu + bilinen sınır). Kapıdan geçmezse bir sonraki
+hata yok, 8 seed × 285 yıl), (3) **belge** güncel (ölçüm tablosu + bilinen sınır). Uygulamada kapı 12 seed × 250 yıl olarak koşuldu (planda 8 × 285 yazıyordu). Kapıdan geçmezse bir sonraki
 aşamaya geçilmez.
 
 | # | Aşama | Yapılacaklar | Kapı (ölçülür) | Risk |
@@ -34,8 +34,10 @@ iş görece düşük riskliydi; arazi ve savaş işleri daha riskli. Arazi (3) v
 
 ## Durum
 
-- Aşama 0 (temizlik), 1 (demografi), 2 (makro yeniden ayar), 3 (arazi), 5 (okunabilirlik): yapıldı.
-- Aşama 4 (savaş): **kısmen.** Sefer mevsimi, düşük ölümcüllük, yalnızca savaştaki devletlere saldırı. Baskın/yağma/seferberlik yok.
-- Aşama 6 (doğrulama): bağımsız gözden geçirme 1. tur = 6.2/10; bulunan büyük hata (askerler barışta da öldürüyordu)
-  düzeltildi; 2. tur yeniden puanlama bekliyor.
+- Aşama 0 (temizlik), 1 (demografi), 2 (makro yeniden ayar), 5 (okunabilirlik): yapıldı.
+- Aşama 3 (arazi): **kısmen.** Arazi haritası, mevsim, verime bağlı yiyecek var; ama nüfusu yiyecek değil sabit performans
+  tavanı sınırlıyor ve insan dağılımı araziye zayıf bağlı. Kapıdaki "verim haritası nüfusu sınırlıyor" **tutmadı.**
+- Aşama 4 (savaş): **kısmen.** Yalnızca savaştaki devletlere saldırı, sefer mevsimi, düşük ölümcüllük. Baskın/yağma/seferberlik yok.
+- Aşama 6 (doğrulama): bağımsız gözden geçirme tur 1 = 6.2, tur 2 = 6.4 (hedef ≥8, tutmadı). Tur 3 düzeltmeleri yapıldı
+  (yok olma hataları dahil); yeni bağımsız tur bekleniyor.
 - Güncel sayılar `RESEARCH.md` §10'da.
