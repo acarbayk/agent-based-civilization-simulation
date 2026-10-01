@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Hızlı başlangıç + Yönetmen modu
+- **Hızlı başlangıç:** açılışta seed'li dünyanın ilk 30 yılı önceden oynanır (ilerleme çubuğu, "Atla"); ~600 kişilik değil, erken yıllar olduğu için ~12 sn; Ayarlar'dan 0/15/30/50 yıl seçilir. Aynı seed aynı geçmişi verir. Otomasyon tarayıcılarında kapalı (`?boot=N` ile açılır)
+- **Yönetmen modu (🎬, kısayol D):** kamera olay puanına göre (fetih, isyan, ihanet, savaş ilanı, hanedan, salgın...) ilgili krallığa/kişiye gider, savaşçı kümelerini (≥5 kişi) bulur, aksi halde ilginç bir kişiyi izler, ara sıra genel bakış; alt yazı gerekçe ve olayı yazar; fare/tekerlek/mini harita kullanılınca 25 sn duraklar; `?director=0/1`
+- Birey kartı isyan gerekçesi düzeltildi (hoşnutluk yerine meşruiyet ve geçim)
+
 ### Kullanılabilirlik testi 7 düzeltmeleri (ortalama 6,3)
 - Sekme çubuğu 1366×768'de çöküyordu (8 px) → sabit yükseklik; yazı boyutu ayarı artık üst çubuk, çekmece, olay akışı, izleme listesi, harita düğmeleri ve pencerelere de uygulanır; yüksek kontrast paketi genişletildi; panel metinleri en az 11,5 px
 - Birey kartı: isyancıda "isyanda · yapılan iş" ve isyan gerekçesi; hükümdarda krallığın tutumu ve hükümdarlık süresi; yinelenen özellik rozetleri kaldırıldı

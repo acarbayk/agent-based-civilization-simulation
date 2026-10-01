@@ -16,9 +16,9 @@
   html,body{margin:0;height:100%;background:radial-gradient(1200px 700px at 30% -10%,#2a1d12 0%,var(--bg) 60%) fixed;color:var(--ink);font-family:var(--serif);font-size:15px}
   body{display:flex;flex-direction:column;min-height:100vh}
   /* üst çubuk */
-  .top{display:flex;align-items:center;gap:18px;padding:10px 20px;border-bottom:1px solid var(--line);background:linear-gradient(#2b1f15,#1c140d);box-shadow:0 2px 10px rgba(0,0,0,.5);position:relative}
+  .top{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:linear-gradient(#2b1f15,#1c140d);box-shadow:0 2px 10px rgba(0,0,0,.5);position:relative}
   .top::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;background:repeating-linear-gradient(90deg,var(--gold-dim) 0 10px,transparent 10px 16px);opacity:.55}
-  .brand{display:flex;align-items:center;gap:10px;min-width:210px}
+  .brand{display:flex;align-items:center;gap:10px;min-width:178px}
   .brand .crest{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-size:18px;background:#1a110a;box-shadow:inset 0 0 8px #000}
   h1{font:700 18px var(--display);letter-spacing:.14em;margin:0;color:var(--gold);text-transform:uppercase}
   .brand small{display:block;font:italic 12px var(--serif);color:var(--muted);letter-spacing:.02em;margin-top:1px}
@@ -143,6 +143,11 @@
   #tour{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:60;display:none;max-width:540px;width:calc(100% - 40px);background:linear-gradient(#352616,#271b10);border:1px solid var(--gold);border-radius:10px;padding:14px 18px;box-shadow:0 10px 36px #000,inset 0 0 0 3px #1a110a,inset 0 0 0 4px var(--gold-dim)}
   #tour h3{margin:0 0 4px;font:700 14px var(--display);letter-spacing:.14em;color:var(--gold);text-transform:uppercase}#tour p{margin:0 0 10px;font-size:15px;line-height:1.5}
   #tour .tb{display:flex;gap:8px;align-items:center}#tour .dots{margin-left:auto;color:var(--muted);font-size:12px}
+
+  #caption{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);max-width:70%;background:linear-gradient(rgba(14,9,5,.0),rgba(14,9,5,.86) 40%);padding:16px 26px 8px;font:italic 600 16px/1.35 var(--serif);color:#f6e7c2;text-align:center;pointer-events:none;opacity:0;transition:opacity .7s;text-shadow:0 1px 3px #000}
+  #boot{position:fixed;inset:0;z-index:70;background:radial-gradient(900px 500px at 50% 40%,#2a1d12,#0e0905);display:none;align-items:center;justify-content:center}
+  .bootbox{text-align:center;min-width:360px}.bootT{font:700 22px var(--display);letter-spacing:.3em;color:var(--gold);margin-bottom:12px}#bootTxt{font:italic 16px var(--serif);color:var(--muted);margin-bottom:12px}
+  .bootbar{height:8px;background:#150e08;border:1px solid var(--gold-dim);border-radius:5px;overflow:hidden}.bootbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8f6d2c,#ffd470)}
   @media(max-width:1100px){.main{grid-template-columns:1fr}.side{position:static;max-height:none}.mapframe,.dock{min-width:0;width:100%}.top{flex-wrap:wrap}}
 </style>
 </head>
@@ -152,12 +157,13 @@
   <div class="time"><span class="chip" id="dateNow"></span></div>
   <div class="spacer"></div>
   <div class="grp spd" title="Hız"><button id="playBtn" class="primary" title="Duraklat / oynat (Boşluk)">❚❚</button><button id="stepBtn" title="Tek adım">⏭</button><button class="spdBtn" data-v="1">1×</button><button class="spdBtn" data-v="2">2×</button><button class="spdBtn" data-v="4">4×</button><button class="spdBtn" data-v="8">8×</button></div><span class="chip" id="effSpd" style="display:none;font:italic 12px var(--serif);color:var(--muted);padding:3px 8px;border:1px solid var(--line);border-radius:6px"></span>
+  <div class="grp"><button id="dirBtn" title="Yönetmen modu: kamera ilginç anlara gider (D)">🎬 Yönetmen</button></div>
   <div class="grp"><button id="techBtn" title="Bilim ağacı">⚙ Bilim</button><button id="cultBtn" title="Kültür ağacı">◈ Kültür</button><button id="histBtn" title="Krallıkların tarihi">📜 Tarih</button><button id="chronBtn" title="Tüm olaylar" style="display:none">📖</button></div>
   <div class="grp"><input id="seedIn" title="Seed: aynı seed = aynı tarih" spellcheck="false"><button id="seedNewBtn" title="Yeni rastgele seed ile başlat">🎲</button><button id="resetBtn" title="Aynı seed ile baştan başlat">↻</button></div>
 </header>
 <div class="main">
   <div class="stage">
-    <div class="mapframe"><canvas id="world" width="900" height="520"></canvas><div class="mm" id="mapModes"></div><div id="modeLegend"></div><canvas id="mini" width="200" height="116" title="Mini harita: tıkla / sürükle"></canvas><div id="tip"></div><div id="toasts"></div></div>
+    <div class="mapframe"><canvas id="world" width="900" height="520"></canvas><div class="mm" id="mapModes"></div><div id="modeLegend"></div><canvas id="mini" width="200" height="116" title="Mini harita: tıkla / sürükle"></canvas><div id="tip"></div><div id="caption"></div><div id="toasts"></div></div>
     <div id="watchBar" class="watch"></div>
     <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ hekim</span><span>◆ tüccar</span><span>✦ casus</span><span>⚒ zanaatkâr</span><span>☩ rahip</span><span style="color:#ff8a7a">◯ isyancı</span><button id="followBtn" title="Seçili bireyi kamera izlesin (F)" style="padding:4px 10px">🔍 Kamera takibi</button></div>
     <div class="dock"><div class="card"><h2>Son olaylar</h2><div id="feed" title="Tüm olaylar için 📜 Tarih → Olaylar"></div></div></div>
@@ -179,12 +185,14 @@
         <div class="card"><h2>Görünüm</h2>
           <div class="ctrl"><label>Yazı boyutu <b id="fsVal">100%</b></label><input type="range" id="fsScale" min="90" max="135" value="100"></div>
           <label class="chk"><input type="checkbox" id="optHC"> Yüksek kontrast</label><label class="chk"><input type="checkbox" id="optRM"> Hareketi azalt</label><label class="chk"><input type="checkbox" id="optNT"> Olay bildirimlerini kapat</label>
+          <div class="ctrl"><label>Başlangıçta önceden oynat <b></b></label><select id="optBoot" style="width:100%;background:#150e08;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px;font:14px var(--serif)"><option value="0">hiç (sıfırdan başla)</option><option value="15">15 yıl</option><option value="30">30 yıl (önerilen)</option><option value="50">50 yıl</option></select></div>
           <div style="margin-top:8px"><button id="tourBtn" style="padding:5px 10px;font-size:12px">❔ Turu yeniden göster</button></div></div>
         <div class="card"><h2>Kısayollar</h2><div class="lgsub" style="line-height:1.9"><b>Boşluk</b> duraklat · <b>+ / −</b> hız · <b>F</b> kamera takibi · <b>Esc</b> pencereyi kapat / seçimi bırak · <b>?</b> bu sayfa · <b>Shift+tık</b> haritaya yiyecek yağdır · fare tekerleği yakınlaştır</div></div>
         <div class="card"><details class="how" open><summary>NASIL İZLENİR?</summary><p>Haritadaki her figür <b>kendi kişiliği ve değerleri</b> olan bir birey: sever, evlenir, çocuk yetiştirir, yas tutar, intikam peşinde koşar. Bir figüre tıkla; kişiliğini, ailesini, dostlarını, hasımlarını, anılarını ve hedefini gör, isimlere tıklayarak aile ağında gez. <b>Takip</b> ile kamera onu izler, fare tekerleği yakınlaştırır. Hükümdarın kişiliği krallığın savaş, barış ve ihanet kararlarını belirler. <b>Seed</b> kutusu aynı tarihi yeniden oynatır. Kısayol: <b>Boşluk</b> duraklatır.</p></details></div></div>
     </div>
   </aside>
 </div>
+<div id="boot"><div class="bootbox"><div class="bootT">TARİH YAZILIYOR</div><div id="bootTxt">…</div><div class="bootbar"><i id="bootBar"></i></div><button id="bootSkip" style="margin-top:10px">Atla ▸</button></div></div>
 <div id="tour"></div>
 <div id="histOverlay" class="ovl"><div class="sheet wide" style="max-width:1180px"><div class="hd"><h2>📜 Tarih Kitabı</h2><span id="histInfo" class="info"></span><button id="histClose" style="margin-left:auto">✕ Kapat</button></div><div id="histBody"></div></div></div>
 <div id="techOverlay" class="ovl"><div class="sheet wide"><div class="hd"><h2>⚙ Bilim Ağacı</h2><select id="techKing"></select><span id="techInfo" class="info"></span><button id="techClose" style="margin-left:auto">✕ Kapat</button></div><div id="techSvgWrap" style="overflow:auto"></div></div></div>
@@ -601,7 +609,7 @@ const settings={fontScale:1,contrast:false,reduceMotion:false,noToast:false};
 try{Object.assign(settings,JSON.parse(localStorage.getItem('krSettings')||'{}'));}catch(e){}
 function saveSettings(){try{localStorage.setItem('krSettings',JSON.stringify(settings));}catch(e){}}
 function applySettings(){if(!UI)return;const r=document.documentElement;r.style.setProperty('--z',settings.fontScale);document.body.classList.toggle('hc',!!settings.contrast);document.body.classList.toggle('reduce-motion',!!settings.reduceMotion);}
-function pushLog(ev){const L=(sim.log=sim.log||[]);L.push(ev);if(UI&&typeof maybeToast==='function')maybeToast(ev);if(L.length>3200)L.splice(0,300);}
+function pushLog(ev){const L=(sim.log=sim.log||[]);L.push(ev);if(UI&&typeof maybeToast==='function')maybeToast(ev);if(UI&&typeof directorOffer==='function')directorOffer(ev);if(L.length>3200)L.splice(0,300);}
 function logEvent(text,color,meta){text=text.replace(/^[^\p{L}\p{N}]+/u,'');const ev={text,color,tick:sim?sim.tick:0};
   {const tr=[];if(sim&&sim.tribes)for(const t of sim.tribes)if(t.name&&text.includes(t.name))tr.push(t.id);pushLog({t:ev.tick,kind:evKind(text),text,color,tr,pp:(meta&&meta.pp)||[]});}
   sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
@@ -1323,7 +1331,7 @@ function buildOverlay(){const OW=Math.ceil(W/OVR),OH=Math.ceil(H/OVR);
   g.putImageData(img,0,0);ovTick=sim._terrTick;}
 function pixelScale(){const cw=typeof cv.clientWidth==='number'?cv.clientWidth:0;if(!(cw>0))return 1;return Math.min(2,Math.max(1,Math.round(cw*(window.devicePixelRatio||1)/W)));}   // geniş/yüksek yoğunluklu ekranda bulanıklığı önle
 function render(){
-  animT++;
+  animT++;if(typeof directorFrame==='function')directorFrame();
   {const S=pixelScale();if(cv.width!==W*S){cv.width=W*S;cv.height=H*S;}ctx.setTransform(S,0,0,S,0,0);ctx.imageSmoothingEnabled=true;}
   const dn=document.getElementById('dateNow');if(dn)dn.textContent=dateStr(sim.tick)+(sim.climate&&sim.climate.mul<1?'  ·  ☀ KURAKLIK':'');
   ctx.clearRect(0,0,W,H);
@@ -1463,7 +1471,7 @@ const ACT_TR={TILL:'tarlayı ekiyor',HARVEST:'hasat yapıyor',FLEE:'kaçıyor',F
 const GOAL_TR={REVENGE:'intikam almak',MATE:'eş bulmak',KIN:'ailesinin yanında olmak',FRIEND:'dostunu görmek'};
 /* "Neden bunu yapıyor?": mevcut durumdan okunur gerekçeler (karar puanları seçili kişi için ayrıca saklanır) */
 function whyAct(a){const t=sim.tribes[a.tribe],P=a.pers,R=[],hun=1-a.energy/CFG.energyMax,se=seasonIdx(sim.tick),act=a.act,role=ROLE_TR[a.role]||'';
-  if(a.rebel)R.push(`isyancı: hoşnutluğu %${((a.content??0.6)*100)|0}, ${t?t.name:'krallık'} meşruiyeti %${t?((t.legit*100)|0):'?'}`);
+  if(a.rebel)R.push(`isyancı: ${t?t.name:'krallık'} yönetimini meşru görmüyor (meşruiyet %${t?((t.legit*100)|0):'?'})${hun>0.4?' ve geçim sıkıntısı çekiyor':''}`);
   if(isRulerOf(a)){const yrs=Math.round((sim.tick-(a.reignStart||0))/CFG.yearLen),tr=[];if(t){if(t.ambition>0.6)tr.push('hırslı');if(t.loyalty>0.6)tr.push('sadakate önem veren');if(t.cunning>0.6)tr.push('kurnaz');if(t.greed>0.6)tr.push('açgözlü');if(t.innov>0.6)tr.push('yenilikçi');}
     R.push(`${yrs} yıldır hükümdar${tr.length?'; krallığın tutumu '+tr.slice(0,2).join(', '):''}`);}
   const hasEnemy=!!(t&&t.war);
@@ -1602,7 +1610,7 @@ document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textCon
 document.getElementById('stepBtn').onclick=()=>{step();render();};
 const seedIn=document.getElementById('seedIn');
 SEED=new URLSearchParams(location.search).get('seed')||newSeedStr();seedIn.value=SEED;
-document.getElementById('resetBtn').onclick=()=>{SEED=seedIn.value.trim()||newSeedStr();seedIn.value=SEED;reset();};
+document.getElementById('resetBtn').onclick=()=>{SEED=seedIn.value.trim()||newSeedStr();seedIn.value=SEED;startWorld();};
 document.getElementById('seedNewBtn').onclick=()=>{seedIn.value=newSeedStr();document.getElementById('resetBtn').onclick();};
 const s=document.getElementById('speed'),sv=document.getElementById('speedVal');s.oninput=()=>{stepsPerFrame=+s.value;sv.textContent=stepsPerFrame+'×';document.querySelectorAll('.spdBtn').forEach(b=>b.classList.toggle('on',+b.dataset.v===stepsPerFrame));};
 document.querySelectorAll('.spdBtn').forEach(b=>b.onclick=()=>{s.value=b.dataset.v;s.oninput();});s.oninput();
@@ -1632,7 +1640,8 @@ document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(t
   else if(e.key==='-'){const sp=document.getElementById('speed');sp.value=Math.max(1,Math.round(+sp.value/2));sp.oninput();}
   else if(e.key==='f'||e.key==='F'){followBtn.click();}
   else if(e.key==='Escape'){let closed=false;for(const id of ['histOverlay','techOverlay','cultOverlay','chronOverlay']){const o=document.getElementById(id);if(o.style.display==='block'){o.style.display='none';closed=true;}}if(!closed){selectedId=null;selCity=null;view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}renderCityCard();renderInspect();render();}}
-  else if(e.key==='?'){showTab('ayar');}});
+  else if(e.key==='?'){showTab('ayar');}
+  else if(e.key==='d'||e.key==='D'){if(window.__dirToggle)window.__dirToggle();}});
 
 /* ======================= LEGENDS: ansiklopedik tarih gezintisi ======================= */
 const LG={tab:'dunya',sel:null,q:'',filt:'hepsi',kfilt:'hepsi',stack:[]};
@@ -1821,7 +1830,68 @@ renderModeChips();
   let seen=false;try{seen=localStorage.getItem('krTour')==='1';}catch(e){}
   if(!seen&&!navigator.webdriver&&!/notour/.test(location.search))setTimeout(show,1500);})();
 
-reset();loop();
+/* ======================= Hızlı başlangıç + Yönetmen modu ======================= */
+const qs=new URLSearchParams(location.search||'');
+if(UI){settings.boot=settings.boot==null?30:settings.boot;settings.director=settings.director==null?true:settings.director;
+  if(navigator.webdriver){if(!qs.has('boot'))settings.boot=0;if(!qs.has('director'))settings.director=false;}
+  if(qs.has('boot'))settings.boot=+qs.get('boot')||0;if(qs.has('director'))settings.director=qs.get('director')==='1';}
+let bootSkip=false;
+function fastForward(years,done){const box=document.getElementById('boot');const target=years*CFG.yearLen;bootSkip=false;playing=false;sim._booting=true;
+  if(box){box.style.display='flex';}
+  const bar=document.getElementById('bootBar'),txt=document.getElementById('bootTxt');
+  const tick=()=>{const t0=performance.now();while(sim.tick<target&&!bootSkip&&performance.now()-t0<28)step();
+    const y=Math.floor(sim.tick/CFG.yearLen);if(bar)bar.style.width=Math.min(100,sim.tick/target*100)+'%';if(txt)txt.textContent=`Tarih yazılıyor… Yıl ${y} / ${years} · ${sim.agents.length} kişi · ${sim.tribes.filter(t=>!t._dead).length} krallık`;
+    if(sim.tick<target&&!bootSkip){setTimeout(tick,0);return;}
+    sim._booting=false;playing=true;if(box)box.style.display='none';computeTerritory();updateStats();renderStories();renderInspect();if(done)done();};
+  setTimeout(tick,30);}
+function startWorld(){reset();if(UI&&settings.boot>0)fastForward(settings.boot,()=>{director.sceneUntil=0;if(settings.director)dirCaption(`Yıl ${Math.floor(sim.tick/CFG.yearLen)} · ${sim.tribes.filter(t=>!t._dead).length} krallık, ${sim.agents.length} kişi. Yönetmen modu açık: kamera ilginç anları izler.`);});}
+const director={queue:[],idle:0,sceneUntil:0,tx:null,ty:null,tz:1,follow:null,lastWide:0,capT:0};
+function dirPause(ms){director.idle=performance.now()+(ms||25000);}
+function dirCaption(txt){const el=document.getElementById('caption');if(!el)return;el.textContent='🎬 '+txt;el.style.opacity=1;director.capT=performance.now()+9000;}
+function evScore(ev){const t=ev.text;let s=0;if(/FETHETTİ/.test(t))s=10;else if(/İSYAN|dağıldı|çöktü/.test(t))s=9;else if(/İHANET/.test(t))s=9;else if(/savaş açtı/.test(t))s=8;else if(/yeni hanedan|veraset|darbe/.test(t))s=7;else if(/tahtına çıktı/.test(t))s=5;else if(/salgın başladı|Kıtlık|Kötü hasat|uraklık başladı/.test(t))s=5;else if(/barıştı|ittifak/.test(t))s=4;else if(/yeni şehir|kuruldu/.test(t))s=3;
+  if(s>0&&ev.pp&&ev.pp.some(id=>watchIds.includes(id)))s+=5;return s;}
+function directorOffer(ev){if(!UI||!settings.director||!sim||sim._booting)return;const s=evScore(ev);if(s<4)return;if(director.queue.some(q=>q.ev.text===ev.text)||director.last===ev.text)return;director.queue.push({at:performance.now(),score:s,ev});if(director.queue.length>14)director.queue.shift();}
+function sceneFromEvent(ev){
+  const pid=(ev.pp||[]).find(id=>{const a=sim.byId.get(id);return a&&a.energy>0;});
+  const trs=(ev.tr||[]).filter(i=>sim.tribes[i]&&!sim.tribes[i]._dead&&sim.tribes[i].cities.length);
+  if(trs.length>=2&&/FETHETTİ|savaş açtı|İHANET|saldır/.test(ev.text)){const A=capital(sim.tribes[trs[0]]),B=capital(sim.tribes[trs[1]]);return {x:(A.x+B.x)/2,y:(A.y+B.y)/2,z:1.35,cap:ev.text};}
+  if(pid!=null&&!/yeni hanedan|krallık doğdu/.test(ev.text))return {id:pid,z:2.6,cap:ev.text};
+  if(trs.length){const c=capital(sim.tribes[trs[0]]);return {x:c.x,y:c.y,z:2.0,tid:trs[0],cap:ev.text};}
+  return null;}
+function battleScene(){const g=new Map();for(const a of sim.agents){if(a.act!=='FIGHT'&&a.act!=='INVADE'&&a.act!=='VENGEANCE')continue;const k=((a.x/60)|0)*100+((a.y/60)|0);let o=g.get(k);if(!o){o={n:0,x:0,y:0,tr:new Set()};g.set(k,o);}o.n++;o.x+=a.x;o.y+=a.y;o.tr.add(a.tribe);}
+  let best=null;for(const o of g.values())if(o.n>=5&&(!best||o.n>best.n))best=o;if(!best)return null;
+  const names=[...best.tr].map(i=>sim.tribes[i]&&sim.tribes[i].name).filter(Boolean).join(' × ');return {x:best.x/best.n,y:best.y/best.n,z:2.2,cap:`Çatışma: ${names} (${best.n} savaşçı)`,battle:true};}
+function personScene(){const L=sim.agents.filter(a=>a.energy>0&&lifeStage(a)!=='child');if(!L.length)return null;let tot=0;const w=L.map(a=>{const x=0.5+interestScore(a);tot+=x;return x;});let r=rngUI()*tot,k=0;while(k<L.length-1&&(r-=w[k])>0)k++;const a=L[k];
+  return {id:a.id,z:2.7,cap:`${a.name} ${a.surname}: ${ACT_TR[a.act]||'günlük işiyle ilgileniyor'} — ${whyAct(a)[0]}`};}
+function directorFrame(){
+  if(!UI||!settings.director||!sim||sim._booting)return;const now=performance.now();
+  const ovOpen=['histOverlay','techOverlay','cultOverlay'].some(id=>document.getElementById(id).style.display==='block');
+  const el=document.getElementById('caption');if(el&&now>director.capT)el.style.opacity=0;
+  if(ovOpen||now<director.idle)return;
+  if(now>director.sceneUntil){                                                  // yeni sahne seç
+    director.queue=director.queue.filter(q=>now-q.at<45000);
+    let pick=null,bs=-1;for(const q of director.queue){const v=q.score-(now-q.at)/12000;if(v>bs){bs=v;pick=q;}}
+    let sc=null;
+    if(pick){director.queue.splice(director.queue.indexOf(pick),1);sc=sceneFromEvent(pick.ev);}
+    if(!sc)sc=battleScene();
+    if(!sc&&now-director.lastWide>70000){director.lastWide=now;sc={x:W/2,y:H/2,z:1,cap:'Genel bakış: krallıkların durumu',wide:true};}
+    if(!sc)sc=personScene();
+    if(sc){director.scene=sc;director.last=sc.cap;director.sceneUntil=now+(sc.wide?9000:sc.battle?10000:11000);dirCaption(sc.cap);
+      if(sc.id!=null){selectedId=sc.id;selCity=null;view.follow=true;director.tz=sc.z;try{followBtn.classList.add('primary');}catch(_){}renderInspect();renderCityCard();}
+      else{view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}director.tx=sc.x;director.ty=sc.y;director.tz=sc.z;if(sc.tid!=null)selectCity(sc.tid,0);}}}
+  // kamera hareketi
+  if(director.scene){const z=view.z;view.z+=(director.tz-z)*0.045;if(!view.follow&&director.tx!=null){view.cx+=(director.tx-view.cx)*0.045;view.cy+=(director.ty-view.cy)*0.045;}}}
+document.addEventListener('DOMContentLoaded',()=>{});
+(function(){if(!UI)return;const cvv=document.getElementById('world');
+  for(const ev of ['wheel','pointerdown'])cvv.addEventListener(ev,()=>dirPause(),{passive:true});
+  document.getElementById('mini').addEventListener('pointerdown',()=>dirPause());
+  const db=document.getElementById('dirBtn');const upd=()=>{if(db){db.classList.toggle('on',!!settings.director);db.textContent=settings.director?'🎬 Yönetmen ✓':'🎬 Yönetmen';}};
+  const toggle=()=>{settings.director=!settings.director;saveSettings();upd();if(settings.director){director.idle=0;director.sceneUntil=0;}else{const el=document.getElementById('caption');if(el)el.style.opacity=0;}};
+  if(db)db.onclick=toggle;upd();window.__dirToggle=toggle;
+  const bs=document.getElementById('bootSkip');if(bs)bs.onclick=()=>{bootSkip=true;};
+  const sel=document.getElementById('optBoot');if(sel){sel.value=String(settings.boot);sel.onchange=()=>{settings.boot=+sel.value;saveSettings();};}})();
+
+startWorld();loop();
 
 /* ---------- Görünür Teknoloji Ağacı ---------- */
 function treeLayout(data){const byEra={};let maxE=1;for(const id in data){const e=data[id].era;(byEra[e]=byEra[e]||[]).push(id);maxE=Math.max(maxE,e);}
