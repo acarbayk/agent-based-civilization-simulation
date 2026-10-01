@@ -451,6 +451,15 @@ Düzeltme ayrıntıları CHANGELOG'da. İsim ölçümü (8 seed × 110 yıl, 15.
 Kör test (taze ajan, 11 görev): 7 görev tam, 4 kısmen; ortalama **6,3** (okunabilirlik 6,0, kullanılabilirlik 6,5, bilgi mimarisi 6,5, erişilebilirlik 4,0, görsel/tema 8,0, performans 7,0). En ağır bulgular: sekme çubuğu çökmesi, tutarsız "Neden?" metni, yetersiz erişilebilirlik, savaş sayfası yok, "Takip" kavram karışıklığı, şehir isabet alanı, 1920'de bulanık canvas. Düzeltmeler CHANGELOG'da; düzeltme sonrası makro ölçüm (4 seed × 250 yıl) önceki sonuçlarla birebir aynı (arayüz değişikliği benzetimi etkilemedi). Düzeltmelerin bağımsız yeniden puanlaması yapılmadı. Performans: komşu taraması optimizasyonuyla adım süresi −%19 (9,97 → 8,06 ms, 613 kişi); 8× düğmesi ~600 kişide gerçekte ≈2-3×.
 Açık: Parşömen (açık) tema yapılmadı; mobil kapsam dışı; gerçek 8× için benzetimin daha derin optimizasyonu gerekir.
 
+## 10.21 Danışman modu: tasarım ve dürüst ölçüm
+
+Tasarım: Crusader Kings'in hafif, kart tabanlı bir uyarlaması. Oyuncu krallığı doğrudan yönetmez; hükümdara tavsiye verir. Seçimlerin etkisi gerçek benzetim durumuna (hazine, hasat, doğurganlık, taşıma kapasitesi, bilim, ticaret, savunma, ordu, diplomasi, şehir, göç) uygulanır; tavsiyenin dinlenmesi güvene bağlıdır.
+Ölçüm (başsız betik, orta büyüklükteki krallık, 15. yıldan 60 yıl): 20 seed, üç politika. Bulgular:
+- Savaş kartı eklenmeden önce, tavsiyeye uyan politikalar kendi başına bırakılan hükümdardan **daha kötüydü** (hayatta kalma 15/20 vs 18/20) çünkü danışmanlık alınan krallıkların çoğu savaştaydı ve barış seçeneği yoktu. Savaş kartından sonra hayatta kalma 18/20 (tavsiyeli) vs 16/20 (tavsiyesiz): küçük ama olumlu.
+- **Uzun vadeli büyüme oranı** (nüfus + şehir + toprak + buluş) politikalar arasında ayırt edilemedi: ortalama ~1,6× (tavsiyeli) vs ~1,6× (tavsiyesiz), seed başına 0,8-4,6 aralığında. Tek tek kaldıraçların (hasat ×1,5; doğurganlık ×1,7; göçmen +16; yeni şehir) 30 yıllık nüfus etkisi 12 seed'de gürültüden ayrışmadı (taşıma kapasitesi artışı hiç davranış değiştirmedi: kapasite orta büyüklükteki krallıklarda bağlayıcı değil).
+- Yorum: benzetimin gidişi savaşlar, isyanlar ve fetihlerle belirleniyor; ekonomik kaldıraçlar bunun yanında küçük. Bu yüzden oyunun hazzı "doğru seçimle kazanma"dan çok **anlam ve tepki** (anlık görünür etkiler, gerekçeli sonuçlar, güven mekaniği) üzerine kurulu. Matematiksel olarak "iyi tavsiye" ile "kötü tavsiye" arasındaki fark küçük; bu bilinen bir sınır.
+- Henüz gerçek bir insanla oynanmadı.
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma

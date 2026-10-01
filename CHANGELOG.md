@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Danışman modu (hedef: büyüme)
+- **Danışman** sekmesi: bir krallığa hizmet et; hükümdar 4-6 yılda bir ikilem kartı getirir (15 kart: tarla, nüfus, ticaret, bilim, zayıf komşu, tehdit, vergi, kıtlık, salgın, huzursuzluk, şehir, göç, hazine, veraset, savaş); her kartta 2-3 seçenek, maliyet ve risk etiketi
+- **Hükümdarın güveni:** tavsiyen ~%30-95 ihtimalle dinlenir (güven + hükümdarın uyumluluğu); iyi sonuç güveni artırır, kötü sonuç ve reddedilme düşürür; 2 yıl cevap vermezsen hükümdar kendi bildiğini yapar
+- **Büyüme hedefi:** nüfus + 40·şehir + 3·toprak + 12·buluş indeksi, başlangıca göre rütbe (Beylik → Yükselen Krallık → Büyük Krallık → Bölge Gücü → İmparatorluk), dünya sıralaması, sparkline; danışmanlı krallık 6 şehre kadar büyüyebilir
+- Seçimler gerçek benzetim durumunu değiştirir (hazine, hasat, doğurganlık, taşıma kapasitesi, bilim, ticaret, savunma, ordu, ittifak/ticaret/barış/savaş, şehir kurma, göç); her karar olay günlüğüne ve Tarih Kitabı'na düşer; haritada 🎩 işareti; yönetmen modu danışmanlı krallığın olaylarını önceler
+
 ### Hızlı başlangıç + Yönetmen modu
 - **Hızlı başlangıç:** açılışta seed'li dünyanın ilk 30 yılı önceden oynanır (ilerleme çubuğu, "Atla"); ~600 kişilik değil, erken yıllar olduğu için ~12 sn; Ayarlar'dan 0/15/30/50 yıl seçilir. Aynı seed aynı geçmişi verir. Otomasyon tarayıcılarında kapalı (`?boot=N` ile açılır)
 - **Yönetmen modu (🎬, kısayol D):** kamera olay puanına göre (fetih, isyan, ihanet, savaş ilanı, hanedan, salgın...) ilgili krallığa/kişiye gider, savaşçı kümelerini (≥5 kişi) bulur, aksi halde ilginç bir kişiyi izler, ara sıra genel bakış; alt yazı gerekçe ve olayı yazar; fare/tekerlek/mini harita kullanılınca 25 sn duraklar; `?director=0/1`
