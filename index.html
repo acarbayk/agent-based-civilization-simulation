@@ -199,7 +199,8 @@
 const cv=document.getElementById('world'),ctx=cv.getContext('2d');
 const W=cv.width,H=cv.height;
 const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v;
-const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const hyp=(x,y)=>Math.sqrt(x*x+y*y);
+const dist=(a,b)=>{const dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);};
 /* Seed'li rastgelelik: aynı seed = aynı tarih. Simülasyon `rng`, arayüz tıklamaları `rngUI` kullanır (akışlar karışmaz). */
 // sfc32 (Doty-Humphrey): 128-bit durum, PractRand'ı geçer; mulberry32'nin yazarı artık onu önermiyor. Tohum: xmur3 karması.
 function sfc32(a,b,c,d){return()=>{a>>>=0;b>>>=0;c>>>=0;d>>>=0;let t=(a+b)|0;a=b^(b>>>9);b=(c+(c<<3))|0;c=(c<<21)|(c>>>11);d=(d+1)|0;t=(t+d)|0;c=(c+t)|0;return(t>>>0)/4294967296;};}
@@ -307,11 +308,11 @@ let owner=new Int16Array(NCELL),inf=[];
 function initTerritory(){inf=[];for(let k=0;k<CFG.kingdoms;k++)inf.push(new Float32Array(NCELL));owner=new Int16Array(NCELL);}
 function stamp(k,x,y,st,rc){const cx=(x/TCELL)|0,cy=(y/TCELL)|0;
   for(let i=-rc;i<=rc;i++)for(let j=-rc;j<=rc;j++){const gx=cx+i,gy=cy+j;if(gx<0||gy<0||gx>=TCX||gy>=TCY)continue;
-    const d=Math.hypot(i,j);if(d>rc)continue;inf[k][gx*TCY+gy]+=st*(1-d/rc);}}
+    const d=hyp(i,j);if(d>rc)continue;inf[k][gx*TCY+gy]+=st*(1-d/rc);}}
 const BARRIER=[1,0.82,0.85,0.40,0.55];                                              // etki alanı bariyerleri: ova, orman, tepe, dağ, nehir (her geçilen hücrede çarpılır)
 function stampCity(k,x,y,st,rc){const cx=(x/TCELL)|0,cy=(y/TCELL)|0;
   for(let i=-rc;i<=rc;i++)for(let j=-rc;j<=rc;j++){const gx=cx+i,gy=cy+j;if(gx<0||gy<0||gx>=TCX||gy>=TCY)continue;
-    const d=Math.hypot(i,j);if(d>rc)continue;let f=1;const n=Math.ceil(d);
+    const d=hyp(i,j);if(d>rc)continue;let f=1;const n=Math.ceil(d);
     for(let q=1;q<=n;q++){const t=q/n,ax=clamp(cx+Math.round(i*t),0,TCX-1),ay=clamp(cy+Math.round(j*t),0,TCY-1);f*=BARRIER[ttype[ax*TCY+ay]];}
     inf[k][gx*TCY+gy]+=st*(1-d/rc)*f;}}
 function computeTerritory(){const K=sim.tribes.length;sim._terrTick=sim.tick;
@@ -324,7 +325,7 @@ function computeTerritory(){const K=sim.tribes.length;sim._terrTick=sim.tick;
   for(const t of sim.tribes){if(t.land>0){t._lx=t._sx/t.land;t._ly=t._sy/t.land;}else{t._lx=null;t._ly=null;}}
   for(const a of sim.agents){const o=ownerAt(a.x,a.y);if(o>=0&&o!==a.tribe)sim.tribes[o].threat++;}
   for(const t of sim.tribes){if(t._dead||!t.cities.length)continue;let sf=0,n=0;                     // toprağın verimi: şehir çevresi ortalaması → taşıma kapasitesi
-    for(const c of t.cities){const gx=(c.x/TCELL)|0,gy=(c.y/TCELL)|0;let cf=0;for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||Math.hypot(dx,dy)>4)continue;sf+=fert[cx*TCY+cy];cf+=fert[cx*TCY+cy];n++;}c.fw=cf;}
+    for(const c of t.cities){const gx=(c.x/TCELL)|0,gy=(c.y/TCELL)|0;let cf=0;for(let dx=-4;dx<=4;dx++)for(let dy=-4;dy<=4;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||hyp(dx,dy)>4)continue;sf+=fert[cx*TCY+cy];cf+=fert[cx*TCY+cy];n++;}c.fw=cf;}
     t.fertMul=n?clamp(sf/n/0.55,0.6,1.5):1;}
   // komşu krallıklar arasında paylaşılan sınır (gerilim kaynağı)
   for(let i=0;i<K;i++)sim.border[i].fill(0);
@@ -361,13 +362,13 @@ function siteScore(x,y){const gx=clamp((x/TCELL)|0,0,TCX-1),gy=clamp((y/TCELL)|0
 function pickSites(K){const sites=[],pad=60,dmin=Math.max(150,Math.sqrt(W*H/K)*0.62);
   for(let i=0;i<K;i++){let best=null,bv=-1e9;
     for(let n=0;n<160;n++){const x=rnd(pad,W-pad),y=rnd(pad,H-pad),sc=siteScore(x,y);if(sc<0)continue;
-      let ok=true;for(const q of sites)if(Math.hypot(q.x-x,q.y-y)<dmin){ok=false;break;}if(!ok)continue;
+      let ok=true;for(const q of sites)if(hyp(q.x-x,q.y-y)<dmin){ok=false;break;}if(!ok)continue;
       const v=sc*(0.75+0.5*rng());if(v>bv){bv=v;best={x,y};}}
-    if(!best){for(let n=0;n<400&&!best;n++){const x=rnd(pad,W-pad),y=rnd(pad,H-pad);let ok=siteScore(x,y)>=0;for(const q of sites)if(Math.hypot(q.x-x,q.y-y)<dmin*0.6)ok=false;if(ok)best={x,y};}}
+    if(!best){for(let n=0;n<400&&!best;n++){const x=rnd(pad,W-pad),y=rnd(pad,H-pad);let ok=siteScore(x,y)>=0;for(const q of sites)if(hyp(q.x-x,q.y-y)<dmin*0.6)ok=false;if(ok)best={x,y};}}
     sites.push(best||{x:rnd(pad,W-pad),y:rnd(pad,H-pad)});}
   return sites;}
 function carveStart(tribes){for(const t of tribes){const c=t.cities[0],gx=(c.x/TCELL)|0,gy=(c.y/TCELL)|0;                // başlangıç vadisi: başkentin çevresi verimli ova
-    for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||Math.hypot(dx,dy)>3.2)continue;
+    for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){const cx=gx+dx,cy=gy+dy;if(cx<0||cy<0||cx>=TCX||cy>=TCY||hyp(dx,dy)>3.2)continue;
       const k=cx*TCY+cy;if(ttype[k]!==4)ttype[k]=0;fert[k]=Math.max(fert[k],0.72);}}
   paintTerrain(tribes);}
 
@@ -725,9 +726,9 @@ function trySecede(t){
   if(rebels.length<8)return;
   // en çok isyancının toplandığı şehri odak seç
   let bestCity=null,bestN=-1,bestIdx=-1;
-  t.cities.forEach((c,idx)=>{let n=0;for(const r of rebels)if(Math.hypot(r.x-c.x,r.y-c.y)<170)n++;if(n>bestN){bestN=n;bestCity=c;bestIdx=idx;}});
+  t.cities.forEach((c,idx)=>{let n=0;for(const r of rebels)if(hyp(r.x-c.x,r.y-c.y)<170)n++;if(n>bestN){bestN=n;bestCity=c;bestIdx=idx;}});
   if(bestN<6)return;
-  const founders=rebels.filter(r=>Math.hypot(r.x-bestCity.x,r.y-bestCity.y)<190);
+  const founders=rebels.filter(r=>hyp(r.x-bestCity.x,r.y-bestCity.y)<190);
   if(founders.length<CFG.secedeMinFounders)return;
   const {name,color}=freshIdent(t.nc); nextKingId++;
   // büyük imparatorluktan kopan devlet, yakın 2. şehri de alır (yaşayabilir successor)
@@ -796,9 +797,9 @@ function findSettleSpot(t){                                                     
   let best=null,bv=-1;
   for(let n=0;n<70;n++){const x=rnd(40,W-40),y=rnd(40,H-40),o=ownerAt(x,y);
     if(o!==-1&&o!==t.id)continue;
-    let dOwn=1e9;for(const c of t.cities)dOwn=Math.min(dOwn,Math.hypot(c.x-x,c.y-y));
+    let dOwn=1e9;for(const c of t.cities)dOwn=Math.min(dOwn,hyp(c.x-x,c.y-y));
     const sc=siteScore(x,y);if(dOwn<110||dOwn>240||sc<0.45)continue;
-    let ok=true;for(const k of sim.tribes){if(k._dead)continue;for(const c of k.cities)if(k.id!==t.id&&Math.hypot(c.x-x,c.y-y)<95)ok=false;}
+    let ok=true;for(const k of sim.tribes){if(k._dead)continue;for(const c of k.cities)if(k.id!==t.id&&hyp(c.x-x,c.y-y)<95)ok=false;}
     if(ok&&sc>bv){bv=sc;best={x,y};}}
   return best;
 }
@@ -1082,16 +1083,16 @@ function step(){
   sim.byId=new Map();for(const a of agents)sim.byId.set(a.id,a);
   const ag=makeGrid(48);for(const a of agents)ag.add(a);
   const fg=makeGrid(60);for(const f of food)fg.add(f);
-  const births=[];
+  const births=[];const WT=tribes.map(A=>tribes.map(B=>(A.war&&A.war.target===B.id)||(B.war&&B.war.target===A.id)));const hasWar=WT.map(r=>r.some(Boolean));   // savaş tablosu (adım başına bir kez)
 
   for(const a of agents){
     const t=tribes[a.tribe];a.age++;a.energy-=CFG.drain*(0.7+0.4*a.speed);
     updateRoleChoice(a,t);   // çocukluk→meslek + ataletli yeniden değerlendirme
     if(a.sex==='F'&&(sim.tick+a.id)%20===0){a._nurse=false;for(const id of a.children){const c=sim.byId.get(id);if(c&&sim.tick-c.born<CFG.yearLen*2.5&&c.energy>0){a._nurse=true;break;}}}   // emziren anne
     if(CFG.mortality&&a.energy>0&&(rng()<hazard(a,t)/CFG.yearLen||ageYears(a)>=CFG.maxAge)){a.energy=-1;a._natural=true;}
-    const nb=ag.near(a.x,a.y);
+    const needLoop=hasWar[a.tribe]||a.role==='DOCTOR',needSoc=(a.id+sim.tick)%CFG.socEvery===0,nb=(needLoop||needSoc)?ag.near(a.x,a.y):null;   // komşu taraması yalnızca gerektiğinde
     let enemy=null,ebd=Math.min(a.sense,CFG.senseCap)**2,wounded=null,wbd=CFG.healR**2;
-    for(const o of nb){if(o.tribe!==a.tribe){if(!atWar(a.tribe,o.tribe)||lifeStage(o)==='child')continue;   // düşman: yalnızca savaştaki devletin bireyi; çocuklar hedef değil
+    if(needLoop)for(const o of nb){if(o.tribe!==a.tribe){if(!WT[a.tribe][o.tribe]||lifeStage(o)==='child')continue;   // düşman: yalnızca savaştaki devletin bireyi; çocuklar hedef değil
         let d=(o.x-a.x)**2+(o.y-a.y)**2;if(o.role!=='SOLDIER')d*=6.25;if(d<ebd){ebd=d;enemy=o;}}
       else if(a.role==='DOCTOR'&&o!==a&&o.energy<70){const d=(o.x-a.x)**2+(o.y-a.y)**2;if(d<wbd){wbd=d;wounded=o;}}}
     const env={enemy,wounded,food:a.carrying?null:nearest(fg.near(a.x,a.y),a.x,a.y,a.sense),owner:ownerAt(a.x,a.y)};
@@ -1105,13 +1106,13 @@ function step(){
     if((a.id+sim.tick)%CFG.socEvery===0)socialize(a,nb);
     if(CFG.goals&&(a.id+sim.tick)%CFG.goalEvery===0&&lifeStage(a)!=='child')chooseGoal(a);
     const dec=decide(a,t,env);a.act=dec.act;a.acts[dec.act]=(a.acts[dec.act]||0)+1;
-    if((dec.act==='WANDER'||dec.act==='PATROL'||dec.act==='FORAGE'||dec.act==='LURK')&&(Math.hypot(a.wx-a.x,a.wy-a.y)<12||rng()<0.012)){
+    if((dec.act==='WANDER'||dec.act==='PATROL'||dec.act==='FORAGE'||dec.act==='LURK')&&(hyp(a.wx-a.x,a.wy-a.y)<12||rng()<0.012)){
       const hc0=nearestCity(t.cities,a.x,a.y),par=lifeStage(a)==='child'?parentOf(a):null,hc=par||hc0,RR=par?45:(a._nurse||a.pregUntil>0)?110:(200+120*a.pers.O);let bx=0,by=0,bf=-1;for(let q=0;q<3;q++){const x=clamp(hc.x+rnd(-RR,RR),2,W-2),y=clamp(hc.y+rnd(-RR,RR),2,H-2),f=fert[cellOf(x,y)];if(f>bf){bf=f;bx=x;by=y;}}   // verimli toprağa yönelim
       a.wx=bx;a.wy=by;dec.tx=a.wx;dec.ty=a.wy;}
-    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=Math.hypot(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
+    const dx=dec.tx-a.x,dy=dec.ty-a.y,dd=hyp(dx,dy)||1,spd=a.speed*terrSpd(a.x,a.y)*(dec.act==='FIGHT'||dec.act==='INVADE'?1.2:dec.act==='FLEE'?1.25:1);
     a.x=clamp(a.x+dx/dd*spd,2,W-2);a.y=clamp(a.y+dy/dd*spd,2,H-2);
     if(a.role==='SOLDIER'&&lifeStage(a)!=='child'&&enemy&&dist(a,enemy)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(1+CFG.toolArms*(t._tools||0))*(0.8+0.5*rng());enemy.energy-=dmg*CFG.dmgK;enemy._killer=a;enemy._killerT=sim.tick;}
-    if(dec.act==='INVADE'&&dec.city){if(Math.hypot(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;
+    if(dec.act==='INVADE'&&dec.city){if(hyp(dec.city.x-a.x,dec.city.y-a.y)<CFG.cityR){const _dk=sim.tribes[ownerAt(dec.city.x,dec.city.y)];dec.city.hp-=a.power*aggMul*0.26/((_dk&&_dk._def)||1);dec.city._hitTick=sim.tick;dec.city._lastAtk=a.tribe;
       if(!a.carrying&&dec.city.food>=CFG.lootKeep+CFG.lootUnit&&rng()<CFG.lootProb){dec.city.food-=CFG.lootUnit;a.carrying=true;a._loot=CFG.lootUnit;a._lootFrom=_dk?_dk.name:'düşman';}}}   // baskın: ambardan yiyecek yağmalar
     else if(dec.act==='VENGEANCE'&&dec.target){if(dist(a,dec.target)<CFG.combatR){const dmg=effPower(a)*aggMul*a.bravery*(t._mil||1)*(1+CFG.toolArms*(t._tools||0))*(0.8+0.5*rng());dec.target.energy-=dmg*CFG.dmgK;dec.target._killer=a;dec.target._killerT=sim.tick;}}
     else if(dec.act==='HEAL'&&dec.target){if(dist(a,dec.target)<CFG.healR){dec.target.energy=Math.min(CFG.energyMax,dec.target.energy+0.9);dec.target._healT=sim.tick;a.energy-=CFG.healCost;}}   // iyileştirme doktora enerjiye mal olur

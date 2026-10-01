@@ -7,7 +7,7 @@
 - **Kişiler** sekmesi: yaşayan herkes, arama, krallık ve meslek filtresi, "ilginç birey" önerisi (🎲); **takip listesi çubuğu** (en çok 8 kişi, ruh hâli renkli çerçeve)
 - **Toast akışı:** savaş, isyan, hanedan, salgın gibi büyük olaylar ve takip edilen kişilerin olayları (tıklayınca ilgili kişiye/krallığa gider); **yıllık özet** tablosu (nüfus, doğum, ölüm, evlilik, savaş, isyan, tahta çıkış, kıtlık/salgın)
 - Ayarlar: yazı boyutu, yüksek kontrast, hareketi azalt, bildirimleri kapat (tarayıcıda hatırlanır); 3 adımlık ilk açılış turu
-- Ölçüm (642 kişi): kare çizimi 2,3 ms, benzetim adımı 7,3 ms → 1×'te akıcı; 8×'te bütçe nedeniyle gerçek hız gösterilir
+- Performans: komşu taraması yalnızca savaşta/hekim/sosyalleşme anında, savaş tablosu adım başına bir kez, hızlı mesafe; 613 kişide adım 9,97 → 8,06 ms (−%19). Kare çizimi 2,3 ms. 8× düğmesi ~600 kişide gerçekte ≈2× (gösterge "gerçek hız" yazar)
 
 ### Bağımsız değerlendirme 6 düzeltmeleri (isimlendirme 5/10, yeterlilik 6/10)
 - İsimlendirme: 6 isim kültürü (kuzey, kelt, latin, bozkır, peri, frank); her krallık bir kültürden alır; kişi (cinsiyete göre), soyad, şehir ve krallık adı ayrı havuzlardan; tam ad çakışması %7,6-15 → %0,03; şehir/soyad çakışması 0; yeni hanedan kolu (%4 yeni soyad); sayılı adlar ("Belka 2") kalktı; hekim/bilim terimleri tutarlı
