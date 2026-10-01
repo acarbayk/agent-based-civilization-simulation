@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### UI Aşama A: iskelet + medieval tema
+- Yeni düzen: üst çubuk (tarih, duraklat/adım/1×-8× hız, Bilim/Kültür/Tarih/Vakayiname, seed), tam genişlikte çerçeveli harita, sağda sekmeli çekmece (Birey, Hikâye, Krallıklar, Dünya, Ayarlar), haritanın altında "Son olaylar"
+- Medieval tema: ceviz/bronz/altın, Cinzel + Crimson Pro yazı tipleri (çevrimdışıysa Palatino/Georgia), çerçeveli harita ve kartlar
+- Kısayollar: Boşluk duraklat, +/− hız, F takip, Esc pencereleri kapat; harita/hikâye bağlantıları Birey sekmesini açar
+- Teknoloji ve Kültür ağaçları yeniden tasarlandı: çağ şeritleri, parşömen kartlar (edinildi / araştırılabilir / kilitli), etki yazıları, üzerine gelince ön koşul ipucu
+
 ### Tur 9: kullanıcı geri bildirimi (sınırlar, meslekler, aynılık)
 - Başlangıç: başkentler köşeler yerine araziye göre seçiliyor (verimli toprak, nehir kıyısı; dağ/orman/nehir üstü yasak); oto modda 3-6 krallık; nehir sayısı/yönü ve dağ oranı seed'e göre; krallık adları ve renkleri seed'e göre karışıyor; isyan krallıklarının adı/rengi çakışmıyor; yeni şehirler en uygun araziye kuruluyor
 - Sınırlar: etki alanı dağ/nehir/ormandan zayıflıyor (sınırlar doğal engelleri izliyor); çizim hücre karesi yerine yumuşak kontur

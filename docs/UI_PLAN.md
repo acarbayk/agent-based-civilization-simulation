@@ -74,7 +74,14 @@ Hazırlanma biçimi: benzer projeler ve oyunlar için kullanıcı yorumları ve 
 - Taze bir ajanla **kullanılabilirlik testi** (görevler: "en büyük krallığı bul", "bu krallıkta kıtlık var mı", "bir kişiyi bul ve neden evlendiğini söyle", "yeni bir olayı yakala"); tıklama sayısı ve başarı oranı kaydı.
 - Eski kör değerlendirmeye "okunabilirlik ve his" ve yeni "kullanılabilirlik" boyutları eklenir. Hedef: iki boyutta ≥8 (bağımsız puanla kanıtlanana dek iddia edilmez).
 
-## 5. Karar gerektiren sorular
+## 5. Kararlar (kullanıcı)
+
+1. **Masaüstü öncelikli** (mobil sonra).
+2. **Tema:** mevcut koyu çizgi korunur ama daha **medieval** (ceviz/bronz/altın yaldız, serif, çerçeveli harita). *Uygulandı (Aşama A).*
+3. **Legends benzeri tarih gezintisi:** kavram açıklandı; ilk sürüm Kişiler + Krallıklar + Olaylar + çapraz bağlantı, harita kopyaları sonra. Kullanıcı kararı bekleniyor.
+4. **Teknoloji/kültür ağaçları ana arayüzde kalır**, tasarımı yenilenir. *Uygulandı: parşömen kartlar, çağ şeritleri, ön koşul ipuçları.*
+
+## 5b. İlk soru listesi (arşiv)
 
 1. Öncelik: masaüstü mü mobil mi? (Plan ikisini de kapsıyor ama tasarım kararları farklı.)
 2. Görsel tema: bugünkü koyu arayüz mü, harita çevresinde "parşömen/ortaçağ" teması mı?
