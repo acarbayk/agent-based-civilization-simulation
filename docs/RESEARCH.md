@@ -424,6 +424,14 @@ Yapılan düzeltmeler ve ölçümler (8 seed × 250 yıl, hata 0, yok oluş 0, e
 
 Açık kalanlar: köy/hane/gün döngüsü (1 tick ≈ 5 gün olduğu için gün döngüsü anlamlı değil), ekim-hasat ve mülkiyet, gerçek savaş taktiği, ihanet zinciri, isyan parçalanması, birincil kaynak doğrulaması (ağ engeli), nüfus üst sınırı (performans), yapılan değişikliklerin bağımsız yeniden değerlendirmesi.
 
+## 10.17 Tur 7-8: tarım katmanı, kalibrasyon, görsel yenileme
+
+- Tarım (`fieldsTick`): yıllık üretimin `fieldShare` kısmı şehir tarlalarına gider; ekili oran bahar işgücüne bağlı, olgunlaşan ürün sonbaharda hasat işgücüyle ambara girer, toplanmayan ürün kışta çürür. Kuraklık, savaş ve iş gücü eksikliği doğrudan hasadı düşürür.
+- Kalibrasyon: `foodScale` 0,18 ile açlık ölümü %20-39'a çıktı (3 seed × 120 yıl); 0,24'te %4-13, beklenen ömür 34-36, 15'e ulaşma %61-66, nüfus 685-906. (Yöntem: cal.js, 3 seed × 4 ayar.)
+- Makro siyaset (foodScale 0,24, 8 seed × 250 yıl): hata 0, yok oluş 0, en düşük nüfus 150-171, ortalama yaşayan krallık 6,8 (0,18 ile 5,9, tur 5'te 6,3). Hedefim 4-6'ydı; daha bol yiyecek daha çok nüfus ve parçalanma getiriyor. Henüz ayarlanmadı.
+- Görsel: arazi yumuşak bilinear biyom karışımı + gürültü + kabartma gölgesi; süsler hücre türüne ve karışmış renge uyumlu. Figürler ve yerleşimler çevrimdışı tuvale çizilip önbelleğe alınıyor. Hepsi çizim katmanı; benzetimin sayısal çıktısı (seed determinizmi) aynı kalır (det.js geçti).
+- Açık: hane mülkiyeti, savaş taktiği, ihanet zinciri, isyan parçalanması, bağımsız yeniden değerlendirme (kör tur 6).
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma

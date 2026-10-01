@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Tur 7-8: tarım ve görsel yenileme
+- Tarım: bahar ekim, yaz büyüme, sonbahar hasat, kış çürüme; üretimin yarısı tarlalardan (`fieldShare` 0,5); `foodScale` 0,24; "kötü/bereketli hasat" hikâyeleri; şehir çevresinde sıralı tarla yamaları
+- Makro ölçüm (8 seed × 250 yıl): hata 0, yok oluş 0, en düşük nüfus 150, ortalama yaşayan krallık 6,8
+- Arazi: yumuşak biyom geçişleri, kabartma gölgelendirme, çam/dağ/tepe/ot/çiçek süsleri, katmanlı nehirler (yalnızca çizim, benzetim RNG'sine dokunmaz)
+- İkonlar: rol/yaş/cinsiyete göre figürler (çiftçi şapkalı, asker kask-kalkan-mızraklı, hekim haç işaretli, tüccar çuvallı, casus kukuletalı, çocuk, bastonlu yaşlı, tacı olan hükümdar); kule ve evli yerleşim ikonları
+
 ### Tur 6 (bağımsız değerlendirme 5: 6.1)
 - Hata: isyanda hükümdar yeni krallığa geçince eski krallığın tahtı bayat kalıyordu (örnek seed'de kayıtların %24'ü tutarsız, şimdi %0,7)
 - Kişilik → seçim: çalışkanlık, cesaret/onur, sosyallik, meraklılık, uyumluluk eylem puanlarını belirgin biçimde değiştiriyor; gevşek kişiler ocak başında oyalanıyor (aynı rolde çalışkanlık ~ çalışma payı |r| ≈ 0,6-0,77; yorumcunun ölçtüğü en fazla 0,21). Risk (savaş) korelasyonu zayıf kaldı: savaş eylemi nadir

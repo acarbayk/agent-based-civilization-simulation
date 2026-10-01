@@ -9,7 +9,11 @@ Yayındaki artifact: https://claude.ai/artifact/UFndSmnwGi5eh4gszd11jF (sürüm 
 - Kalibrasyon (3 seed × 120 yıl): açlık ölümü %4-13, beklenen ömür 34-36, 15'e ulaşma %61-66. foodScale 0,18'de açlık %20-39 çıkmıştı.
 - Makro siyaset: foodScale 0,18 + tarım ile 8 seed × 250 yıl kararlı (hata 0, yok oluş 0, ort. krallık 5,9). foodScale 0,24 ile tam makro ölçüm YAPILMADI (iptal edildi).
 
-## Yarın sırayla
+## Güncelleme (tur 8)
+- foodScale 0,24 makro ölçümü yapıldı (ort. krallık 6,8, hata/yok oluş 0); görsel yenileme (arazi, ikonlar) yapıldı; artifact güncel.
+- Sıradaki: kör değerlendirme 6, hane/savaş/ihanet işleri.
+
+## Eski plan (yarın sırayla)
 1. foodScale 0,24 ile 8 seed × 250 yıl makro ölçüm (dyn.js), tarayıcı + determinizm testi, docs/RESEARCH.md §10.17 + CHANGELOG, artifact'ı yeniden yayınla.
 2. Kör değerlendirme 6 (taze ajan, anlık kopya).
 3. Açık eksikler: hane mülkiyeti/bireysel servet, gerçek savaş taktiği + seferberlik, ihanet zinciri, isyan parçalanması, nüfus üst sınırı, hikâye çeşitliliği, birincil kaynak doğrulaması (ağ engeli).
