@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Tur 9: kullanıcı geri bildirimi (sınırlar, meslekler, aynılık)
+- Başlangıç: başkentler köşeler yerine araziye göre seçiliyor (verimli toprak, nehir kıyısı; dağ/orman/nehir üstü yasak); oto modda 3-6 krallık; nehir sayısı/yönü ve dağ oranı seed'e göre; krallık adları ve renkleri seed'e göre karışıyor; isyan krallıklarının adı/rengi çakışmıyor; yeni şehirler en uygun araziye kuruluyor
+- Sınırlar: etki alanı dağ/nehir/ormandan zayıflıyor (sınırlar doğal engelleri izliyor); çizim hücre karesi yerine yumuşak kontur
+- Meslekler: zanaatkâr (alet düzeyi → tarım verimi +%25'e kadar, silah hasarı +%12'ye kadar) ve rahip (inanç düzeyi → öfke −%18'e kadar, tapınakta ayin); yeni sprite'lar
+- Makro ölçüm (8 seed × 250 yıl): hata 0, yok oluş 0, en düşük nüfus 126, ortalama yaşayan krallık 5,5 (önceki 6,8); seed'ler arası yörüngeler belirgin biçimde farklı (ör. alpha9: 3 krallıkta hegemonya, geç savaş 26; m7q: 10 krallığa parçalanma, geç savaş 109)
+
 ### Tur 7-8: tarım ve görsel yenileme
 - Tarım: bahar ekim, yaz büyüme, sonbahar hasat, kış çürüme; üretimin yarısı tarlalardan (`fieldShare` 0,5); `foodScale` 0,24; "kötü/bereketli hasat" hikâyeleri; şehir çevresinde sıralı tarla yamaları
 - Makro ölçüm (8 seed × 250 yıl): hata 0, yok oluş 0, en düşük nüfus 150, ortalama yaşayan krallık 6,8

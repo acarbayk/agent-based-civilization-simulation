@@ -432,6 +432,15 @@ Açık kalanlar: köy/hane/gün döngüsü (1 tick ≈ 5 gün olduğu için gün
 - Görsel: arazi yumuşak bilinear biyom karışımı + gürültü + kabartma gölgesi; süsler hücre türüne ve karışmış renge uyumlu. Figürler ve yerleşimler çevrimdışı tuvale çizilip önbelleğe alınıyor. Hepsi çizim katmanı; benzetimin sayısal çıktısı (seed determinizmi) aynı kalır (det.js geçti).
 - Açık: hane mülkiyeti, savaş taktiği, ihanet zinciri, isyan parçalanması, bağımsız yeniden değerlendirme (kör tur 6).
 
+## 10.18 Tur 9: kullanıcı geri bildirimi
+
+Kullanıcı gözlemleri: (1) sınırlar belirsiz/araziyle ilgisiz, (2) meslek çeşitliliği az, (3) başkentler hep aynı yerde ve olaylar neredeyse birebir aynı ("en önemli sorun").
+- (3) Kök neden: başkentler sabit köşelerde (`makeKingdom`'ın dört köşesi), 4 krallık, sabit adlar. Çözüm: arazi önce üretilir, `pickSites` uygunluk skoru (`siteScore`) × gürültü ile seçer (min mesafe), oto modda 3-6 krallık, nehir yönü/sayısı ve dağ oranı seed'e göre.
+- (1) Etki alanı artık engellerden geçerken çarpılıyor (`BARRIER`: dağ 0,40, nehir 0,55, orman 0,82, tepe 0,85); çizim, bilinear etki alanlarından argmax konturu (3 px raster, yumuşak ölçekleme).
+- (2) Zanaatkâr ve rahip eklendi; talep/hedef oranları `roleScores` içinde (rahip huzursuzlukla, zanaatkâr çağla artar).
+- Ölçüm: 8 seed × 250 yıl hata 0, yok oluş 0, ortalama krallık 5,5. Seed'ler arası yörünge çeşitliliği yüksek (hegemonya vs. parçalanma). Henüz sayısal bir "çeşitlilik ölçüsü" tanımlamadım; yalnızca gözle ve bu özet sayılarla değerlendirdim.
+- Sınır: araziyi izleyen sınırlar etki alanı mantığına bağlı; ordunun hareketi ve ticaret yolları hâlâ araziden bağımsız doğrusal. Zanaatkâr/rahip etkileri basit çarpanlar, tarihsel olarak doğrulanmış değerler değil.
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma
