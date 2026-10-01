@@ -446,6 +446,11 @@ Kullanıcı gözlemleri: (1) sınırlar belirsiz/araziyle ilgisiz, (2) meslek ç
 Kör değerlendirme (taze ajan, 10 seed × 110 yıl + tarayıcı): **isimlendirme 5/10, yeterlilik (A+B+Legends) 6/10**. Bulgular: ad havuzu küçük (400 ad / 96 soyad / 200 şehir / 30 krallık), tam ad tekrarı %7,6-15, soyad-şehir çakışması, "Belka 2" ek hatası, şehir kartının açılmaması (figür önceliği), kıtlığın okunamaması, savaş gerekçesi yok, 1366×768'de kaydırma, hız göstergesi yanıltıcı, boş zemine tıklayınca benzetimi bozan yiyecek eklenmesi, Geri düğmesi eksikleri.
 Düzeltme ayrıntıları CHANGELOG'da. İsim ölçümü (8 seed × 110 yıl, 15.969 kişi kaydı): tam ad tekrarı %0,03, ad=soyad 0, şehir/soyad çakışması 0 (95 şehir), farklı soyad 91-197/seed. Kalan sınır: soyadların %20-66'sı birden fazla krallıkta (isyanla kopan krallıklar kurucu soyadlarını taşır; 6'dan fazla krallıkta kültür tekrar kullanılır). Makro ölçüm (8 seed × 250 yıl): hata 0, yok oluş 0, en düşük nüfus 127, ortalama yaşayan krallık 4,9; bir seed (alpha9) tek devlette birleşti (geç savaş 7). Düzeltmelerin bağımsız yeniden puanlaması yapılmadı.
 
+## 10.20 Tur 11: UI Aşama A-E ve kullanılabilirlik testi 7
+
+Kör test (taze ajan, 11 görev): 7 görev tam, 4 kısmen; ortalama **6,3** (okunabilirlik 6,0, kullanılabilirlik 6,5, bilgi mimarisi 6,5, erişilebilirlik 4,0, görsel/tema 8,0, performans 7,0). En ağır bulgular: sekme çubuğu çökmesi, tutarsız "Neden?" metni, yetersiz erişilebilirlik, savaş sayfası yok, "Takip" kavram karışıklığı, şehir isabet alanı, 1920'de bulanık canvas. Düzeltmeler CHANGELOG'da; düzeltme sonrası makro ölçüm (4 seed × 250 yıl) önceki sonuçlarla birebir aynı (arayüz değişikliği benzetimi etkilemedi). Düzeltmelerin bağımsız yeniden puanlaması yapılmadı. Performans: komşu taraması optimizasyonuyla adım süresi −%19 (9,97 → 8,06 ms, 613 kişi); 8× düğmesi ~600 kişide gerçekte ≈2-3×.
+Açık: Parşömen (açık) tema yapılmadı; mobil kapsam dışı; gerçek 8× için benzetimin daha derin optimizasyonu gerekir.
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Kullanılabilirlik testi 7 düzeltmeleri (ortalama 6,3)
+- Sekme çubuğu 1366×768'de çöküyordu (8 px) → sabit yükseklik; yazı boyutu ayarı artık üst çubuk, çekmece, olay akışı, izleme listesi, harita düğmeleri ve pencerelere de uygulanır; yüksek kontrast paketi genişletildi; panel metinleri en az 11,5 px
+- Birey kartı: isyancıda "isyanda · yapılan iş" ve isyan gerekçesi; hükümdarda krallığın tutumu ve hükümdarlık süresi; yinelenen özellik rozetleri kaldırıldı
+- Savaş kayıtları: **Savaşlar** sekmesi (gerekçe, süre, iki taraftaki kayıp, sonuç, olay geçmişi), krallık sayfalarında savaş listesi; olaylar "daha fazla" ile sayfalanır
+- Krallıklar sekmesi nüfusa göre sıralı, ☠ kıtlık / ⚑ huzursuz / ✚ salgın rozetleri; yıllık özet sütun açıklaması; Arazi modu efsanesi
+- "Takip" iki anlamdan ayrıldı: 🔍 Kamera takibi ve ☆ İzleme listesi; ölen izlenen kişi † görünür; yinelenen toast kaldırıldı; Esc seçimi bırakır;  kısayol sayfası; şehir isabet alanı büyütüldü
+- Haritanın çözünürlüğü ekrana göre 1×/2× (1920'de bulanıklık giderildi); "gerçek hız" göstergesi yumuşatıldı
+
 ### UI Aşama C, D, E
 - Birey kartı yeniden tasarlandı: büyük sprite, unvan, krallık bağlantısı, **şu an ne yapıyor ve neden** (durumdan okunan gerekçeler + kişilik etkisi), karar puanları (seçili kişi için), enerji/hoşnutluk/korku çubukları, en belirgin 3 özellik, açılır bölümler (aile, kişilik, anılar, yaşam çizgisi)
 - **Kişiler** sekmesi: yaşayan herkes, arama, krallık ve meslek filtresi, "ilginç birey" önerisi (🎲); **takip listesi çubuğu** (en çok 8 kişi, ruh hâli renkli çerçeve)

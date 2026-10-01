@@ -23,9 +23,9 @@
   h1{font:700 18px var(--display);letter-spacing:.14em;margin:0;color:var(--gold);text-transform:uppercase}
   .brand small{display:block;font:italic 12px var(--serif);color:var(--muted);letter-spacing:.02em;margin-top:1px}
   .time{display:flex;align-items:center;gap:12px;font:600 14px var(--display);letter-spacing:.06em;color:var(--ink)}
-  .time .chip{padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:#1a120b}
+  .time .chip{white-space:nowrap;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:#1a120b}
   .spacer{flex:1}
-  .grp{display:flex;gap:6px;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center}.grp button{white-space:nowrap}
   /* düğmeler */
   button{font:600 12.5px var(--display);letter-spacing:.05em;color:var(--ink);background:linear-gradient(#3a2b1d,#2a1e14);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,225,160,.12),0 1px 2px rgba(0,0,0,.5);transition:border-color .15s,transform .05s}
   button:hover{border-color:var(--gold);color:#fff3d6}
@@ -52,11 +52,11 @@
   .card h2::before{content:"❧";color:var(--gold-dim);font-size:14px}
   /* sağ çekmece */
   .side{position:sticky;top:12px;display:flex;flex-direction:column;gap:0;max-height:calc(100vh - 100px)}
-  .tabs{display:flex;gap:0;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;overflow:hidden;background:#1a120b}
-  .tabs button{flex:1;border:none;border-radius:0;background:transparent;box-shadow:none;padding:10px 2px;font-size:10.5px;color:var(--muted);border-right:1px solid #33261a;letter-spacing:.08em}
+  .tabs{flex:0 0 auto;display:flex;gap:0;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;overflow:hidden;background:#1a120b}
+  .tabs button{flex:1;border:none;border-radius:0;background:transparent;box-shadow:none;padding:10px 2px;font-size:12px;color:var(--muted);border-right:1px solid #33261a;letter-spacing:.08em}
   .tabs button:last-child{border-right:none}
   .tabs button.on{background:linear-gradient(#3b2a1b,#2a1d13);color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
-  .pages{overflow:auto;border:1px solid var(--line);border-radius:0 0 8px 8px;background:#1d140d;padding:12px;display:flex;flex-direction:column;gap:12px}
+  .pages{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:0 0 8px 8px;background:#1d140d;padding:12px;display:flex;flex-direction:column;gap:12px}
   .pages::-webkit-scrollbar{width:9px}.pages::-webkit-scrollbar-thumb{background:#4a3825;border-radius:5px}
   .pages .card{box-shadow:none}
   .pg{display:none;flex-direction:column;gap:12px}.pg.on{display:flex}
@@ -82,12 +82,13 @@
   .ovl .info{color:var(--muted);font:italic 14px var(--serif)}
   .ovl select{background:#150e08;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font:14px var(--serif)}
 .mm{position:absolute;left:18px;top:18px;display:flex;border:1px solid var(--gold-dim);border-radius:6px;overflow:hidden;background:rgba(20,13,8,.82);backdrop-filter:blur(3px)}
-  .mm button{border:none;border-radius:0;background:transparent;box-shadow:none;padding:6px 11px;font-size:11px;color:var(--muted);letter-spacing:.07em}
+  .mm button{border:none;border-radius:0;background:transparent;box-shadow:none;padding:6px 11px;font-size:12px;color:var(--muted);letter-spacing:.07em}
   .mm button+button{border-left:1px solid #3a2b1c}.mm button.on{background:#3b2a1b;color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
   canvas#mini{position:absolute;left:18px;bottom:18px;display:none;border:1px solid var(--gold);border-radius:3px;background:#0b0f18;cursor:pointer;opacity:.94;width:200px;height:116px;box-shadow:0 2px 10px #000}
   #tip{position:absolute;pointer-events:none;display:none;z-index:5;background:rgba(20,13,8,.96);border:1px solid var(--gold-dim);border-radius:6px;padding:6px 10px;font:600 13px var(--serif);color:var(--ink);box-shadow:0 4px 14px #000;max-width:260px;line-height:1.4}
   #tip small{display:block;color:var(--muted);font-weight:400;font-size:12px}
   #cityCard{display:none}
+  .bdg{display:inline-block;padding:0 6px;margin-left:4px;border-radius:9px;font:700 11px var(--serif);border:1px solid}.bd-k{color:#e0a05a;border-color:#a8703a}.bd-h{color:#ff8a7a;border-color:#a8483a}.bd-s{color:#8fc8e8;border-color:#3a6f8a}
   #modeLegend{position:absolute;right:18px;bottom:18px;background:rgba(20,13,8,.88);border:1px solid var(--gold-dim);border-radius:6px;padding:6px 10px;font:12.5px var(--serif);color:var(--ink);display:none}
   #modeLegend .gr{height:8px;width:130px;border-radius:4px;margin:3px 0}
 
@@ -97,7 +98,7 @@
   .lgitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;cursor:pointer;border-bottom:1px solid #33261a}.lgitem:hover,.lgitem.on{background:#33261a}
   .lgitem .dot{width:9px;height:9px;border-radius:50%;flex:none}.lgitem .nm{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lgitem .mt{color:var(--muted);font-size:12.5px;white-space:nowrap}
   .lgsearch{position:sticky;top:0;background:#241a12;padding:4px 0 8px}.lgsearch input{width:100%;background:#150e08;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font:14px var(--serif);margin-bottom:6px}
-  .lgchips{display:flex;gap:4px;margin-bottom:4px}.lgchips button{padding:4px 9px;font-size:11px}.lgchips button.on{border-color:var(--gold);color:var(--gold)}
+  .lgchips{display:flex;gap:4px;margin-bottom:4px}.lgchips button{padding:4px 9px;font-size:12px}.lgchips button.on{border-color:var(--gold);color:var(--gold)}
   .lgname{font:700 24px var(--display);letter-spacing:.04em}.lgsub{color:var(--muted);font-size:14px;line-height:1.5}.lgprose{font-size:15px;line-height:1.6;margin:14px 0}
   .lgdetail h3{font:700 12.5px var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:16px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
   .lgul{margin:0;padding:0;list-style:none}.lgul li{padding:4px 0;border-bottom:1px solid #33261a;font-size:14.5px;line-height:1.45}.lgul.wide li{padding:6px 0}
@@ -105,13 +106,13 @@
   a.lgl{color:#e5c07b;text-decoration:underline;text-decoration-color:#8f6d2c;text-underline-offset:2px}a.lgl:hover{color:#fff3d6}
   table.lgtab td{padding:4px 8px;font-size:14px}.lgcard{background:#2a1e14;border-radius:6px;padding:10px 14px;margin-bottom:9px}.lgcard .nm{font-weight:700;font-size:16px}
   .lgk{display:inline-block;font:700 10px var(--display);letter-spacing:.08em;padding:1px 6px;border-radius:9px;background:#3a2b1c;color:var(--muted);margin:0 4px;text-transform:uppercase}.lgk-savaş{color:#e0584a}.lgk-siyaset{color:#d9a441}.lgk-doğa{color:#6fb7d8}.lgk-aile{color:#c9a3e5}.lgk-kültür{color:#8fb36a}
-  .lgback{min-height:30px}.lgback button{padding:4px 10px;font-size:11px;margin-bottom:6px}
+  .lgback{min-height:30px}.lgback button{padding:4px 10px;font-size:12px;margin-bottom:6px}
 
-  .watch{display:flex;gap:7px;flex-wrap:wrap;align-items:center;min-height:38px;padding:4px 8px;border:1px dashed var(--line);border-radius:8px;background:rgba(36,26,18,.5)}
+  .watch{width:min(100%,calc((100vh - 272px)*900/520));min-width:560px;margin:0 auto;display:flex;gap:7px;flex-wrap:wrap;align-items:center;min-height:38px;padding:4px 8px;border:1px dashed var(--line);border-radius:8px;background:rgba(36,26,18,.5)}
   .wchip{display:flex;align-items:center;gap:5px;border:2px solid;border-radius:20px;padding:2px 8px 2px 4px;background:#2a1e14;cursor:pointer}.wchip.on{background:#3b2a1b}.wchip canvas{width:22px;height:30px}.wchip .wn{font:700 12.5px var(--serif)}.wchip .wx{color:var(--muted);padding:0 3px}.wchip .wx:hover{color:#ff8a7a}
   .phead{display:flex;gap:12px}.phead canvas{width:72px;height:96px;background:#1a110a;border:1px solid var(--line);border-radius:6px;flex:none}
   .pname{font:700 20px var(--display);letter-spacing:.03em;line-height:1.15}.pname span{font-weight:600;font-size:16px;opacity:.9}.ptitle{color:#e5c07b;font:italic 14px var(--serif)}.psub{color:var(--muted);font-size:13.5px;line-height:1.4}
-  .pbtn{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.pbtn button{padding:4px 8px;font-size:10.5px}
+  .pbtn{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.pbtn button{padding:4px 8px;font-size:12px}
   .pnow{margin:10px 0 6px;padding:8px 10px;background:#2a1e14;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:6px}.pnowh{font:700 10.5px var(--display);letter-spacing:.18em;color:var(--gold-dim)}.pact{font:700 16px var(--serif)}
   .why{color:var(--muted);font-size:13.5px;line-height:1.45;margin-top:3px}.why b{color:var(--gold)}
   details.opts{margin-top:6px;font-size:12.5px}details summary{cursor:pointer;color:var(--gold);font:700 11px var(--display);letter-spacing:.12em;padding:4px 0}
@@ -131,9 +132,13 @@
   .reduce-motion .toast{animation:none}
   .ytab{width:100%;border-collapse:collapse;font:13px var(--serif)}.ytab th{font:700 10.5px var(--display);letter-spacing:.06em;color:var(--gold-dim);text-align:right;padding:2px 4px;border-bottom:1px solid var(--line)}.ytab th:first-child,.ytab td:first-child{text-align:left}.ytab td{text-align:right;padding:3px 4px;border-bottom:1px solid #33261a;color:var(--ink)}
 
-  .tabs,.pages{zoom:var(--z,1)}
+  .tabs,.pages,.top,.dock,.watch,.legend,.mm,#modeLegend,#toasts,#tip,.ovl .sheet,#tour{zoom:var(--z,1)}
   .chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:6px 0;cursor:pointer}.chk input{accent-color:var(--gold);width:16px;height:16px}
-  body.hc{--muted:#e3d4ae;--line:#8a6c44}body.hc .psub,body.hc .lgsub,body.hc .why,body.hc .legend{color:#eadcb8}body.hc{font-weight:500}
+  body.hc{--ink:#fffaf0;--muted:#f1e6c8;--line:#b8935a;--gold:#ffd470;--gold-dim:#d9b062;--panel:#120c07;--panel-2:#201509;font-weight:600}
+  body.hc .card,body.hc .pages,body.hc .tabs,body.hc .watch,body.hc .toast,body.hc .mm,body.hc #modeLegend{background:#120c07!important;border-color:#b8935a!important}
+  body.hc .pnow,body.hc .chip2,body.hc .wchip{background:#201509!important}
+  body.hc .tabs button,body.hc .mm button{color:#f1e6c8}body.hc .empty,body.hc .hint,body.hc .lgsub,body.hc .why,body.hc .legend,body.hc .psub,body.hc .nb,body.hc .opt,body.hc .mt{color:#f1e6c8!important}
+  body.hc button{border-color:#d9b062;color:#fffaf0}
   body.reduce-motion *{transition:none!important;animation:none!important}
   #tour{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:60;display:none;max-width:540px;width:calc(100% - 40px);background:linear-gradient(#352616,#271b10);border:1px solid var(--gold);border-radius:10px;padding:14px 18px;box-shadow:0 10px 36px #000,inset 0 0 0 3px #1a110a,inset 0 0 0 4px var(--gold-dim)}
   #tour h3{margin:0 0 4px;font:700 14px var(--display);letter-spacing:.14em;color:var(--gold);text-transform:uppercase}#tour p{margin:0 0 10px;font-size:15px;line-height:1.5}
@@ -154,7 +159,7 @@
   <div class="stage">
     <div class="mapframe"><canvas id="world" width="900" height="520"></canvas><div class="mm" id="mapModes"></div><div id="modeLegend"></div><canvas id="mini" width="200" height="116" title="Mini harita: tıkla / sürükle"></canvas><div id="tip"></div><div id="toasts"></div></div>
     <div id="watchBar" class="watch"></div>
-    <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ hekim</span><span>◆ tüccar</span><span>✦ casus</span><span>⚒ zanaatkâr</span><span>☩ rahip</span><span style="color:#ff8a7a">◯ isyancı</span><button id="followBtn" title="Seçili bireyi kamerayla takip et (fare tekerleği: yakınlaş)" style="padding:4px 10px">🔍 Takip</button></div>
+    <div class="legend"><span>· çocuk</span><span>● çiftçi</span><span>▲ asker</span><span>✚ hekim</span><span>◆ tüccar</span><span>✦ casus</span><span>⚒ zanaatkâr</span><span>☩ rahip</span><span style="color:#ff8a7a">◯ isyancı</span><button id="followBtn" title="Seçili bireyi kamera izlesin (F)" style="padding:4px 10px">🔍 Kamera takibi</button></div>
     <div class="dock"><div class="card"><h2>Son olaylar</h2><div id="feed" title="Tüm olaylar için 📜 Tarih → Olaylar"></div></div></div>
   </div>
   <aside class="side">
@@ -174,7 +179,8 @@
         <div class="card"><h2>Görünüm</h2>
           <div class="ctrl"><label>Yazı boyutu <b id="fsVal">100%</b></label><input type="range" id="fsScale" min="90" max="135" value="100"></div>
           <label class="chk"><input type="checkbox" id="optHC"> Yüksek kontrast</label><label class="chk"><input type="checkbox" id="optRM"> Hareketi azalt</label><label class="chk"><input type="checkbox" id="optNT"> Olay bildirimlerini kapat</label>
-          <div style="margin-top:8px"><button id="tourBtn" style="padding:5px 10px;font-size:11px">❔ Turu yeniden göster</button></div></div>
+          <div style="margin-top:8px"><button id="tourBtn" style="padding:5px 10px;font-size:12px">❔ Turu yeniden göster</button></div></div>
+        <div class="card"><h2>Kısayollar</h2><div class="lgsub" style="line-height:1.9"><b>Boşluk</b> duraklat · <b>+ / −</b> hız · <b>F</b> kamera takibi · <b>Esc</b> pencereyi kapat / seçimi bırak · <b>?</b> bu sayfa · <b>Shift+tık</b> haritaya yiyecek yağdır · fare tekerleği yakınlaştır</div></div>
         <div class="card"><details class="how" open><summary>NASIL İZLENİR?</summary><p>Haritadaki her figür <b>kendi kişiliği ve değerleri</b> olan bir birey: sever, evlenir, çocuk yetiştirir, yas tutar, intikam peşinde koşar. Bir figüre tıkla; kişiliğini, ailesini, dostlarını, hasımlarını, anılarını ve hedefini gör, isimlere tıklayarak aile ağında gez. <b>Takip</b> ile kamera onu izler, fare tekerleği yakınlaştırır. Hükümdarın kişiliği krallığın savaş, barış ve ihanet kararlarını belirler. <b>Seed</b> kutusu aynı tarihi yeniden oynatır. Kısayol: <b>Boşluk</b> duraklatır.</p></details></div></div>
     </div>
   </aside>
@@ -603,8 +609,8 @@ function logEvent(text,color,meta){text=text.replace(/^[^\p{L}\p{N}]+/u,'');cons
   const el=document.getElementById('feed');if(!el)return;
   el.innerHTML=sim.feed.map(e=>{const yr=Math.floor((e.tick||0)/CFG.yearLen),maj=evMajor(e.text);
     return `<div style="display:flex;gap:7px;align-items:baseline;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">
-      <span style="color:#5b6376;font-family:var(--mono);font-size:9.5px;min-width:34px">Y${yr}</span>
-      <span style="font-size:11px">${evIcon(e.text)}</span>
+      <span style="color:#5b6376;font-family:var(--mono);font-size:11.5px;min-width:34px">Y${yr}</span>
+      <span style="font-size:12px">${evIcon(e.text)}</span>
       <span style="color:${e.color||'#8c95ac'};font-size:11.5px;line-height:1.35;font-weight:${maj?600:400}">${e.text}</span></div>`;}).join('');}
 const atWar=(x,y)=>{const A=sim.tribes[x],B=sim.tribes[y];return !!((A&&A.war&&A.war.target===y)||(B&&B.war&&B.war.target===x));};
 const living=t=>sim.tribes.filter(o=>o.id!==t.id&&o.pop>0&&!o._dead);
@@ -777,7 +783,9 @@ function succeed(t,old,alive){
 function warReason(t,o,betrayal){const border=sim.border[t.id][o.id]||0,rel=sim.rel[t.id][o.id],edge=power(t)/(power(o)+1),plot=t.plots[o.id]||0,rich=cityFood(o)/Math.max(1,o.pop);
   if(betrayal)return 'ihanet';if(plot>20)return 'uzun süren entrika';if(border>=3&&rel<-10)return 'sınır gerginliği';if(rich>1.2&&t.greed>0.55)return 'zengin ambarlara göz dikmek';
   if(edge>1.3&&t.ambition>0.55)return 'hırslı hükümdar ve güçlü ordu';if(rel<-30)return 'eski husumet';if(t.unrest>0.1)return 'iç huzursuzluğunu dışarıya çevirmek';return 'toprak ve itibar arayışı';}
-function declareWar(t,o,betrayal){const why=warReason(t,o,betrayal);
+const openWar=(x,y)=>(sim.wars||[]).find(w=>w.end==null&&((w.a===x&&w.b===y)||(w.a===y&&w.b===x)));
+function closeWar(x,y,out){const w=openWar(x,y);if(w){w.end=sim.tick;w.out=out;}}
+function declareWar(t,o,betrayal){const why=warReason(t,o,betrayal);(sim.wars=sim.wars||[]).push({id:sim.wars.length,a:t.id,b:o.id,start:sim.tick,end:null,out:null,reason:why,betrayal:!!betrayal,ruler:t.ruler,da:0,db:0});
   const wasAlly=sim.tr[t.id][o.id]==='ally',wasTrade=sim.tr[t.id][o.id]==='trade';
   t.war={target:o.id,start:sim.tick,reason:why};o.war=o.war||{target:t.id,start:sim.tick,reason:'savunma'};
   sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='none';
@@ -789,7 +797,7 @@ function declareWar(t,o,betrayal){const why=warReason(t,o,betrayal);
     logEvent(`🗡 İHANET! ${t.name}, ${rel} ${ek(o.name,'dat')} saldırdı (itibar çöktü)`,t.color,{pp:t.ruler!=null?[t.ruler]:[]});}
   else logEvent(`⚔ ${t.name}, ${ek(o.name,'dat')} savaş açtı (gerekçe: ${why})`,t.color,{pp:t.ruler!=null?[t.ruler]:[]});
 }
-function makePeace(t,o){if(t.war&&t.war.target===o.id)t.war=null;if(o.war&&o.war.target===t.id)o.war=null;
+function makePeace(t,o){closeWar(t.id,o.id,'barış anlaşması');if(t.war&&t.war.target===o.id)t.war=null;if(o.war&&o.war.target===t.id)o.war=null;
   sim.rel[t.id][o.id]=sim.rel[o.id][t.id]=-8;t.weariness*=0.4;o.weariness*=0.4;
   sim.truce[t.id][o.id]=sim.truce[o.id][t.id]=sim.tick+700;   // ateşkes: hemen yeniden savaşamaz
   logEvent(`🕊 ${t.name} ile ${o.name} barıştı`,'#9fb');}
@@ -994,13 +1002,13 @@ function maybeLegend(a,oldAge,where){
 
 /* ---------- Hikâyeler: olayları puanla, yılda en ilginç 3'ünü öne çıkar (Dwarf Fortress "Legends" fikri) ---------- */
 const isRulerOf=a=>{const t=sim.tribes[a.tribe];return t&&t.ruler===a.id;};
-function story(kind,score,text,id,nolog){if(UI&&id!=null&&typeof toast==='function'&&watchIds.includes(id)&&kind!=='kıtlık')toast(text,'watch',{id});if(!sim.yrStories)sim.yrStories=[];sim.yrStories.push({t:sim.tick,kind,score,text,id,nolog});}
+function story(kind,score,text,id,nolog){if(!sim.yrStories)sim.yrStories=[];sim.yrStories.push({t:sim.tick,kind,score,text,id,nolog});}
 function flushStories(){const Y=sim.yrStories||[];sim.yrStories=[];if(!Y.length)return;
   Y.sort((a,b)=>(b.score+rng()*0.9)-(a.score+rng()*0.9));const used=new Set();let n=0;   // yılın en ilginç 3 olayı, her türden en fazla bir tane
   for(const e of Y){if(used.has(e.kind))continue;used.add(e.kind);sim.stories.unshift(e);if(!e.nolog){const tr=[];for(const t of sim.tribes)if(t.name&&e.text.includes(t.name))tr.push(t.id);pushLog({t:e.t,kind:/yağma/.test(e.kind)?'savaş':/kıtlık|salgın|hasat/.test(e.kind)?'doğa':'aile',text:e.text,color:null,tr,pp:e.id!=null?[e.id]:[]});}if(++n>=3)break;}if(sim.stories.length>40)sim.stories.length=40;renderStories();}
 function renderStories(){renderYearly();const el=document.getElementById('stories');if(!el||!sim.stories)return;
   if(!sim.stories.length){el.innerHTML='<div class="empty">Her yıl en ilginç olaylar burada belirir.</div>';return;}
-  el.innerHTML=sim.stories.slice(0,9).map(e=>`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px;line-height:1.45"><span style="color:#5b6376;font-family:var(--mono);font-size:9.5px">Y${Math.floor(e.t/CFG.yearLen)}</span> ${e.text} ${e.id!=null&&sim.byId&&sim.byId.get(e.id)?`<a href="#" onclick="followId(${e.id});return false" style="color:#9ec5ff;white-space:nowrap">→ takip et</a>`:''}</div>`).join('');}
+  el.innerHTML=sim.stories.slice(0,9).map(e=>`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px;line-height:1.45"><span style="color:#5b6376;font-family:var(--mono);font-size:11.5px">Y${Math.floor(e.t/CFG.yearLen)}</span> ${e.text} ${e.id!=null&&sim.byId&&sim.byId.get(e.id)?`<a href="#" onclick="followId(${e.id});return false" style="color:#9ec5ff;white-space:nowrap">→ takip et</a>`:''}</div>`).join('');}
 function followId(id){selectedId=id;showTab('bire');view.follow=true;view.z=Math.max(view.z,2.4);followBtn.classList.add('primary');renderInspect();render();}
 
 /* ---------- Demografi: ölüm tehlikesi, doğurganlık, salgın ---------- */
@@ -1140,7 +1148,8 @@ function step(){
     if(CFG.fields&&t.pop>=30){const hv=t._harvY||0,r=hv/t.pop,base=t._hvR,ppl=Math.round(hv*CFG.foodEnergy/(CFG.drain*CFG.yearLen));
       if(base!=null&&sim.tick>CFG.yearLen*6){if(r<base*0.55)note('hasat',6,ppl<1?`Kötü hasat: ${at} neredeyse hiç ürün kaldırılamadı`:`Kötü hasat: ${at} ambarlara yalnızca ~${ppl} kişilik yıllık yiyecek girdi`);else if(r>base*1.6)note('hasat',5,`Bereketli hasat: ${at} ambarlara ~${ppl} kişilik yıllık yiyecek girdi`);}
       t._hvR=base==null?r:base*0.8+r*0.2;}
-    t._starveY=0;t._epiY=0;t._harvY=0;}
+    t._starveLast=t._starveY||0;t._starveY=0;t._epiY=0;t._harvY=0;}
+  for(const w of (sim.wars||[]))if(w.end==null){const A=tribes[w.a],B=tribes[w.b];if(!((A.war&&A.war.target===w.b)||(B.war&&B.war.target===w.a))){w.end=sim.tick;w.out=(A._dead||B._dead)?'bir taraf yıkıldı':'sona erdi';}}
   sim.vit.starve=0;sim.vit.epi=0;dmExposure();{const yy=Math.floor(sim.tick/CFG.yearLen);for(const t of tribes){if(t._dead&&t._fell==null)t._fell=sim.tick;if(!t._dead||t._fell===sim.tick){t.popHist.push([yy,t._dead?0:t.pop]);if(t.popHist.length>420)t.popHist.shift();}}}{const y0=Math.floor(sim.tick/CFG.yearLen)-1,inY=e=>Math.floor((e.t||0)/CFG.yearLen)===y0,L=(sim.log||[]).filter(inY),ct=re=>L.filter(e=>re.test(e.text)).length;
     (sim.yearly=sim.yearly||[]).unshift({y:y0,pop:sim.agents.length,k:tribes.filter(t=>!t._dead).length,b:sim.vit.b,d:sim.vit.d,m:sim.vit.m||0,war:ct(/savaş açtı|İHANET/),rev:ct(/İSYAN|darbe|dağıldı/),thr:ct(/tahtına çıktı/),fam:ct(/Kıtlık/),epi:ct(/Salgın|salgın başladı/)});if(sim.yearly.length>80)sim.yearly.pop();sim.vit.m=0;}
   updateEpidemics();sim.vit.lb=sim.vit.b;sim.vit.ld=sim.vit.d;sim.vit.b=0;sim.vit.d=0;flushStories();}
@@ -1167,7 +1176,7 @@ function step(){
     if(a.spouse!=null){const sp=sim.byId.get(a.spouse);if(sp&&sp.spouse===a.id){const kids=sp.children.filter(id=>{const c=sim.byId.get(id);return c&&lifeStage(c)==='child';}).length;if(kids>=3)story('dul',5,`${sp.name} ${sp.surname}, ${kids} küçük çocuğuyla dul kaldı`,sp.id);}}
     for(const rid of [a.spouse,...a.parents,...a.children]){const r=rid!=null?sim.byId.get(rid):null;if(r&&r!==a){addMem(r,'kinLost',violent?-0.9:-0.6,rid===a.spouse?0.95:0.75,a.id);   // yas
         if(r.rel.has(a.id)&&r.goal&&r.goal.target===a.id)r.goal=null;}}
-    if(violent){const k=a._killer;
+    if(violent){const k=a._killer;{const w=openWar(a.tribe,k.tribe);if(w){if(a.tribe===w.a)w.da++;else w.db++;}}
       for(const rid of [a.spouse,...a.parents,...a.children]){const r=rid!=null?sim.byId.get(rid):null;if(r&&r!==a)bump(r,k,-55);}   // yakınları katilden nefret eder
       k.energy=Math.min(CFG.energyMax,k.energy+CFG.lootEnergy);k.kills++;tribes[k.tribe].kills++;
       if(a.spouse!=null||a.children.length)story('ölüm',6,`${a.name} ${a.surname}, ${k.name} ${ek(k.surname,'gen')} elinde öldü; ailesi yas tutuyor`,k.id);
@@ -1194,7 +1203,7 @@ function step(){
         sim.agents=sim.agents.filter(a=>a.energy>0);
         for(const c of t.cities){c.hp=CFG.cityHP*0.6;conq.cities.push(c);} t.cities=[]; // şehirleri imparatorluğa kat
         conq.legit=Math.max(0.3,conq.legit-0.12); // fethedilen halk huzursuz → hafif aşırı-genişleme
-        logEvent(`👑 ${conq.name}, ${ek(t.name,'acc')} FETHETTİ`,conq.color);}
+        closeWar(conq.id,t.id,`${conq.name} ${ek(t.name,'acc')} fethetti`);logEvent(`👑 ${conq.name}, ${ek(t.name,'acc')} FETHETTİ`,conq.color);}
       else logEvent(`${t.name} çöktü`,'#ff6b6b');
       for(const o of tribes)if(o.war&&o.war.target===t.id)o.war=null;recount();}}
 
@@ -1312,8 +1321,10 @@ function buildOverlay(){const OW=Math.ceil(W/OVR),OH=Math.ceil(H/OVR);
     const edge=(i>0&&own[j*OW+i-1]!==o)||(i<OW-1&&own[j*OW+i+1]!==o)||(j>0&&own[(j-1)*OW+i]!==o)||(j<OH-1&&own[(j+1)*OW+i]!==o),c=cols[o];
     d[p]=c[0];d[p+1]=c[1];d[p+2]=c[2];d[p+3]=edge?200:fillA;}
   g.putImageData(img,0,0);ovTick=sim._terrTick;}
+function pixelScale(){const cw=typeof cv.clientWidth==='number'?cv.clientWidth:0;if(!(cw>0))return 1;return Math.min(2,Math.max(1,Math.round(cw*(window.devicePixelRatio||1)/W)));}   // geniş/yüksek yoğunluklu ekranda bulanıklığı önle
 function render(){
   animT++;
+  {const S=pixelScale();if(cv.width!==W*S){cv.width=W*S;cv.height=H*S;}ctx.setTransform(S,0,0,S,0,0);ctx.imageSmoothingEnabled=true;}
   const dn=document.getElementById('dateNow');if(dn)dn.textContent=dateStr(sim.tick)+(sim.climate&&sim.climate.mul<1?'  ·  ☀ KURAKLIK':'');
   ctx.clearRect(0,0,W,H);
   const sel0=selectedId!=null&&sim.byId?sim.byId.get(selectedId):null;
@@ -1386,6 +1397,11 @@ function drawMini(){const mc=document.getElementById('mini');if(!mc||!mc.getCont
   const hw=W/(2*view.z),hh=H/(2*view.z);g.strokeStyle='#ffe9a8';g.lineWidth=1.4;g.strokeRect((view.cx-hw)/W*mw,(view.cy-hh)/H*mh,2*hw/W*mw,2*hh/H*mh);}
 
 /* ---------- Paneller ---------- */
+function kBadges(t){const f=t.cities.length?t.cities.reduce((q,c)=>q+c.food,0)/(t.cities.length*CFG.granaryCap):1,b=[];
+  if((t._starveLast||0)>=3||f<0.1)b.push('<span class="bdg bd-k" title="geçen yıl açlıktan ölüm ya da boş ambar">☠ kıtlık</span>');
+  if((t.unrest||0)>0.12)b.push('<span class="bdg bd-h" title="isyana eğilimli yetişkinlerin oranı">⚑ huzursuz</span>');
+  if(t._epi)b.push('<span class="bdg bd-s" title="salgın sürüyor">✚ salgın</span>');
+  return b.length?' '+b.join(' '):'';}
 function kStatus(t){if(t._dead)return `<span style="color:#ff6b6b">düştü</span>`;
   if(t.war){const o=sim.tribes[t.war.target];return `<span style="color:#ff6b6b">⚔ ${o?o.name:''} (yorgunluk ${t.weariness|0})</span>`;}
   const rels=[];for(const o of sim.tribes){if(o.id===t.id||o._dead)continue;const tr=sim.tr[t.id][o.id];
@@ -1415,26 +1431,26 @@ function metrics(){const y=Math.floor(sim.tick/CFG.yearLen),W=40;let n=0,ageSum=
 function renderMetrics(){const el=document.getElementById('metrics');if(!el||!sim)return;const m=metrics();
   if(m.y<20||m.n<50){el.innerHTML='<div class="empty">Ölçümler 20. yıldan sonra anlamlı hale gelir.</div>';return;}
   const pct=v=>v==null?'—':(v*100).toFixed(0)+'%',row=(k,v,ref)=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span>${k}</span><span><b style="font-family:var(--mono)">${v}</b> <span style="color:#5b6376">${ref}</span></span></div>`;
-  el.innerHTML=`<div style="font-size:11px;line-height:1.5">`+
+  el.innerHTML=`<div style="font-size:12px;line-height:1.5">`+
    row('doğumda beklenen ömür',m.meanAge!=null?m.meanAge.toFixed(1):'—','hedef 28-38')+
    row('15 yaşa ulaşan',pct(m.reach15),'hedef %50-70')+
    row('doğurganlık (çocuk/kadın)',m.tfr!=null?m.tfr.toFixed(1):'—','hedef 4-7')+
    row('ölüm: hastalık/yaşlılık',pct(m.old),'')+row('ölüm: açlık',pct(m.hunger),'')+row('ölüm: savaş/şiddet',pct(m.war),'hedef %4-25')+row('ölüm: doğum',pct(m.birth),'')+
-   `<div style="color:#5b6376;font-size:9.5px;margin-top:6px">Son 40 yıl. Hedef aralıklar kaynaklardan gelen geniş tahminlerdir, kesin değer değildir (docs/SOURCES.md).</div></div>`;}
+   `<div style="color:#5b6376;font-size:11.5px;margin-top:6px">Son 40 yıl. Hedef aralıklar kaynaklardan gelen geniş tahminlerdir, kesin değer değildir (docs/SOURCES.md).</div></div>`;}
 function renderPyramid(){const el=document.getElementById('pyramid');if(!el||!sim)return;
   const M=new Array(8).fill(0),F=new Array(8).fill(0);for(const a of sim.agents){const b=Math.min(7,Math.floor(ageYears(a)/10));(a.sex==='F'?F:M)[b]++;}
   const mx=Math.max(1,...M,...F);
-  let h=`<div style="font-size:11px;color:var(--muted);margin-bottom:6px">${sim.agents.length} kişi · geçen yıl <b style="color:#7ee081">+${sim.vit.lb}</b> doğum, <b style="color:#ff9b5b">−${sim.vit.ld}</b> ölüm · ${SEASONS[seasonIdx(sim.tick)]}</div><div style="display:grid;grid-template-columns:1fr 36px 1fr;gap:3px 4px;align-items:center;font-size:9.5px;color:var(--muted)">`;
+  let h=`<div style="font-size:12px;color:var(--muted);margin-bottom:6px">${sim.agents.length} kişi · geçen yıl <b style="color:#7ee081">+${sim.vit.lb}</b> doğum, <b style="color:#ff9b5b">−${sim.vit.ld}</b> ölüm · ${SEASONS[seasonIdx(sim.tick)]}</div><div style="display:grid;grid-template-columns:1fr 36px 1fr;gap:3px 4px;align-items:center;font-size:11.5px;color:var(--muted)">`;
   for(let b=7;b>=0;b--){h+=`<div style="display:flex;justify-content:flex-end"><div style="height:7px;width:${M[b]/mx*100}%;background:#7aa2f7;border-radius:2px 0 0 2px"></div></div><div style="text-align:center;font-family:var(--mono)">${b*10}${b===7?'+':''}</div><div><div style="height:7px;width:${F[b]/mx*100}%;background:#f0a6d0;border-radius:0 2px 2px 0"></div></div>`;}
-  el.innerHTML=h+'</div><div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:4px"><span>erkek</span><span>yaş</span><span>kadın</span></div>';}
+  el.innerHTML=h+'</div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:4px"><span>erkek</span><span>yaş</span><span>kadın</span></div>';}
 function updateStats(){renderPyramid();renderMetrics();renderCityCard();renderWatch();const deadIds=sim.tribes.filter(t=>t._dead).map(t=>t.id),hide=new Set(deadIds.slice(0,Math.max(0,deadIds.length-3)));
-  document.querySelector('#stats tbody').innerHTML=(hide.size?`<tr><td style="color:var(--muted);font-size:11px">${hide.size} eski krallık düştü</td><td></td></tr>`:'')+sim.tribes.filter(t=>!hide.has(t.id)).map(t=>{
+  document.querySelector('#stats tbody').innerHTML=(hide.size?`<tr><td style="color:var(--muted);font-size:12px">${hide.size} eski krallık düştü</td><td></td></tr>`:'')+sim.tribes.filter(t=>!hide.has(t.id)).slice().sort((x,y)=>(x._dead?1:0)-(y._dead?1:0)||y.pop-x.pop).map(t=>{
   if(t._dead)return `<tr><td style="opacity:.45"><span class="kname">${t.name}</span><div class="krow">düştü</div></td><td style="text-align:right">—</td></tr>`;
   const c=t.counts;return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></span>
     <span class="kname">${t.name}</span>
     <div class="krow">${t.ruler!=null&&sim.byId.get(t.ruler)?`👑 <a href="#" onclick="selectLegend(${t.ruler});return false" style="color:#e5c07b">${sim.byId.get(t.ruler).name}</a> (${t.dynasty}) · `:''}şehir ${t.cities.length} · toprak ${t.land} · <b>${ERA5[t.era-1]}</b> (${Object.keys(t.techs).length} buluş)${t.cultId&&t.cultId!=='—'?` · <span style="color:#c9a3e5">◈ ${t.cultId}</span>`:''} · meşruiyet ${(t.legit*100)|0}%${t.unrest>0.15?` · <span style="color:#ff6b6b">huzursuzluk ${(t.unrest*100)|0}%</span>`:''}</div>
     <div class="roles"><span>●${c.FARMER||0}</span><span>▲${c.SOLDIER||0}</span><span>✚${c.DOCTOR||0}</span><span>◆${c.MERCHANT||0}</span><span>✦${c.SPY||0}</span><span>⚒${c.ARTISAN||0}</span><span>☩${c.PRIEST||0}</span><span style="opacity:.6">çocuk ${c.CHILD||0}</span></div>
-    <div class="status">${kStatus(t)}</div></td><td style="text-align:right;font-family:var(--mono)">${t.pop}</td></tr>`;}).join('');renderLegends();}
+    <div class="status">${kStatus(t)}${kBadges(t)}</div></td><td style="text-align:right;font-family:var(--mono)">${t.pop}</td></tr>`;}).join('');renderLegends();}
 const STAGE_TR={child:'çocuk',adult:'yetişkin',elder:'yaşlı'};
 function moodLabel(a){
   if(a.rebel)return '⚑ öfkeli, isyanda';
@@ -1447,6 +1463,9 @@ const ACT_TR={TILL:'tarlayı ekiyor',HARVEST:'hasat yapıyor',FLEE:'kaçıyor',F
 const GOAL_TR={REVENGE:'intikam almak',MATE:'eş bulmak',KIN:'ailesinin yanında olmak',FRIEND:'dostunu görmek'};
 /* "Neden bunu yapıyor?": mevcut durumdan okunur gerekçeler (karar puanları seçili kişi için ayrıca saklanır) */
 function whyAct(a){const t=sim.tribes[a.tribe],P=a.pers,R=[],hun=1-a.energy/CFG.energyMax,se=seasonIdx(sim.tick),act=a.act,role=ROLE_TR[a.role]||'';
+  if(a.rebel)R.push(`isyancı: hoşnutluğu %${((a.content??0.6)*100)|0}, ${t?t.name:'krallık'} meşruiyeti %${t?((t.legit*100)|0):'?'}`);
+  if(isRulerOf(a)){const yrs=Math.round((sim.tick-(a.reignStart||0))/CFG.yearLen),tr=[];if(t){if(t.ambition>0.6)tr.push('hırslı');if(t.loyalty>0.6)tr.push('sadakate önem veren');if(t.cunning>0.6)tr.push('kurnaz');if(t.greed>0.6)tr.push('açgözlü');if(t.innov>0.6)tr.push('yenilikçi');}
+    R.push(`${yrs} yıldır hükümdar${tr.length?'; krallığın tutumu '+tr.slice(0,2).join(', '):''}`);}
   const hasEnemy=!!(t&&t.war);
   if(act==='EAT_STORE'||act==='EAT_FIELD')R.push(`acıkmış (enerji ${a.energy|0}/${CFG.energyMax})`);
   else if(act==='FLEE')R.push('yakınında düşman var');
@@ -1460,7 +1479,7 @@ function whyAct(a){const t=sim.tribes[a.tribe],P=a.pers,R=[],hun=1-a.energy/CFG.
   else if(act==='WANDER')R.push('yapacak acil işi yok');
   else if(act==='SEEK'||act==='VENGEANCE'){const g=a.goal;R.push(g?`hedefi: ${GOAL_TR[g.type]||g.type}`:'biriyle buluşacak');}
   else if(act==='RETURN')R.push(a.pregUntil>0?'hamile: eve yakın kalıyor':'topraklarının dışında, eve dönüyor');
-  else if(act==='COURT')R.push('hükümdar: sarayda kalır');
+  else if(act==='COURT')R.push('sarayda krallığı yönetiyor');
   else if(act==='TRADE_RUN')R.push('ticaret yoluyla komşu krallığa gidiyor');
   else if(act==='ESPIONAGE')R.push('krallığın gizli bir hedefi var');
   if(a.pregUntil>0&&act!=='RETURN')R.push('hamile');
@@ -1475,21 +1494,22 @@ function whyAct(a){const t=sim.tribes[a.tribe],P=a.pers,R=[],hun=1-a.energy/CFG.
     if(act==='SEEK'&&P.E>0.65)R.push('girişken, insanlarla olmayı seviyor');}
   if(!R.length)R.push(role?`${role}`:'günlük işi');
   return R.slice(0,4);}
+const dedupe=a=>[...new Set(a)];
 function needBar(label,v,col,txt){return `<div class="nb"><span>${label}</span><div class="nbb"><i style="width:${(clamp(v)*100)|0}%;background:${col}"></i></div><b>${txt}</b></div>`;}
 function topTraits(a){const all=[...T5.map(k=>[a.pers[k]-0.5,a.pers[k]>=0.5?P_HI[k]:P_LO[k]]),...V4.map(k=>[a.vals[k]-0.5,({trad:['gelenekçi','yenilikçi'],comm:['cemaatçi','bireyci'],honor:['onurlu','çıkarcı'],curio:['meraklı','kayıtsız']})[k][a.vals[k]>=0.5?0:1]])];
-  return all.sort((x,y)=>Math.abs(y[0])-Math.abs(x[0])).slice(0,3).map(x=>x[1]);}
+  return dedupe(all.sort((x,y)=>Math.abs(y[0])-Math.abs(x[0])).map(x=>x[1])).slice(0,3);}
 function renderInspect(){const el=document.getElementById('inspect');if(selectedId!=null&&selCity){selCity=null;const cc=document.getElementById('cityCard');if(cc)cc.style.display='none';}
   const a=sim.agents.find(x=>x.id===selectedId)||(sim.legends||[]).find(x=>x.id===selectedId)||(selectedId!=null&&sim.arch&&sim.arch.get(selectedId)?null:null);
-  if(!a){el.innerHTML='<div class="empty">Haritada bir figüre tıkla, <b>Kişiler</b> sekmesinden birini seç ya da <button onclick="randomInteresting()" style="padding:3px 9px;font-size:11px">🎲 ilginç bir kişi</button> göster.</div>';return;}
+  if(!a){el.innerHTML='<div class="empty">Haritada bir figüre tıkla, <b>Kişiler</b> sekmesinden birini seç ya da <button onclick="randomInteresting()" style="padding:3px 9px;font-size:12px">🎲 ilginç bir kişi</button> göster.</div>';return;}
   const t=sim.tribes[a.tribe],dead=!!a.diedAt,yr=Math.round(dead?(a.diedAt-a.born)/CFG.yearLen:ageYears(a)),stage=dead?'—':(a.role==='CHILD'?'çocuk':STAGE_TR[lifeStage(a)]);
-  const actTxt=a.rebel?'İSYANDA':(ACT_TR[a.act]||'');const watched=watchIds.includes(a.id);
+  const actTxt=a.rebel?`<span style="color:#ff8a7a">⚑ isyanda</span> · ${ACT_TR[a.act]||''}`:(ACT_TR[a.act]||'');const watched=watchIds.includes(a.id);
   const opts=!dead&&a._opts&&a._optsT>=sim.tick-4?a._opts.map(([k,v])=>`<div class="opt"><span>${ACT_TR[k]||k}</span><div class="nbb"><i style="width:${Math.min(100,v*100)|0}%"></i></div><b>${v.toFixed(2)}</b></div>`).join(''):'';
   el.innerHTML=`<div class="phead"><canvas id="pFig" width="72" height="96"></canvas><div class="pinfo">
       <div class="pname" style="color:${a.color}">${a.name} <span>${a.surname}</span></div>
       <div class="ptitle">${legendTitle(a)}</div>
       <div class="psub">${t?`<a href="#" class="lgl" style="color:${t.color}" onclick="openLegends('kral',${t.id});return false">${t.name}</a>`:'?'} · ${dead?'† '+a.deathCause:ROLE_TR[a.role]+' · '+stage}</div>
       <div class="psub">${yr} yaşında · ${a.sex==='F'?'kadın':'erkek'} · ${a.gen}. nesil${a.kills?` · ${a.kills} zafer`:''}</div>
-      <div class="pbtn">${dead?'':`<button onclick="followId(${a.id})">🔍 Takip</button><button onclick="toggleWatch(${a.id})">${watched?'★ Listede':'☆ Listeye ekle'}</button>`}<button onclick="openLegends('kisi',${a.id})">📜 Sayfası</button></div></div></div>
+      <div class="pbtn">${dead?'':`<button onclick="followId(${a.id})">🔍 Kamera</button><button onclick="toggleWatch(${a.id})">${watched?'★ İzleme listesinde':'☆ İzleme listesine ekle'}</button>`}<button onclick="openLegends('kisi',${a.id})">📜 Sayfası</button></div></div></div>
     ${dead?'':`<div class="pnow"><div class="pnowh">ŞU AN</div><div class="pact">${actTxt}</div>
       <div class="why"><b>Neden?</b> ${whyAct(a).join(' · ')}</div>${opts?`<details class="opts"><summary>Karar puanları</summary>${opts}<div class="hint">En yüksek puan (±0,12 içindekiler arasından rastgele) seçilir.</div></details>`:''}</div>
     <div class="needs">${needBar('enerji',a.energy/CFG.energyMax,a.energy/CFG.energyMax>0.4?'#9bbf5a':'#e0603a',a.energy|0)}${needBar('hoşnutluk',a.content??0.6,'#d9a441',((a.content??0.6)*100|0)+'%')}${needBar('korku',a.fear??0,'#b0605a',(((a.fear??0)*100)|0)+'%')}<div class="mood">ruh hâli: <b>${moodLabel(a)}</b></div></div>`}
@@ -1505,7 +1525,7 @@ let watchIds=[];
 function toggleWatch(id){const i=watchIds.indexOf(id);if(i>=0)watchIds.splice(i,1);else{if(watchIds.length>=8)watchIds.shift();watchIds.push(id);}renderWatch();renderInspect();}
 function renderWatch(){const el=document.getElementById('watchBar');if(!el||!sim)return;
   for(const id of watchIds){const a=sim.byId&&sim.byId.get(id);if(!a)continue;const n=(a.events||[]).length;if(a._wLen==null)a._wLen=n;else if(n>a._wLen){for(const e of a.events.slice(a._wLen))toast(`${a.name}: ${e.e}`,'watch',{id});a._wLen=n;}}
-  if(!watchIds.length){el.innerHTML='<span class="empty" style="font-size:13px">Takip listesi boş: bir kişinin kartında ☆ ile ekle (en çok 8).</span>';return;}
+  if(!watchIds.length){el.innerHTML='<span class="empty" style="font-size:13px">İzleme listesi boş: bir kişinin kartında ☆ ile ekle (en çok 8); başına olay gelince bildirim çıkar.</span>';return;}
   el.innerHTML=watchIds.map(id=>{const P=getPerson(id);if(!P)return '';const a=P.a,live=P.live,mood=live?clamp(a.content??0.6):0;
     const col=live?`hsl(${Math.round(mood*120)},60%,50%)`:'#6a6a6a',st=live?(ACT_TR[a.act]||''):'† '+(a.cause||'');
     return `<div class="wchip ${selectedId===id?'on':''}" style="border-color:${col}" onclick="${live?`followId(${id})`:`openLegends('kisi',${id})`}" title="${esc(a.name+' '+a.surname)} · ${esc(st)}"><canvas width="22" height="30" data-w="${id}"></canvas><span class="wn">${esc(a.name)}</span><span class="wx" onclick="event.stopPropagation();toggleWatch(${id})">×</span></div>`;}).join('');
@@ -1522,14 +1542,14 @@ function renderPeople(keep){const el=document.getElementById('peopleBox');if(!el
   el.innerHTML=`<div class="lgsearch" style="position:static"><input id="plQ" placeholder="isim ara…" value="${esc(PL.q)}" oninput="PL.q=this.value;renderPeople(true)">
     <div style="display:flex;gap:6px;margin-bottom:6px"><select id="plT" onchange="PL.tribe=this.value;renderPeople()"><option value="hepsi">tüm krallıklar</option>${tribes.map(t=>`<option value="${t.id}" ${PL.tribe===String(t.id)?'selected':''}>${esc(t.name)}</option>`).join('')}</select>
     <select onchange="PL.role=this.value;renderPeople()"><option value="hepsi">tüm meslekler</option>${ROLES.map(r=>`<option value="${r}" ${PL.role===r?'selected':''}>${ROLE_TR[r]}</option>`).join('')}</select></div>
-    <div style="display:flex;justify-content:space-between;align-items:center"><span class="lgsub">${total} kişi${total>80?' (en ilginç 80)':''}</span><button onclick="randomInteresting()" style="padding:4px 10px;font-size:11px">🎲 ilginç birey</button></div></div>`+
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="lgsub">${total} kişi${total>80?' (en ilginç 80)':''}</span><button onclick="randomInteresting()" style="padding:4px 10px;font-size:12px">🎲 ilginç birey</button></div></div>`+
     L.map(a=>{const t=sim.tribes[a.tribe];return `<div class="lgitem ${a.id===selectedId?'on':''}" onclick="followId(${a.id})"><span class="dot" style="background:${t?t.color:'#888'}"></span><span class="nm">${esc(a.name)} ${esc(a.surname)}${isRulerOf(a)?' ♛':''}</span><span class="mt">${esc(ROLE_TR[a.role]||'')} · ${Math.round(ageYears(a))}</span></div>`;}).join('');
   if(keep){const q2=document.getElementById('plQ');if(q2){q2.focus();q2.setSelectionRange(q2.value.length,q2.value.length);}}}
 const P_HI={O:'meraklı',C:'disiplinli',E:'girişken',A:'yumuşak huylu',N:'kaygılı'},P_LO={O:'gelenekçi',C:'başıboş',E:'içedönük',A:'sert',N:'soğukkanlı'};
 const P_TR={O:'Açıklık',C:'Sorumluluk',E:'Dışadönüklük',A:'Uyumluluk',N:'Kaygı'},V_TR={trad:'Gelenek',comm:'Cemaat',honor:'Onur',curio:'Merak'};
 function persWords(a){const sc=T5.map(k=>[k,a.pers[k]-0.5]).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1])).slice(0,2);
   return sc.map(([k,d])=>d>=0?P_HI[k]:P_LO[k]).join(', ');}
-function traitBars(a){const bar=(l,v,c)=>`<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)"><span style="width:70px">${l}</span><div style="flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:2px"><div style="width:${(v*100)|0}%;height:100%;background:${c};border-radius:2px"></div></div></div>`;
+function traitBars(a){const bar=(l,v,c)=>`<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)"><span style="width:70px">${l}</span><div style="flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:2px"><div style="width:${(v*100)|0}%;height:100%;background:${c};border-radius:2px"></div></div></div>`;
   return T5.map(k=>bar(P_TR[k],a.pers[k],'#7aa2f7')).join('')+V4.map(k=>bar(V_TR[k],a.vals[k],'#e5c07b')).join('');}
 function lifeline(a){const end=a.diedAt!=null?a.diedAt:sim.tick,s0=a.born,span=Math.max(1,end-s0),W2=300;
   const X=t=>Math.max(3,Math.min(W2-3,(t-s0)/span*W2));
@@ -1552,7 +1572,7 @@ function famHTML(a,dead){const row=(l,v)=>v?`<div class="row"><span>${l}</span><
 function memHTML(a){if(!a.mem||!a.mem.length)return '';
   const top=[...a.mem].sort((x,y)=>memAct(y)*Math.abs(y.val)-memAct(x)*Math.abs(x.val)).slice(0,3);
   const goal=a.goal&&!a.diedAt?({REVENGE:'intikam',MATE:'eş arıyor',KIN:'ailesinin yanında olmak',FRIEND:'dostunu görmek'}[a.goal.type]||''):'';
-  return (goal?`<div class="row"><span>hedef</span><b>${goal}</b></div>`:'')+`<div style="margin-top:4px;color:var(--muted);font-size:10.5px;line-height:1.45">anılar: ${top.map(m=>`${m.val<0?'▾':'▴'} ${MEM_TR[m.type]||m.type} (Y${Math.floor(m.t/CFG.yearLen)})`).join(' · ')}</div>`;}
+  return (goal?`<div class="row"><span>hedef</span><b>${goal}</b></div>`:'')+`<div style="margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45">anılar: ${top.map(m=>`${m.val<0?'▾':'▴'} ${MEM_TR[m.type]||m.type} (Y${Math.floor(m.t/CFG.yearLen)})`).join(' · ')}</div>`;}
 function legendTitle(a){const P=[];
   if(a.events&&a.events.some(e=>e.e.includes('krallığını kurdu')))P.push('Kurucu');
   if(a.kills>=8)P.push('Büyük Fatih');else if(a.kills>=5)P.push('Fatih');else if(a.kills>=3)P.push('Savaşçı');
@@ -1568,14 +1588,14 @@ function renderLegends(){const el=document.getElementById('legends');if(!el)retu
     const meta=[a.kills>0?`${a.kills} zafer`:'',`${a.gen}. nesil`,`${yrs} yıl`].filter(Boolean).join(' · ');
     return `<div onclick="selectLegend(${a.id})" style="cursor:pointer;display:flex;gap:8px;align-items:center;padding:5px 6px;margin-bottom:3px;border-radius:7px;border:1px solid rgba(255,255,255,.05);border-left:3px solid ${a.color};background:rgba(255,255,255,.02)">
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px"><span style="color:${a.color};font-weight:600">${a.name} ${a.surname}</span> <span style="color:#e5c07b;font-size:10.5px">· ${legendTitle(a)}</span></div>
-        <div style="color:var(--muted);font-size:10px">${t?t.name:'?'} · ${meta}</div>
+        <div style="font-size:12px"><span style="color:${a.color};font-weight:600">${a.name} ${a.surname}</span> <span style="color:#e5c07b;font-size:12px">· ${legendTitle(a)}</span></div>
+        <div style="color:var(--muted);font-size:11.5px">${t?t.name:'?'} · ${meta}</div>
       </div></div>`;}).join('');}
 function selectLegend(id){selectedId=id;showTab('bire');renderInspect();}
 
 /* ---------- Döngü & kontroller ---------- */
 let effSteps=1,effN=0;
-function loop(){if(playing){const t0=performance.now();let n=0;for(let i=0;i<stepsPerFrame;i++){step();n++;if(performance.now()-t0>26)break;}effSteps=effSteps*0.92+n*0.08;
+function loop(){if(playing){const t0=performance.now();let n=0;for(let i=0;i<stepsPerFrame;i++){step();n++;if(performance.now()-t0>26)break;}effSteps=effSteps*0.97+n*0.03;
     if(++effN%20===0){const el=document.getElementById('effSpd');if(el){const low=stepsPerFrame>1&&effSteps<stepsPerFrame*0.88;el.style.display=low?'inline-block':'none';el.textContent='gerçek hız ≈'+effSteps.toFixed(1)+'×';el.title='Bilgisayar istenen hızı yetiştiremiyor (çok kişi var)';}}}
   render();requestAnimationFrame(loop);}
 document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'❚❚':'▶';};
@@ -1598,8 +1618,8 @@ followBtn.onclick=()=>{if(selectedId==null){const t=sim.tribes.find(x=>!x._dead&
   view.follow=!view.follow;followBtn.classList.toggle('primary',view.follow);if(view.follow&&view.z<2)view.z=2.4;if(!view.follow&&view.z<=2.4){view.z=1;}};
 cv.addEventListener('pointerdown',e=>{const p=canvasXY(e),z=Math.max(1,view.z);let best=null,bd=Math.pow(14/z+2,2);for(const a of sim.agents){const d=(a.x-p.x)**2+(a.y-p.y)**2;if(d<bd){bd=d;best=a;}}
   if(e.shiftKey){for(let i=0;i<60;i++)sim.food.push({x:p.x+rndUI(-40,40),y:p.y+rndUI(-40,40)});return;}                      // Shift+tık: tanrının eli, yiyecek yağdır
-  let bc=null,bcd=Math.pow(17/z,2);for(const t of sim.tribes){if(t._dead)continue;t.cities.forEach((c,idx)=>{const d=(c.x-p.x)**2+(c.y-p.y)**2;if(d<bcd){bcd=d;bc={tid:t.id,idx};}});}
-  if(bc&&(!best||bd>Math.pow(5/z,2))){selectCity(bc.tid,bc.idx);render();return;}                                              // şehir simgesi, yanındaki figürlerden önceliklidir
+  let bc=null,bcd=Math.pow(24/z,2);for(const t of sim.tribes){if(t._dead)continue;t.cities.forEach((c,idx)=>{const d=(c.x-p.x)**2+(c.y-p.y)**2;if(d<bcd){bcd=d;bc={tid:t.id,idx};}});}
+  if(bc&&(!best||bd>Math.pow(3/z,2))){selectCity(bc.tid,bc.idx);render();return;}                                              // şehir simgesi, yanındaki figürlerden önceliklidir
   if(best){selectedId=best.id;showTab('bire');renderInspect();render();return;}
   if(selectedId!=null||selCity){selectedId=null;selCity=null;view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}renderCityCard();renderInspect();render();}});
 
@@ -1611,17 +1631,18 @@ document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(t
   else if(e.key==='+'||e.key==='='){const sp=document.getElementById('speed');sp.value=Math.min(8,+sp.value*2);sp.oninput();}
   else if(e.key==='-'){const sp=document.getElementById('speed');sp.value=Math.max(1,Math.round(+sp.value/2));sp.oninput();}
   else if(e.key==='f'||e.key==='F'){followBtn.click();}
-  else if(e.key==='Escape'){for(const id of ['histOverlay','techOverlay','cultOverlay','chronOverlay'])document.getElementById(id).style.display='none';}});
+  else if(e.key==='Escape'){let closed=false;for(const id of ['histOverlay','techOverlay','cultOverlay','chronOverlay']){const o=document.getElementById(id);if(o.style.display==='block'){o.style.display='none';closed=true;}}if(!closed){selectedId=null;selCity=null;view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}renderCityCard();renderInspect();render();}}
+  else if(e.key==='?'){showTab('ayar');}});
 
 /* ======================= LEGENDS: ansiklopedik tarih gezintisi ======================= */
 const LG={tab:'dunya',sel:null,q:'',filt:'hepsi',kfilt:'hepsi',stack:[]};
 const yrOf=t=>Math.floor((t||0)/CFG.yearLen);
 const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function getPerson(id){const a=sim.byId&&sim.byId.get(id);if(a)return {live:true,a};const r=sim.arch&&sim.arch.get(id);return r?{live:false,a:r}:null;}
+function getPerson(id){const a=sim.byId&&sim.byId.get(id);if(a&&a.energy>0)return {live:true,a};const r=sim.arch&&sim.arch.get(id);return r?{live:false,a:r}:null;}
 function lgPersonLink(id,fallback){const p=getPerson(id);if(!p)return esc(fallback||'?');const a=p.a;return `<a href="#" class="lgl" onclick="lgGo('p',${id});return false">${esc(a.name)} ${esc(a.surname)}${p.live?'':' †'}</a>`;}
 function lgTribeLink(id){const t=sim.tribes[id];if(!t)return '?';return `<a href="#" class="lgl" style="color:${t.color}" onclick="lgGo('k',${id});return false">${esc(t.name)}</a>`;}
 function lgLinkText(text,tr){let h=esc(text);for(const id of (tr||[])){const t=sim.tribes[id];if(t)h=h.split(esc(t.name)).join(`<a href="#" class="lgl" style="color:${t.color}" onclick="lgGo('k',${id});return false">${esc(t.name)}</a>`);}return h;}
-function lgGo(type,id,noPush){if(!noPush)LG.stack.push({tab:LG.tab,sel:LG.sel,q:LG.q,filt:LG.filt,kfilt:LG.kfilt});LG.sel={type,id};LG.tab=type==='p'?'kisi':type==='k'?'kral':LG.tab;renderLegends();const d=document.getElementById('lgDetail');if(d)d.scrollTop=0;}
+function lgGo(type,id,noPush){if(!noPush)LG.stack.push({tab:LG.tab,sel:LG.sel,q:LG.q,filt:LG.filt,kfilt:LG.kfilt});LG.sel={type,id};LG.tab=type==='p'?'kisi':type==='k'?'kral':type==='w'?'sav':LG.tab;renderLegends();const d=document.getElementById('lgDetail');if(d)d.scrollTop=0;}
 function lgBack(){const p=LG.stack.pop();if(p){LG.tab=p.tab;LG.sel=p.sel;LG.q=p.q||'';LG.filt=p.filt||'hepsi';LG.kfilt=p.kfilt||'hepsi';renderLegends();}}
 function openLegends(tab,id){document.getElementById('histOverlay').style.display='block';if(tab==='kral'&&id!=null){LG.tab='kral';LG.sel={type:'k',id};}else if(tab==='kisi'&&id!=null){LG.tab='kisi';LG.sel={type:'p',id};}else if(tab){LG.tab=tab;LG.sel=null;}renderLegends();}
 function lgTab(t){LG.tab=t;LG.sel=null;LG.q='';LG.stack=[];renderLegends();}
@@ -1673,13 +1694,22 @@ function lgKingdomDetail(id){const t=sim.tribes[id];if(!t)return '';
    <h3>Nüfus</h3>${popChart([t],640,150,ev.slice().reverse())}
    <h3>Hükümdarlar</h3><table class="lgtab"><tbody>${t.rulers.slice().reverse().map(r=>`<tr><td>${lgPersonLink(r.id,r.name)}</td><td>Y${yrOf(r.from)} – ${r.to!=null?'Y'+yrOf(r.to):'şimdi'}</td><td>${esc(r.how)}</td></tr>`).join('')||'<tr><td>—</td></tr>'}</tbody></table>
    ${!fell?`<h3>Şehirler</h3><div class="lgsub">${t.cities.map((c,i)=>esc(c.name)+(i===0?' (başkent)':'')).join(' · ')}</div>`:''}
+   <h3>Savaşlar</h3><ul class="lgul">${(sim.wars||[]).filter(w=>w.a===id||w.b===id).slice().reverse().map(w=>`<li><a href="#" class="lgl" onclick="lgGo('w',${w.id});return false">${esc(sim.tribes[w.a].name)} ⚔ ${esc(sim.tribes[w.b].name)}</a> · Y${yrOf(w.start)}${w.end!=null?'–Y'+yrOf(w.end):' →'} · ${esc(w.reason)}${w.out?' · '+esc(w.out):''}</li>`).join('')||'<li>savaş kaydı yok</li>'}</ul>
    <h3>Olaylar</h3><ul class="lgul">${ev.map(e=>`<li><b>Y${yrOf(e.t)}</b> · ${lgLinkText(e.text,e.tr)}${e.pp&&e.pp.length?' → '+e.pp.map(x=>lgPersonLink(x)).join(', '):''}</li>`).join('')||'<li>kayıt yok</li>'}</ul>
    ${!fell?`<div style="margin-top:12px;display:flex;gap:8px"><button onclick="document.getElementById('histOverlay').style.display='none';openTech();document.getElementById('techKing').value=${id};renderTechTree(${id})">⚙ Bilim ağacı</button><button onclick="document.getElementById('histOverlay').style.display='none';openCult();document.getElementById('cultKing').value=${id};renderCultureTree(${id})">◈ Kültür ağacı</button></div>`:''}`;}
+function lgWarDetail(id){const w=(sim.wars||[])[id];if(!w)return '';const A=sim.tribes[w.a],B=sim.tribes[w.b],end=w.end!=null?w.end:sim.tick,yrs=((end-w.start)/CFG.yearLen);
+  const ev=(sim.log||[]).filter(e=>e.tr.includes(w.a)&&e.tr.includes(w.b)&&e.t>=w.start-1&&e.t<=end+1).sort((x,y)=>x.t-y.t);
+  return `<div class="lgback">${LG.stack.length?'<button onclick="lgBack()">← Geri</button>':''}</div>
+   <div class="lgname"><span style="color:${A.color}">${esc(A.name)}</span> ⚔ <span style="color:${B.color}">${esc(B.name)}</span></div>
+   <div class="lgsub">${w.end==null?'<b style="color:#e0584a">süren savaş</b>':'sona erdi'} · Y${yrOf(w.start)}${w.end!=null?' – Y'+yrOf(w.end):''} (${yrs.toFixed(1)} yıl)${w.betrayal?' · <b>ihanetle başladı</b>':''}</div>
+   <h3>Gerekçe ve taraflar</h3><div class="lgrow"><span>saldıran</span><span>${lgTribeLink(w.a)}${w.ruler!=null?' · hükümdar '+lgPersonLink(w.ruler):''}</span></div><div class="lgrow"><span>savunan</span><span>${lgTribeLink(w.b)}</span></div><div class="lgrow"><span>gerekçe</span><span>${esc(w.reason)}</span></div>
+   <h3>Kayıplar ve sonuç</h3><div class="lgrow"><span>${esc(A.name)}</span><span>${w.da} kişi öldürüldü</span></div><div class="lgrow"><span>${esc(B.name)}</span><span>${w.db} kişi öldürüldü</span></div><div class="lgrow"><span>sonuç</span><span>${w.out?esc(w.out):'henüz belli değil'}</span></div>
+   <h3>Olaylar</h3><ul class="lgul">${ev.map(e=>`<li><b>Y${yrOf(e.t)}</b> · ${lgLinkText(e.text,e.tr)}</li>`).join('')||'<li>kayıt yok</li>'}</ul>`;}
 function renderLegends(keepFocus){
   const el=document.getElementById('histBody');if(!el||!sim)return;
   const nPeople=sim.agents.length+(sim.arch?sim.arch.size:0);
   document.getElementById('histInfo').textContent=`yıl ${yrOf(sim.tick)} · ${nPeople} kişi kaydı · ${(sim.log||[]).length} olay · ${sim.tribes.length} krallık`;
-  const tabs=[['dunya','Dünya'],['kisi','Kişiler'],['kral','Krallıklar'],['olay','Olaylar'],['efs','Efsaneler']];
+  const tabs=[['dunya','Dünya'],['kisi','Kişiler'],['kral','Krallıklar'],['sav','Savaşlar'],['olay','Olaylar'],['efs','Efsaneler']];
   let list='',detail='';
   if(LG.tab==='dunya'){
     const marks=(sim.log||[]).filter(e=>['savaş','siyaset','doğa'].includes(e.kind)&&evMajor(e.text));
@@ -1699,10 +1729,14 @@ function renderLegends(keepFocus){
     const T=sim.tribes.slice().sort((x,y)=>(x._dead?1:0)-(y._dead?1:0)||y.pop-x.pop);
     list=T.map(t=>`<div class="lgitem ${LG.sel&&LG.sel.type==='k'&&LG.sel.id===t.id?'on':''}" onclick="lgGo('k',${t.id},true)"><span class="dot" style="background:${t.color}"></span><span class="nm">${esc(t.name)}</span><span class="mt">${t._dead?'yıkıldı Y'+yrOf(t._fell):t.pop+' kişi'}</span></div>`).join('');
     detail=LG.sel&&LG.sel.type==='k'?lgKingdomDetail(LG.sel.id):'<div class="empty">Soldan bir krallık seç.</div>';
+  }else if(LG.tab==='sav'){
+    const Wr=(sim.wars||[]).slice().sort((x,y)=>y.start-x.start);
+    list=Wr.map(w=>`<div class="lgitem ${LG.sel&&LG.sel.type==='w'&&LG.sel.id===w.id?'on':''}" onclick="lgGo('w',${w.id},true)"><span class="nm">${esc(sim.tribes[w.a].name)} ⚔ ${esc(sim.tribes[w.b].name)}</span><span class="mt">Y${yrOf(w.start)}${w.end==null?' →':'–Y'+yrOf(w.end)}</span></div>`).join('')||'<div class="empty">Henüz savaş yok.</div>';
+    detail=LG.sel&&LG.sel.type==='w'?lgWarDetail(LG.sel.id):'<div class="empty">Soldan bir savaş seç: gerekçe, süre, kayıplar, sonuç ve olay geçmişi.</div>';
   }else if(LG.tab==='olay'){
     const kinds=[['hepsi','Hepsi'],['savaş','Savaş'],['siyaset','Siyaset'],['aile','Aile'],['doğa','Doğa'],['kültür','Kültür']],q=LG.q.trim().toLocaleLowerCase('tr');
-    let L=(sim.log||[]).slice().sort((x,y)=>y.t-x.t);if(LG.filt!=='hepsi')L=L.filter(e=>e.kind===LG.filt);if(q)L=L.filter(e=>e.text.toLocaleLowerCase('tr').includes(q));const total=L.length;L=L.slice(0,400);
-    detail=`<div class="lgsearch" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><input id="lgQ" placeholder="olaylarda ara…" value="${esc(LG.q)}" oninput="lgSetQ(this.value)"><div class="lgchips">${kinds.map(([k,n])=>`<button class="${LG.filt===k?'on':''}" onclick="LG.filt='${k}';renderLegends()">${n}</button>`).join('')}</div><span class="lgsub">${total} olay${total>400?' (son 400)':''}</span></div>
+    let L=(sim.log||[]).slice().sort((x,y)=>y.t-x.t);if(LG.filt!=='hepsi')L=L.filter(e=>e.kind===LG.filt);if(q)L=L.filter(e=>e.text.toLocaleLowerCase('tr').includes(q));const total=L.length;L=L.slice(0,LG.limit||400);
+    detail=`<div class="lgsearch" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><input id="lgQ" placeholder="olaylarda ara…" value="${esc(LG.q)}" oninput="lgSetQ(this.value)"><div class="lgchips">${kinds.map(([k,n])=>`<button class="${LG.filt===k?'on':''}" onclick="LG.filt='${k}';renderLegends()">${n}</button>`).join('')}</div><span class="lgsub">${total} olay${total>(LG.limit||400)?` (son ${LG.limit||400}) <button onclick="LG.limit=(LG.limit||400)+400;renderLegends()" style="padding:3px 9px;font-size:11px">daha fazla</button>`:''}</span></div>
       <ul class="lgul wide">${L.map(e=>`<li><b>Y${yrOf(e.t)}</b> <span class="lgk lgk-${e.kind}">${e.kind}</span> ${lgLinkText(e.text,e.tr)}${e.pp&&e.pp.length?' → '+e.pp.map(x=>lgPersonLink(x)).join(', '):''}</li>`).join('')||'<li>kayıt yok</li>'}</ul>`;
   }else{
     const Lg=sim.legends||[];
@@ -1731,7 +1765,7 @@ function maybeToast(ev){if(!sim||sim._booting)return;const t=ev.text;
 function renderYearly(){const el=document.getElementById('yearly');if(!el||!sim)return;const Y=(sim.yearly||[]).slice(0,8);
   if(!Y.length){el.innerHTML='<div class="empty">Yıl sonunda burada özet belirir.</div>';return;}
   el.innerHTML=`<table class="ytab"><thead><tr><th>yıl</th><th title="nüfus">nüfus</th><th title="doğum">+d</th><th title="ölüm">−ö</th><th title="evlilik">♥</th><th title="savaş ilanı">⚔</th><th title="isyan / darbe / yıkılış">⚑</th><th title="tahta çıkış">♛</th><th title="kıtlık / salgın">☠</th></tr></thead><tbody>`+
-   Y.map(r=>`<tr><td>Y${r.y}</td><td>${r.pop}</td><td style="color:#8fb36a">+${r.b}</td><td style="color:#c0705a">−${r.d}</td><td>${r.m||''}</td><td>${r.war||''}</td><td>${r.rev||''}</td><td>${r.thr||''}</td><td>${(r.fam||0)+(r.epi||0)||''}</td></tr>`).join('')+`</tbody></table>`;}
+   Y.map(r=>`<tr><td>Y${r.y}</td><td>${r.pop}</td><td style="color:#8fb36a">+${r.b}</td><td style="color:#c0705a">−${r.d}</td><td>${r.m||''}</td><td>${r.war||''}</td><td>${r.rev||''}</td><td>${r.thr||''}</td><td>${(r.fam||0)+(r.epi||0)||''}</td></tr>`).join('')+`</tbody></table><div class="lgsub" style="font-size:12px;margin-top:6px">+d doğum · −ö ölüm · ♥ evlilik · ⚔ savaş ilanı · ⚑ isyan/darbe/yıkılış · ♛ tahta çıkış · ☠ kıtlık/salgın</div>`;}
 
 /* Harita modları, ipucu, mini harita, şehir kartı */
 let selCity=null;
@@ -1739,6 +1773,7 @@ function renderModeChips(){const el=document.getElementById('mapModes');if(!el)r
   el.innerHTML=[['pol','Siyasi'],['arazi','Arazi'],['yiyecek','Yiyecek'],['huzur','Huzur'],['iliski','İlişki']].map(([k,n])=>`<button data-m="${k}" class="${mapMode===k?'on':''}" title="${{pol:'Krallık sınırları',arazi:'Yalnızca arazi',yiyecek:'Toprak verimi ve ambarlar',huzur:'Huzursuzluk haritası (kırmızı = isyana yakın)',iliski:'İttifak, ticaret, savaş çizgileri'}[k]}">${n}</button>`).join('');
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>{mapMode=b.dataset.m;renderModeChips();render();});
   const L=document.getElementById('modeLegend');if(L){const g={yiyecek:'<b>Yiyecek</b><div class="gr" style="background:linear-gradient(90deg,#964628,#aae146)"></div><div style="display:flex;justify-content:space-between;color:var(--muted)"><span>verimsiz</span><span>verimli toprak</span></div><div style="margin-top:3px"><span style="color:#b9d95a">▮</span> ambar dolu <span style="color:#e0603a">▮</span> boş (şehir üstünde)</div>',
+      arazi:'<b>Arazi</b><div>ova · orman · tepe · dağ · <span style="color:#6fb7d8">nehir</span></div><div style="color:var(--muted)">sınırlar kapalı; yalnızca coğrafya</div>',
       huzur:'<b>Huzur</b><div class="gr" style="background:linear-gradient(90deg,#64b964,#e13c30)"></div><div style="display:flex;justify-content:space-between;color:var(--muted)"><span>huzurlu</span><span>isyana yakın</span></div>',
       iliski:'<b>İlişkiler</b><div><span style="color:#ff5a4a">━ ━</span> savaş · <span style="color:#8fe08a">━</span> ittifak · <span style="color:#f4cf6a">━</span> ticaret</div><div><span style="color:#79a87a">━</span> dostluk · <span style="color:#b0605a">━</span> gerginlik</div>'}[mapMode];
     L.style.display=g?'block':'none';if(g)L.innerHTML=g;}}
@@ -1777,7 +1812,7 @@ renderModeChips();
     hc.onchange=()=>{settings.contrast=hc.checked;applySettings();saveSettings();};rm.onchange=()=>{settings.reduceMotion=rm.checked;applySettings();saveSettings();};nt.onchange=()=>{settings.noToast=nt.checked;saveSettings();};}
   const steps=[['Her figür ayrı bir hayat','Haritada bir figüre tıkla: kişiliği, ailesi, anıları ve <b>şu an neden bunu yaptığı</b> sağ panelde görünür. Bir şehre tıklarsan ambarı ve tarlaları görürsün.'],
     ['Zamanı ve haritayı yönet','Üstteki düğmeler hızı ayarlar (<b>Boşluk</b> duraklatır). Fare tekerleği yakınlaştırır; haritanın üstündeki <b>Siyasi · Yiyecek · Huzur · İlişki</b> modları dünyayı farklı gösterir.'],
-    ['Hikâyeyi takip et','Bir kişinin kartında <b>☆ Listeye ekle</b>: haritanın altındaki çubukta durur, başına olay gelince bildirim çıkar. <b>📜 Tarih Kitabı</b> ölenler dahil herkesin ve her krallığın geçmişini tutar.']];
+    ['Hikâyeyi takip et','Bir kişinin kartında <b>☆ İzleme listesine ekle</b>: haritanın altındaki çubukta durur, başına olay gelince bildirim çıkar. <b>📜 Tarih Kitabı</b> ölenler dahil herkesin ve her krallığın geçmişini tutar.']];
   let i=0;const el=document.getElementById('tour');
   const show=()=>{if(i>=steps.length){el.style.display='none';try{localStorage.setItem('krTour','1');}catch(e){}return;}
     el.style.display='block';el.innerHTML=`<h3>${steps[i][0]}</h3><p>${steps[i][1]}</p><div class="tb"><button class="primary" id="tourNext">${i<steps.length-1?'Sonraki':'Başla'}</button><button id="tourSkip">Atla</button><span class="dots">${i+1} / ${steps.length}</span></div>`;
@@ -1851,7 +1886,7 @@ function renderHistory(){
       style="cursor:pointer;border-left:3px solid ${a.color};background:rgba(255,255,255,.025);border-radius:8px;padding:11px 14px;margin-bottom:9px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
         <span style="font-size:14px;font-weight:700;color:${a.color}">${a.name} ${a.surname} <span style="color:#e5c07b;font-weight:500;font-size:12px">· ${legendTitle(a)}</span></span>
-        <span style="color:#5b6376;font-size:11px;font-family:var(--mono);white-space:nowrap">${t?t.name:'?'}${dy!=null?` · ✝ yıl ${dy}`:''}</span>
+        <span style="color:#5b6376;font-size:12px;font-family:var(--mono);white-space:nowrap">${t?t.name:'?'}${dy!=null?` · ✝ yıl ${dy}`:''}</span>
       </div>
       <div style="color:#aab2c2;font-size:12.5px;line-height:1.55;margin-top:5px">${lifeProse(a)}</div>
     </div>`;}).join('');}
@@ -1867,7 +1902,7 @@ function renderChronicle(){
       <div style="color:#e5c07b;font-family:var(--mono);font-size:12px;font-weight:700;border-bottom:1px solid rgba(229,192,123,.25);padding-bottom:3px;margin-bottom:6px">Yıl ${y}</div>
       ${byYear[y].map(e=>{const maj=evMajor(e.text),d=(e.tick%CFG.yearLen)+1;
         return `<div style="display:flex;gap:9px;align-items:baseline;padding:${maj?'5px':'3px'} 4px">
-          <span style="color:#4c5468;font-family:var(--mono);font-size:9.5px;min-width:46px">${d}. gün</span>
+          <span style="color:#4c5468;font-family:var(--mono);font-size:11.5px;min-width:46px">${d}. gün</span>
           <span style="font-size:${maj?13:11}px">${evIcon(e.text)}</span>
           <span style="color:${e.color||'#8c95ac'};font-size:${maj?13.5:12}px;font-weight:${maj?600:400};line-height:1.4">${e.text}</span>
         </div>`;}).join('')}

@@ -98,3 +98,7 @@ Hazırlanma biçimi: benzer projeler ve oyunlar için kullanıcı yorumları ve 
 - [WorldBox yorumları (arama özeti)](https://steambase.io/games/worldbox-god-simulator/reviews)
 - [RimWorld ve Dwarf Fortress hikâye anlatımı (arama özeti)](https://www.gamedeveloper.com/design/dwarf-fortress-and-rimworld-tell-very-different-stories)
 - [Oyun UX ve aşamalı bilgi gösterimi (genel)](https://www.uxpin.com/studio/blog/game-ux/), [NN/g oyunlara uygulanan kullanılabilirlik ilkeleri](https://www.nngroup.com/articles/usability-heuristics-applied-video-games/)
+
+## 7. Durum (güncel)
+
+Uygulandı: A (iskelet + medieval tema), B (harita etiketleri, modlar, mini harita, tooltip, şehir kartı), Legends (Tarih Kitabı: Dünya, Kişiler, Krallıklar, Savaşlar, Olaylar, Efsaneler), C (birey kartı, Kişiler sekmesi, izleme listesi), D (toast, yıllık özet), E (ayarlar, tur, kısayollar), F (kullanılabilirlik testi 7: ortalama 6,3, düzeltildi). Yapılmadı: parşömen teması, mobil, gerçek 8× hız.
