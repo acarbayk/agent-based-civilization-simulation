@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### UI Aşama B + Legends
+- Harita: yakınlaştırmaya göre krallık adları (uzak) → şehir adları → kişi adları (yakın); harita modları Siyasi / Arazi / Yiyecek (toprak verimi + ambar çubukları) / Huzur (huzursuzluk renk skalası) / İlişki (savaş-ittifak-ticaret çizgileri); mini harita (tıkla/sürükle); fare üstü ipucu (kişi, şehir); şehir kartı (ambar, sur, tarla durumu, hükümdar); başkent adları benzersiz
+- Legends (📜 Tarih): Dünya (krallık nüfus zaman çizelgesi + olay işaretleri + dönüm noktaları), Kişiler (yaşayan + ölen kayıtları, arama, filtre, hayat sayfası, aile bağlantıları, katil/ölüm nedeni, hükümdarlık), Krallıklar (hükümdar listesi, nüfus grafiği, şehirler, olay günlüğü, ayrıldığı krallık), Olaylar (tür filtreli, aranabilir, bağlantılı), Efsaneler
+- Veri: ölen kişi arşivi (en çok 6000), yapılandırılmış olay günlüğü (tür, bağlı krallık/kişi), hükümdar kaydı, yıllık nüfus geçmişi
+
 ### UI Aşama A: iskelet + medieval tema
 - Yeni düzen: üst çubuk (tarih, duraklat/adım/1×-8× hız, Bilim/Kültür/Tarih/Vakayiname, seed), tam genişlikte çerçeveli harita, sağda sekmeli çekmece (Birey, Hikâye, Krallıklar, Dünya, Ayarlar), haritanın altında "Son olaylar"
 - Medieval tema: ceviz/bronz/altın, Cinzel + Crimson Pro yazı tipleri (çevrimdışıysa Palatino/Georgia), çerçeveli harita ve kartlar
