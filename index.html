@@ -166,7 +166,7 @@
   <div class="brand"><div class="crest">♜</div><div><h1>Krallıklar</h1><small>her birey bir hayat</small></div></div>
   <div class="time"><span class="chip" id="dateNow"></span></div>
   <div class="spacer"></div>
-  <div class="grp spd" title="Hız"><button id="playBtn" class="primary" title="Duraklat / oynat (Boşluk)">❚❚</button><button id="stepBtn" title="Tek adım">⏭</button><button class="spdBtn" data-v="1">1×</button><button class="spdBtn" data-v="2">2×</button><button class="spdBtn" data-v="4">4×</button><button class="spdBtn" data-v="8">8×</button></div><span class="chip" id="effSpd" style="display:none;font:italic 12px var(--serif);color:var(--muted);padding:3px 8px;border:1px solid var(--line);border-radius:6px"></span>
+  <div class="grp spd" title="Hız"><button id="playBtn" class="primary" title="Duraklat / oynat (Boşluk)">❚❚</button><button id="stepBtn" title="Tek adım">⏭</button><button class="spdBtn" data-v="0.25">¼×</button><button class="spdBtn" data-v="0.5">½×</button><button class="spdBtn" data-v="1">1×</button><button class="spdBtn" data-v="2">2×</button><button class="spdBtn" data-v="4">4×</button><button class="spdBtn" data-v="8">8×</button></div><span class="chip" id="effSpd" style="display:none;font:italic 12px var(--serif);color:var(--muted);padding:3px 8px;border:1px solid var(--line);border-radius:6px"></span>
   <div class="grp"><button id="dirBtn" title="Yönetmen modu: kamera ilginç anlara gider (D)">🎬 Yönetmen</button></div>
   <div class="grp"><button id="techBtn" title="Bilim ağacı">⚙ Bilim</button><button id="cultBtn" title="Kültür ağacı">◈ Kültür</button><button id="histBtn" title="Krallıkların tarihi">📜 Tarih</button><button id="chronBtn" title="Tüm olaylar" style="display:none">📖</button></div>
   <div class="grp"><input id="seedIn" title="Seed: aynı seed = aynı tarih" spellcheck="false"><button id="seedNewBtn" title="Yeni rastgele seed ile başlat">🎲</button><button id="resetBtn" title="Aynı seed ile baştan başlat">↻</button></div>
@@ -188,7 +188,7 @@
       <div class="pg" data-p="kral"><div class="card"><h2>Krallıklar</h2><table id="stats"><tbody></tbody></table></div></div>
       <div class="pg" data-p="dun"><div class="card"><h2>Halk</h2><div id="pyramid"></div></div><div class="card"><h2>Ölçümler</h2><div id="metrics"></div></div><div class="card"><h2>Efsaneler</h2><div id="legends"></div></div></div>
       <div class="pg" data-p="ayar"><div class="card"><h2>Ayarlar</h2>
-        <div class="ctrl"><label>Hız <b id="speedVal">1×</b></label><input type="range" id="speed" min="1" max="8" value="1"></div>
+        <div class="ctrl"><label>Hız <b id="speedVal">1×</b></label><input type="range" id="speed" min="0" max="5" value="2"></div>
         <div class="ctrl"><label>Yiyecek <b id="foodVal">orta</b></label><input type="range" id="food" min="0" max="6" value="3"></div>
         <div class="ctrl"><label>Savaşçılık <b id="aggVal">1.0×</b></label><input type="range" id="agg" min="0" max="20" value="10"></div>
         <div class="ctrl"><label>Bilim &amp; Kültür Hızı <b id="sciVal">1.0×</b></label><input type="range" id="sci" min="3" max="40" value="10"></div>
@@ -319,7 +319,7 @@ function capability(a){const y=ageYears(a);
   return clamp(1-(y-CFG.elderYears)/40*0.7);}                          // yaşlı: düşen
 
 let view={z:1,cx:450,cy:260,follow:false};
-let sim,playing=true,foodRate=3,aggMul=1.0,sciMul=1.0,stepsPerFrame=1,nextId=1,selectedId=null;
+let sim,playing=true,foodRate=3,aggMul=1.0,sciMul=1.0,stepsPerFrame=1,stepAcc=0,nextId=1,selectedId=null;
 
 // Uzamsal ızgara: sayısal indeks, `near` her çağrıda aynı diziyi yeniden kullanır (çağıran hemen tüketmeli)
 function makeGrid(cell){const cols=Math.ceil((W+100)/cell)+3,rows=Math.ceil((H+100)/cell)+3,B=new Array(cols*rows),out=[];
@@ -807,6 +807,7 @@ function closeWar(x,y,out){const w=openWar(x,y);if(w){w.end=sim.tick;w.out=out;}
 function declareWar(t,o,betrayal){const why=warReason(t,o,betrayal);(sim.wars=sim.wars||[]).push({id:sim.wars.length,a:t.id,b:o.id,start:sim.tick,end:null,out:null,reason:why,betrayal:!!betrayal,ruler:t.ruler,da:0,db:0});
   const wasAlly=sim.tr[t.id][o.id]==='ally',wasTrade=sim.tr[t.id][o.id]==='trade';
   t.war={target:o.id,start:sim.tick,reason:why};o.war=o.war||{target:t.id,start:sim.tick,reason:'savunma'};
+  if(sim.adv&&!sim.adv.ended&&(sim.adv.tid===t.id||sim.adv.tid===o.id))sim.adv.warNext=0;
   sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='none';
   sim.rel[t.id][o.id]=sim.rel[o.id][t.id]=-70;t.plots[o.id]=0;
   // İTİBAR CEZASI + üçüncü taraf (herkes saldırgana küser)
@@ -830,10 +831,12 @@ function findSettleSpot(t){                                                     
     if(ok&&sc>bv){bv=sc;best={x,y};}}
   return best;
 }
+const isAdvised=t=>!!(sim.adv&&!sim.adv.ended&&sim.adv.tid===t.id);
 function rulerDecide(t){
   if(t._dead)return;const others=living(t);if(!others.length)return;
   if(t.war){const o=sim.tribes[t.war.target];
     if(!o||o._dead){t.war=null;t.weariness*=0.5;}
+    else if(isAdvised(t)){if((t.pop<o.pop*0.4||capital(t).hp<30)&&sim.tick-(t.war.start||0)>250)makePeace(t,o);}   // danışmanlı krallıkta barışı oyuncu yönetir (kart); yalnız çöküşte hükümdar zorla barışır
     else if((t.weariness>58-20*((sim.byId.get(t.ruler)||{pers:{A:0.5}}).pers.A-0.5)||t.pop<o.pop*0.55||capital(t).hp<40||o.weariness>62)&&(sim.tick-(t.war.start||0)>250||capital(t).hp<36)){makePeace(t,o);}
     return;}
   // en güçlü krallık (denge için)
@@ -867,8 +870,7 @@ function rulerDecide(t){
   else if(dec.a==='ALLY'){sim.tr[t.id][o.id]=sim.tr[o.id][t.id]='ally';sim.rel[t.id][o.id]+=18;sim.rel[o.id][t.id]+=18;
     logEvent(`🤝 ${t.name} ↔ ${o.name} ittifak kurdu`,t.color);}
   else if(dec.a==='PLOT'){t.plots[o.id]=(t.plots[o.id]||0)+14+t.cunning*16;}
-  else if(dec.a==='BETRAY'){declareWar(t,o,true);}
-  else if(dec.a==='INVADE'){declareWar(t,o,false);}
+  else if(dec.a==='BETRAY'||dec.a==='INVADE'){if(isAdvised(t))advWarAsk(t,o,dec.a==='BETRAY');else declareWar(t,o,dec.a==='BETRAY');}   // danışmanlı krallıkta savaşı oyuncu açar
   else if(dec.a==='FOUND'){const s=findSettleSpot(t);if(s){t.treasury-=30;t.cities.push({name:cityName(t),x:s.x,y:s.y,food:12,hp:CFG.cityHP});
     logEvent(`🏛 ${t.name} yeni şehir kurdu: ${t.cities[t.cities.length-1].name}`,t.color);computeTerritory();}}
   else if(dec.a==='FOCUS'){t.treasury+=6;for(const c of t.cities)c.food+=1;}
@@ -1614,7 +1616,7 @@ function selectLegend(id){selectedId=id;showTab('bire');renderInspect();}
 
 /* ---------- Döngü & kontroller ---------- */
 let effSteps=1,effN=0;
-function loop(){if(playing){const t0=performance.now();let n=0;for(let i=0;i<stepsPerFrame;i++){step();n++;if(performance.now()-t0>26)break;}effSteps=effSteps*0.97+n*0.03;
+function loop(){if(playing){const t0=performance.now();let n=0;stepAcc+=stepsPerFrame;const todo=Math.floor(stepAcc);stepAcc-=todo;for(let i=0;i<todo;i++){step();n++;if(performance.now()-t0>26){stepAcc=0;break;}}effSteps=effSteps*0.97+(stepsPerFrame<1?stepsPerFrame:n)*0.03;
     if(++effN%20===0){const el=document.getElementById('effSpd');if(el){const low=stepsPerFrame>1&&effSteps<stepsPerFrame*0.88;el.style.display=low?'inline-block':'none';el.textContent='gerçek hız ≈'+effSteps.toFixed(1)+'×';el.title='Bilgisayar istenen hızı yetiştiremiyor (çok kişi var)';}}}
   render();requestAnimationFrame(loop);}
 document.getElementById('playBtn').onclick=e=>{playing=!playing;e.target.textContent=playing?'❚❚':'▶';};
@@ -1623,8 +1625,10 @@ const seedIn=document.getElementById('seedIn');
 SEED=new URLSearchParams(location.search).get('seed')||newSeedStr();seedIn.value=SEED;
 document.getElementById('resetBtn').onclick=()=>{SEED=seedIn.value.trim()||newSeedStr();seedIn.value=SEED;startWorld();};
 document.getElementById('seedNewBtn').onclick=()=>{seedIn.value=newSeedStr();document.getElementById('resetBtn').onclick();};
-const s=document.getElementById('speed'),sv=document.getElementById('speedVal');s.oninput=()=>{stepsPerFrame=+s.value;sv.textContent=stepsPerFrame+'×';document.querySelectorAll('.spdBtn').forEach(b=>b.classList.toggle('on',+b.dataset.v===stepsPerFrame));};
-document.querySelectorAll('.spdBtn').forEach(b=>b.onclick=()=>{s.value=b.dataset.v;s.oninput();});s.oninput();
+const SPD=[0.25,0.5,1,2,4,8],s=document.getElementById('speed'),sv=document.getElementById('speedVal');
+const spdTxt=v=>v===0.25?'¼×':v===0.5?'½×':v+'×';
+s.oninput=()=>{stepsPerFrame=SPD[+s.value]||1;stepAcc=0;sv.textContent=spdTxt(stepsPerFrame);document.querySelectorAll('.spdBtn').forEach(b=>b.classList.toggle('on',+b.dataset.v===stepsPerFrame));};
+document.querySelectorAll('.spdBtn').forEach(b=>b.onclick=()=>{s.value=SPD.indexOf(+b.dataset.v);s.oninput();});s.oninput();
 const f=document.getElementById('food'),fv=document.getElementById('foodVal'),FL=['yok','çok kıt','kıt','orta','bol','çok bol','bereket'];f.oninput=()=>{foodRate=+f.value;fv.textContent=FL[foodRate];};
 const g=document.getElementById('agg'),gvl=document.getElementById('aggVal');g.oninput=()=>{aggMul=(+g.value)/10;gvl.textContent=aggMul.toFixed(1)+'×';};
 const sc=document.getElementById('sci'),scv=document.getElementById('sciVal');sc.oninput=()=>{sciMul=(+sc.value)/10;scv.textContent=sciMul.toFixed(1)+'×';};
@@ -1647,8 +1651,8 @@ function showTab(t){if(t==='dan'&&typeof renderAdvisor==='function')renderAdviso
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
   if(e.code==='Space'){e.preventDefault();document.getElementById('playBtn').click();}
-  else if(e.key==='+'||e.key==='='){const sp=document.getElementById('speed');sp.value=Math.min(8,+sp.value*2);sp.oninput();}
-  else if(e.key==='-'){const sp=document.getElementById('speed');sp.value=Math.max(1,Math.round(+sp.value/2));sp.oninput();}
+  else if(e.key==='+'||e.key==='='){const sp=document.getElementById('speed');sp.value=Math.min(5,+sp.value+1);sp.oninput();}
+  else if(e.key==='-'){const sp=document.getElementById('speed');sp.value=Math.max(0,+sp.value-1);sp.oninput();}
   else if(e.key==='f'||e.key==='F'){followBtn.click();}
   else if(e.key==='Escape'){let closed=false;for(const id of ['histOverlay','techOverlay','cultOverlay','chronOverlay']){const o=document.getElementById(id);if(o.style.display==='block'){o.style.display='none';closed=true;}}if(!closed){selectedId=null;selCity=null;view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}renderCityCard();renderInspect();render();}}
   else if(e.key==='?'){showTab('ayar');}
@@ -1863,6 +1867,10 @@ const CARDS=[
    {l:'Barış elçisi gönder',h:'barış şansı (yorgunluğa bağlı) · hazine −15',cost:15,risk:'düşük',r:t=>0.2+(1-t.ambition)*0.6+t.weariness/150,fn:t=>{const o=t.war?sim.tribes[t.war.target]:null;if(!o)return {ok:false,m:'savaş zaten bitmiş'};const p=clamp(0.35+t.weariness/100*0.6+o.weariness/100*0.4,0.2,0.9);if(rng()<p){makePeace(t,o);return {ok:true,m:`${o.name} ile barış yapıldı`};}return {ok:false,m:'barış elçisi geri çevrildi'};}},
    {l:'Orduyu besle, savaşı sürdür',h:'asker gücü ×1,3 (12 yıl) · hazine −30',cost:30,risk:'yüksek',r:t=>0.2+t.ambition*0.7,fn:t=>{addMod(t,'mil',1.3,12);return {ok:rng()<0.5,m:'ordu yeni silahlarla donandı, savaş sürüyor'};}},
    {l:'Müttefik ara',h:'ittifak şansı',cost:0,risk:'orta',r:t=>0.3+t.cunning*0.3,fn:t=>{const o=t.war?sim.tribes[t.war.target]:null;const L=advNeighbors(t).filter(x=>!o||x.id!==o.id).sort((a,b)=>sim.rel[t.id][b.id]-sim.rel[t.id][a.id]);const x=L[0];if(x&&rng()<0.55){sim.tr[t.id][x.id]=sim.tr[x.id][t.id]='ally';sim.rel[t.id][x.id]+=18;sim.rel[x.id][t.id]+=18;logEvent(`🤝 ${t.name} ↔ ${x.name} ittifak kurdu (danışman önerisi)`,t.color);return {ok:true,m:`${x.name} ile ittifak kuruldu`};}return {ok:false,m:'kimse savaşa karışmak istemedi'};}}]},
+ {id:'hirs',w:()=>0,title:'Hükümdar savaş istiyor',text:t=>{const A=sim.adv,o=A&&A.askO!=null?sim.tribes[A.askO]:null;return o?(A.askB?`Hükümdar, ${o.name} ile aranızdaki anlaşmayı bozup sürpriz saldırı düzenlemek istiyor. (Güç oranımız ${(power(t)/(power(o)+1)).toFixed(2)}; ihanet itibarı çökertir.)`:`Hükümdar ${o.name}'a savaş açmak istiyor. (Güç oranımız ${(power(t)/(power(o)+1)).toFixed(2)}, onların nüfusu ${o.pop}, bizimki ${t.pop}.)`):'Hükümdar savaşa hevesli.';},opts:[
+   {l:'Savaşa onay ver',h:'toprak kazanma şansı · yorgunluk, itibar kaybı',cost:0,risk:'yüksek',r:t=>0.1+t.ambition*0.9,fn:t=>{const A=sim.adv,o=A.askO!=null?sim.tribes[A.askO]:null;if(!o||o._dead)return {ok:false,m:'hedef kalmadı'};declareWar(t,o,A.askB);return {ok:rng()<0.5,m:`${o.name}'a savaş açıldı`};}},
+   {l:'Ordu hazırlığı yap, bekle',h:'asker gücü ×1,2 (8 yıl) · hazine −20 · savaş ertelenir',cost:20,risk:'orta',r:t=>0.2+(1-t.ambition)*0.3,fn:t=>{addMod(t,'mil',1.2,8);return {ok:true,m:'ordu hazırlandı, hükümdar sabretti'};}},
+   {l:'Elçi gönder, vazgeçir',h:'gerginlik azalır, 3 yıl ateşkes · hazine −10',cost:10,risk:'düşük',r:t=>0.2+t.loyalty*0.4+(1-t.ambition)*0.3,fn:t=>{const A=sim.adv,o=A.askO!=null?sim.tribes[A.askO]:null;if(!o||o._dead)return {ok:false,m:'muhatap yok'};sim.rel[t.id][o.id]+=14;sim.rel[o.id][t.id]+=14;sim.truce[t.id][o.id]=sim.truce[o.id][t.id]=sim.tick+3*CFG.yearLen;return {ok:true,m:`${o.name} ile gerginlik yatıştı`};}}]},
  {id:'tarla',w:()=>1,title:'Verimsiz tarlalar',text:t=>`Hükümdar, ${t.name} tarlalarında verimin düştüğünden yakınıyor: "Nüfus büyüyor ama ekin yetişmiyor."`,opts:[
    {l:'Sulama kanalı kazdır',h:'hasat +%50, taşıma kapasitesi +%25 (15 yıl) · hazine −25',cost:25,risk:'düşük',r:t=>0.4+t.innov*0.3,fn:(t)=>{if(rng()<0.85){addMod(t,'crop',1.5,15);addMod(t,'carry',1.25,15);return {ok:true,m:'sulama kanalları açıldı: hasat %50 arttı'};}return {ok:false,m:'kanal çöktü, emek boşa gitti'};}},
    {l:'Yeni toprağa şehir kur',h:'yeni şehir · hazine −30',cost:30,risk:'orta',need:t=>hasSpot(t),r:t=>0.3+t.ambition*0.5,fn:t=>foundCityFor(t)?{ok:true,m:'yeni bir şehir kuruldu'}:{ok:false,m:'uygun toprak bulunamadı'}},
@@ -1922,20 +1930,23 @@ const CARDS=[
    {l:'Kendi haline bırak',h:'maliyet yok',cost:0,risk:'yüksek',r:()=>0.15,fn:t=>({ok:false,m:'varis sorunu çözülmedi'})}]}];
 function advStart(tid){const t=sim.tribes[tid];if(!t||t._dead)return;const y=Math.floor(sim.tick/CFG.yearLen),g=growthIdx(t);
   sim.adv={tid,start:sim.tick,g0:g,trust:60,pending:null,nextCard:sim.tick+CFG.yearLen*1.5,log:[],best:1,recent:[],ended:false,sc:[{y,g}]};
-  logEvent(`🎩 Danışman ${t.name} sarayına atandı`,t.color);renderAdvisor();}
+  logEvent(`🎩 Danışman ${t.name} sarayına atandı`,t.color);if(typeof document!=='undefined'&&UI){const sp=document.getElementById('speed');if(sp&&+sp.value>1){sp.value=1;sp.oninput();}const c=capital(t);if(c){view.z=Math.max(view.z,2);view.cx=c.x;view.cy=c.y;view.follow=false;director.sceneUntil=0;}}renderAdvisor();}
 function advStop(){sim.adv=null;renderAdvisor();}
 const advRank=ratio=>{let r=0;for(let i=0;i<GROWTH_RANKS.length;i++)if(ratio>=GROWTH_RANKS[i][0])r=i;return r;};
 function advYear(){const A=sim.adv;if(!A||A.ended)return;const t=sim.tribes[A.tid],y=Math.floor(sim.tick/CFG.yearLen);
   if(t._dead){A.ended=true;A.endY=y;A.pending=null;if(UI)toast(`🎩 ${t.name} yıkıldı: danışmanlığın sona erdi (en yüksek rütben: ${GROWTH_RANKS[advRank(A.best)][1]})`,'war',{tab:'dan'});renderAdvisor();return;}
   const g=growthIdx(t);A.sc.push({y,g});if(A.sc.length>400)A.sc.shift();const prevRank=advRank(A.best);A.best=Math.max(A.best,g/A.g0);
   if(advRank(A.best)>prevRank&&UI)toast(`🎩 ${t.name} yükseldi: ${GROWTH_RANKS[advRank(A.best)][1]}!`,'pol',{tab:'dan'});
-  if(A.pending&&sim.tick-A.pending.at>2*CFG.yearLen)advResolve(null);
+  if(A.pending&&sim.tick-A.pending.at>3*CFG.yearLen)advResolve(null);
+  else if(!A.pending&&t.war&&sim.tick>=(A.warNext||0)){A.warNext=sim.tick+2*CFG.yearLen;advPush(CARDS[0]);}
   else if(!A.pending&&sim.tick>=A.nextCard)advDeal();
   renderAdvisor();}
 function advDeal(){const A=sim.adv,t=sim.tribes[A.tid];const el=CARDS.map(c=>({c,w:c.w(t)*(A.recent.includes(c.id)?0.25:1)})).filter(x=>x.w>0);if(!el.length){A.nextCard=sim.tick+CFG.yearLen*2;return;}
   let tot=0;for(const x of el)tot+=x.w;let r=rng()*tot,pick=el[0].c;for(const x of el){r-=x.w;if(r<=0){pick=x.c;break;}}
-  A.pending={id:pick.id,at:sim.tick,card:pick,text:pick.text(t)};A.recent.push(pick.id);if(A.recent.length>4)A.recent.shift();
-  if(UI)toast(`🎩 Hükümdar seni çağırıyor: ${pick.title}`,'pol',{tab:'dan'});}
+  advPush(pick);}
+function advPush(pick){const A=sim.adv,t=sim.tribes[A.tid];A.pending={id:pick.id,at:sim.tick,card:pick,text:pick.text(t)};A.recent.push(pick.id);if(A.recent.length>4)A.recent.shift();
+  if(UI){toast(`🎩 Hükümdar seni çağırıyor: ${pick.title}`,'pol',{tab:'dan'});if(stepsPerFrame>1){const sp=document.getElementById('speed');sp.value=2;sp.oninput();}}}
+function advWarAsk(t,o,betray){const A=sim.adv;if(A.pending||sim.tick<(A.askCool||0))return;A.askO=o.id;A.askB=!!betray;A.askCool=sim.tick+3*CFG.yearLen;advPush(CARDS.find(c=>c.id==='hirs'));}
 const advAfford=(t,o)=>t.treasury>=o.cost&&(!o.need||o.need(t));
 const advAdoptP=(A,t)=>{const r=rulerOf(t);return clamp(0.3+0.65*A.trust/100+((r?r.pers.A:0.5)-0.5)*0.2,0.15,0.95);};
 function advChoose(idx){advResolve(idx);}
@@ -1985,7 +1996,8 @@ function fastForward(years,done){const box=document.getElementById('boot');const
     if(sim.tick<target&&!bootSkip){setTimeout(tick,0);return;}
     sim._booting=false;playing=true;if(box)box.style.display='none';computeTerritory();updateStats();renderStories();renderInspect();if(done)done();};
   setTimeout(tick,30);}
-function startWorld(){reset();if(UI&&settings.boot>0)fastForward(settings.boot,()=>{director.sceneUntil=0;if(settings.director)dirCaption(`Yıl ${Math.floor(sim.tick/CFG.yearLen)} · ${sim.tribes.filter(t=>!t._dead).length} krallık, ${sim.agents.length} kişi. Yönetmen modu açık: kamera ilginç anları izler.`);});}
+function frameBig(){if(!UI||!sim)return;const t=sim.tribes.filter(k=>!k._dead&&k.cities.length).sort((a,b)=>b.pop-a.pop)[0];if(!t)return;const c=capital(t);view.z=1.7;view.cx=c.x;view.cy=c.y;view.follow=false;}
+function startWorld(){reset();if(UI&&settings.boot>0)fastForward(settings.boot,()=>{director.sceneUntil=0;if(!settings.director)frameBig();if(settings.director)dirCaption(`Yıl ${Math.floor(sim.tick/CFG.yearLen)} · ${sim.tribes.filter(t=>!t._dead).length} krallık, ${sim.agents.length} kişi. Yönetmen modu açık: kamera ilginç anları izler.`);});}
 const director={queue:[],idle:0,sceneUntil:0,tx:null,ty:null,tz:1,follow:null,lastWide:0,capT:0};
 function dirPause(ms){director.idle=performance.now()+(ms||25000);}
 function dirCaption(txt){const el=document.getElementById('caption');if(!el)return;el.textContent='🎬 '+txt;el.style.opacity=1;director.capT=performance.now()+9000;}

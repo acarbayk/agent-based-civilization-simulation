@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Savaş oyuncunun kararında + yavaş hız
+- **Danışmanlı krallıkta savaşı oyuncu yönetir:** hükümdar artık kendi başına savaş/ihanet başlatmaz; hevesi olduğunda "Hükümdar savaş istiyor" kartı gelir (onay ver / ordu hazırla ve bekle / elçi gönder, vazgeçir). Barış da kartla yapılır; savaş başlayınca (biz ya da karşı taraf açsa da) "Savaş sürüyor" kartı hemen gelir ve her 2 yılda tekrarlanır. Yalnız çöküşte (nüfus <%40 / başkent surları <30) hükümdar zorla barışır. Diğer krallıklar eskisi gibi kendi savaşlarını açar
+- **Yeni yavaş hızlar:** ¼× ve ½× kademeleri (1× ≈ 0,86 yıl/sn idi, danışman kararları için fazla hızlıydı); danışman olunca hız otomatik ½×'e iner, kart gelince hızlıysa 1×'e düşer; kart cevapsız kalma süresi 2→3 yıl; +/- tuşları kademeli
+- Danışman olunca kamera krallığın başkentine yaklaşır (2×); yönetmen modu kapalıysa açılışta en büyük krallığın başkenti çerçevelenir
+
 ### Danışman modu (hedef: büyüme)
 - **Danışman** sekmesi: bir krallığa hizmet et; hükümdar 4-6 yılda bir ikilem kartı getirir (15 kart: tarla, nüfus, ticaret, bilim, zayıf komşu, tehdit, vergi, kıtlık, salgın, huzursuzluk, şehir, göç, hazine, veraset, savaş); her kartta 2-3 seçenek, maliyet ve risk etiketi
 - **Hükümdarın güveni:** tavsiyen ~%30-95 ihtimalle dinlenir (güven + hükümdarın uyumluluğu); iyi sonuç güveni artırır, kötü sonuç ve reddedilme düşürür; 2 yıl cevap vermezsen hükümdar kendi bildiğini yapar
