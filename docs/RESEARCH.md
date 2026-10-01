@@ -441,6 +441,11 @@ Kullanıcı gözlemleri: (1) sınırlar belirsiz/araziyle ilgisiz, (2) meslek ç
 - Ölçüm: 8 seed × 250 yıl hata 0, yok oluş 0, ortalama krallık 5,5. Seed'ler arası yörünge çeşitliliği yüksek (hegemonya vs. parçalanma). Henüz sayısal bir "çeşitlilik ölçüsü" tanımlamadım; yalnızca gözle ve bu özet sayılarla değerlendirdim.
 - Sınır: araziyi izleyen sınırlar etki alanı mantığına bağlı; ordunun hareketi ve ticaret yolları hâlâ araziden bağımsız doğrusal. Zanaatkâr/rahip etkileri basit çarpanlar, tarihsel olarak doğrulanmış değerler değil.
 
+## 10.19 Tur 10: UI Aşama B + Legends ve bağımsız değerlendirme 6
+
+Kör değerlendirme (taze ajan, 10 seed × 110 yıl + tarayıcı): **isimlendirme 5/10, yeterlilik (A+B+Legends) 6/10**. Bulgular: ad havuzu küçük (400 ad / 96 soyad / 200 şehir / 30 krallık), tam ad tekrarı %7,6-15, soyad-şehir çakışması, "Belka 2" ek hatası, şehir kartının açılmaması (figür önceliği), kıtlığın okunamaması, savaş gerekçesi yok, 1366×768'de kaydırma, hız göstergesi yanıltıcı, boş zemine tıklayınca benzetimi bozan yiyecek eklenmesi, Geri düğmesi eksikleri.
+Düzeltme ayrıntıları CHANGELOG'da. İsim ölçümü (8 seed × 110 yıl, 15.969 kişi kaydı): tam ad tekrarı %0,03, ad=soyad 0, şehir/soyad çakışması 0 (95 şehir), farklı soyad 91-197/seed. Kalan sınır: soyadların %20-66'sı birden fazla krallıkta (isyanla kopan krallıklar kurucu soyadlarını taşır; 6'dan fazla krallıkta kültür tekrar kullanılır). Düzeltmelerin bağımsız yeniden puanlaması yapılmadı.
+
 ## 11. Bilinen sınırlar
 
 - Savaş: yalnızca savaştaki devletlere saldırılıyor ve asker ambar yağmalıyor; seferberlik ve gerçek baskın taktiği yok. Yağma

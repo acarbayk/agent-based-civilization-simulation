@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Bağımsız değerlendirme 6 düzeltmeleri (isimlendirme 5/10, yeterlilik 6/10)
+- İsimlendirme: 6 isim kültürü (kuzey, kelt, latin, bozkır, peri, frank); her krallık bir kültürden alır; kişi (cinsiyete göre), soyad, şehir ve krallık adı ayrı havuzlardan; tam ad çakışması %7,6-15 → %0,03; şehir/soyad çakışması 0; yeni hanedan kolu (%4 yeni soyad); sayılı adlar ("Belka 2") kalktı; hekim/bilim terimleri tutarlı
+- Hatalar: şehir simgesine tıklayınca kart açılır (figür önceliği kalktı); boş zemine tıklamak seçimi kaldırır, Shift+tık yiyecek yağdırır (eskiden sessizce benzetimi bozuyordu); Geri düğmesi her bağlantıda; olaylar kronolojik; efsane unvanları çeşitli; 1366×768 ve 1280×720'de kaydırma yok
+- Savaş açma olaylarına gerekçe (ihanet, sınır gerginliği, zengin ambar, hırs, eski husumet...); kıtlık, salgın ve hasat olayları krallık bazlı ve krallığa bağlı; Yiyecek ve Huzur modlarına renk ölçeği ve ambar çubukları
+- Hız: kare bütçesi eklendi; bilgisayar istenen hızı yetiştiremezse "gerçek hız ≈N×" göstergesi
+
 ### UI Aşama B + Legends
 - Harita: yakınlaştırmaya göre krallık adları (uzak) → şehir adları → kişi adları (yakın); harita modları Siyasi / Arazi / Yiyecek (toprak verimi + ambar çubukları) / Huzur (huzursuzluk renk skalası) / İlişki (savaş-ittifak-ticaret çizgileri); mini harita (tıkla/sürükle); fare üstü ipucu (kişi, şehir); şehir kartı (ambar, sur, tarla durumu, hükümdar); başkent adları benzersiz
 - Legends (📜 Tarih): Dünya (krallık nüfus zaman çizelgesi + olay işaretleri + dönüm noktaları), Kişiler (yaşayan + ölen kayıtları, arama, filtre, hayat sayfası, aile bağlantıları, katil/ölüm nedeni, hükümdarlık), Krallıklar (hükümdar listesi, nüfus grafiği, şehirler, olay günlüğü, ayrıldığı krallık), Olaylar (tür filtreli, aranabilir, bağlantılı), Efsaneler
