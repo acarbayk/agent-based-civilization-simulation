@@ -1371,8 +1371,9 @@ function render(){
     {const sp=settlement(t.color,cap0);if(sp.c){const sw=cap0?30:25,sh=sw*30/34;ctx.drawImage(sp.c,b.x-sw/2,b.y-sh*0.62,sw,sh);}else if(idx>0){ctx.fillStyle=t.color;ctx.fillRect(b.x-2,b.y-2,4,4);}}
     if(cap0&&fa>=0&&fa<16){ctx.beginPath();ctx.arc(b.x,b.y,R+4+fa*2.6,0,7);ctx.strokeStyle=`rgba(233,192,123,${(1-fa/16)*0.65})`;ctx.lineWidth=2;ctx.stroke();}
     const hp=clamp(b.hp/CFG.cityHP);ctx.beginPath();ctx.arc(b.x,b.y,R+3,-Math.PI/2,-Math.PI/2+hp*7,false);ctx.strokeStyle=hp>0.4?'#8ef0bf':'#ff6b6b';ctx.lineWidth=2.5;ctx.stroke();});}
+  const FIGLOD=view.z>=2.2?1:1+0.5*Math.min(1,(2.2-view.z)/1.2);          // uzaktan bakışta kişiler %50'ye kadar büyür (okunabilirlik)
   for(const a of sim.agents){const stg=a.role==='CHILD'?'child':lifeStage(a),isR=isRulerOf(a),sp=figure(a,isR),mv=a.act!=='HEARTH'&&a.act!=='CLINIC'&&a.act!=='MARKET'&&a.act!=='LURK'&&a.act!=='CRAFT'&&a.act!=='PRAY',bob=mv&&!settings.reduceMotion?Math.sin(animT*0.45+a.id)*0.5:0;
-    if(sp.c){const h=stg==='child'?6.6:stg==='elder'?9.4:10,w=h*0.75;ctx.drawImage(sp.c,a.x-w/2,a.y-h*0.88+bob,w,h);}
+    if(sp.c){const h=(stg==='child'?6.6:stg==='elder'?9.4:10)*(isR?1.12:1)*FIGLOD,w=h*0.75;ctx.drawImage(sp.c,a.x-w/2,a.y-h*0.88+bob,w,h);}
     else{ctx.fillStyle=a.color;ctx.beginPath();ctx.arc(a.x,a.y,2.4,0,7);ctx.fill();}
     if(a.carrying){ctx.fillStyle=a._loot?'#f4cf6a':'#8ef0bf';ctx.fillRect(a.x-1.2,a.y-11.2,2.4,2.4);}
     if(a.act==='FIGHT'||a.act==='VENGEANCE'){ctx.strokeStyle='#ff5a5a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x-4,a.y-9);ctx.lineTo(a.x+4,a.y-5);ctx.moveTo(a.x+4,a.y-9);ctx.lineTo(a.x-4,a.y-5);ctx.stroke();}
