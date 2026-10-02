@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### İlahi eller (oyuncu müdahalesi)
+- **Dünya** sekmesinde "İlahi eller": inanç puanı (başta 60, yılda +6, en çok 100) harcayarak haritada tıklanan yere müdahale: 🌧 Yağmur (20; yiyecek yağar, kuraklığı bitirir), ✚ Şifa (25; yakındakileri iyileştirir, salgını söndürür), ✨ İlham (25; krallığa araştırma, meşruiyet, moral), ⚡ Yıldırım (30; en yakın kişiyi öldürür, hükümdar olursa veraset/siyaset zinciri tetiklenir), 🌋 Deprem (40; şehir surları ve ambarlar zarar görür, yaralı/ölü), ☠ Salgın (35; krallıkta salgın başlatır)
+- Güç seç → haritada hedefe tıkla (Esc iptal). Ölenlerin Tarih Kitabı'ndaki ölüm nedeni "tanrının gazabıyla öldü"; olaylar günlüğe ve yönetmen kamerasına düşer. Shift+tık yiyecek yağdırma bedava kalır
+- Kullanılmadıkça benzetim değişmez (aynı seed aynı geçmiş)
+
 ### Okunabilirlik: varsayılan yakınlık
 - Uzaktan bakışta (zoom <2,2×) kişi figürleri %50'ye kadar büyür, hükümdar ayrıca %12 daha büyük; yakınlaşınca normal boyuta döner (yalnız çizim, benzetim değişmedi)
 
