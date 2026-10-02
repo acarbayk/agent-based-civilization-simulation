@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Oyun testi düzeltmeleri (bağımsız acemi oyuncu ajanı: genel 5,5/10)
+- Danışman kartı gelince oyun **otomatik durur**, Danışman sekmesi açılır; cevaplayınca devam eder. Yönetmen kamerası kart açıkken sahne değiştirmez (sekme sıçraması giderildi)
+- Kart tekrarı azaldı: aynı kart 12 yıl boyunca ağırlığı %12'ye düşer; "Savaş sürüyor" kartı 2 yerine 5 yılda bir; "Hazine taşıyor" daha seyrek
+- İlahi eller: puan yılda +6 → +2,5, başlangıç 50; maliyetler 30/35/35/45/60/50; deprem daha ölümcül ve şehirlere daha çok zarar; yıldırım kimi vurduğunu (krallık, hükümdar mı) söyler; kullanılan yerde 1,8 sn'lik halka + simge efekti
+- Tura "İlahi eller" adımı eklendi; sekme değişince sağ panel başa kayar (Dünya/Ayarlar kayma sorunu)
+- Anlatı kalıpları genişledi (keşif, gelenek, şehir kurma 10'ar tat cümlesi; tahta çıkış için ek cümleler)
+- Bilinen kalanlar: etki hissi (çarpanlar görünmez), şans yüzdeleri kartlarda yok, hazine şişince maliyetlerin ölçeklenmemesi, Tarih grafiği etiket çakışması; gerçek insan testi hâlâ yapılmadı
+
 ### Anlatı çeşitliliği
 - Olay metinlerine durumdan seçilen "tat" cümleleri eklendi (ticaret, ittifak, salgın, yeni şehir, keşif, gelenek, savaş, barış, bereketli hasat, tahta çıkış biçimine göre not); seçim deterministik (rastgele sayı tüketmez), mevcut anahtar sözcükler (savaş açtı, salgın başladı, tahtına çıktı...) korunur
 - Yeni yıllık minik hikâyeler: **dostluk** (karşılıklı güçlü bağ, akraba olmayan), **husumet** (karşılıklı derin nefret), **varis** (yaşlanan hükümdarın vârisi ve mizacı), **alamet** (kuyruklu yıldız, güneş tutulması, taş yağmuru... halk yorumlar)

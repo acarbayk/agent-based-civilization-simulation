@@ -629,12 +629,13 @@ const FLV={
  trade:['kervanlar yola çıktı','çarşılarda ilk takaslar yapıldı','tuz ve tahıl takası başladı','tüccarlar sınır kapılarında karşılandı','iki saray arasında hediyeler değiş tokuş edildi','loncalar sevindi, gümrükçüler homurdandı'],
  ally:['iki hükümdar sınırda el sıkıştı','ortak düşmanlara karşı yemin edildi','rahipler antlaşmayı mühürledi','şölen üç gün sürdü','elçiler gül suyu ve kılıç değiş tokuş etti'],
  epi:['çocuklar ve yaşlılar ilk düşenler oldu','köylüler evlerine kapandı','şifacılar yetişemiyor','kapılara işaret çekildi','pazarlar boşaldı, çanlar gün boyu çaldı'],
- city:['ilk evler kerpiçten dikildi','çiftçiler yeni tarlaları sürmeye başladı','surların temeli atıldı','rahipler yeri kutsadı','göçebe aileler yerleşmeye karar verdi'],
- tech:['âlimler yıllardır bu sırrın peşindeydi','ustalar hemen denemeye koyuldu','haber komşu diyarlara yayıldı','eski usuller yavaş yavaş terk edildi'],
- cult:['ihtiyarlar bunu atalardan kalma saydı','gençler önce direndi, sonra benimsedi','şölenlerle kutlandı','köylerde hâlâ tartışılıyor'],
+ city:['ilk evler kerpiçten dikildi','çiftçiler yeni tarlaları sürmeye başladı','surların temeli atıldı','rahipler yeri kutsadı','göçebe aileler yerleşmeye karar verdi','kuyu kazılırken sağlam bir kaynak çıktı','ilk kışı çadırlarda geçirdiler','hükümdar temel taşını kendi elleriyle koydu','tüccarlar hemen bir pazar yeri istedi','nehir kıyısındaki yer günlerce tartışıldı'],
+ tech:['âlimler yıllardır bu sırrın peşindeydi','ustalar hemen denemeye koyuldu','haber komşu diyarlara yayıldı','eski usuller yavaş yavaş terk edildi','bir çırağın tesadüfi buluşu olduğu söyleniyor','saray bunu gizli tutmaya çalıştı ama başaramadı','köylüler önce şüpheyle baktı','yaşlı ustalar başlarını salladı, gençler heyecanlandı','tüccarlar sırrı yabancı diyarlara taşıdı','ilk denemede atölye yandı, ikincide tuttu'],
+ cult:['ihtiyarlar bunu atalardan kalma saydı','gençler önce direndi, sonra benimsedi','şölenlerle kutlandı','köylerde hâlâ tartışılıyor','rahipler ilk başta karşı çıktı','meydanda davullarla ilan edildi','komşu halklar da öykündü','bir bilge kadının sözüyle başladığı anlatılıyor','çocuklara ilk kez bu şekilde öğretildi','kimi köyler hâlâ eski usulde direniyor'],
  war:['borazanlar çaldı','köylüler silah altına çağrıldı','sınır köylerinde ateşler yandı','ambarlar ordular için boşaltıldı','kâhinler zafer fal ettiler'],
  peace:['iki taraf da yorgundu','ölülerini gömmek istiyorlardı','tarlalar boş kalmıştı','elçiler zeytin dalı taşıdı'],
- harvest:['köylüler üç gün şenlik yaptı','ambarlar ağzına kadar doldu','tarlalarda şarkılar söylendi','değirmenler gece gündüz döndü']};
+ harvest:['köylüler üç gün şenlik yaptı','ambarlar ağzına kadar doldu','tarlalarda şarkılar söylendi','değirmenler gece gündüz döndü'],
+ throne:['hanedan duvarlarına yeni bir portre asıldı','taç giyme töreni üç gün sürdü','eski hükümdarın yası henüz bitmemişti','saray şairleri hemen methiye yazdı']};
 function logEvent(text,color,meta){text=text.replace(/^[^\p{L}\p{N}]+/u,'');const ev={text,color,tick:sim?sim.tick:0};
   {const tr=[];if(sim&&sim.tribes)for(const t of sim.tribes)if(t.name&&text.includes(t.name))tr.push(t.id);pushLog({t:ev.tick,kind:evKind(text),text,color,tr,pp:(meta&&meta.pp)||[]});}
   sim.feed.unshift(ev);if(sim.feed.length>14)sim.feed.pop();
@@ -1394,6 +1395,7 @@ function render(){
     if(a.act==='FIGHT'||a.act==='VENGEANCE'){ctx.strokeStyle='#ff5a5a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x-4,a.y-9);ctx.lineTo(a.x+4,a.y-5);ctx.moveTo(a.x+4,a.y-9);ctx.lineTo(a.x-4,a.y-5);ctx.stroke();}
     if(a.rebel){ctx.strokeStyle='#ff4444';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(a.x,a.y-4,7,0,7);ctx.stroke();}
     if(a.id===selectedId){ctx.beginPath();ctx.arc(a.x,a.y-4,9,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();}}
+  if(window.godFx&&godFx.length){const nw=performance.now();godFx=godFx.filter(f=>nw-f.t<1800);for(const f of godFx){const k=(nw-f.t)/1800;ctx.save();ctx.globalAlpha=1-k;ctx.strokeStyle='#ffe9a8';ctx.lineWidth=2.5/view.z;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(0.25+k*0.75),0,7);ctx.stroke();ctx.font=(22/view.z+8)+'px serif';ctx.textAlign='center';ctx.fillText(f.ic,f.x,f.y-k*18);ctx.restore();}}
   // etiketler: yakınlaştırmaya göre krallık adları → şehir adları → kişi adları
   {const z=view.z,SF='Cinzel,Palatino Linotype,Georgia,serif',TF='Crimson Pro,Palatino Linotype,Georgia,serif';ctx.textAlign='center';ctx.lineJoin='round';
     const lbl=(txt,x,y,px,fill,font,al)=>{ctx.font=font.replace('PX',(px/z).toFixed(2)+'px');ctx.globalAlpha=al;ctx.lineWidth=3.2/z;ctx.strokeStyle='rgba(12,7,3,.88)';ctx.strokeText(txt,x,y);ctx.fillStyle=fill;ctx.fillText(txt,x,y);ctx.globalAlpha=1;};
@@ -1664,7 +1666,7 @@ cv.addEventListener('pointerdown',e=>{const p=canvasXY(e),z=Math.max(1,view.z);l
   if(selectedId!=null||selCity){selectedId=null;selCity=null;view.follow=false;try{followBtn.classList.remove('primary');}catch(_){}renderCityCard();renderInspect();render();}});
 
 /* Sekmeli çekmece + kısayollar */
-function showTab(t){if(t==='dan'&&typeof renderAdvisor==='function')renderAdvisor();if(t==='kisi'&&typeof renderPeople==='function')renderPeople();document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.dataset.p===t));try{localStorage.setItem('tab',t);}catch(e){}}
+function showTab(t){if(t==='dan'&&typeof renderAdvisor==='function')renderAdvisor();if(t==='kisi'&&typeof renderPeople==='function')renderPeople();document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.dataset.p===t));try{localStorage.setItem('tab',t);}catch(e){}{const sd=document.querySelector('.side');if(sd&&sd.scrollTop)sd.scrollTop=0;}}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 document.addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
   if(e.code==='Space'){e.preventDefault();document.getElementById('playBtn').click();}
@@ -1854,6 +1856,7 @@ renderModeChips();
   const steps=[['Her figür ayrı bir hayat','Haritada bir figüre tıkla: kişiliği, ailesi, anıları ve <b>şu an neden bunu yaptığı</b> sağ panelde görünür. Bir şehre tıklarsan ambarı ve tarlaları görürsün.'],
     ['Zamanı ve haritayı yönet','Üstteki düğmeler hızı ayarlar (<b>Boşluk</b> duraklatır). Fare tekerleği yakınlaştırır; haritanın üstündeki <b>Siyasi · Yiyecek · Huzur · İlişki</b> modları dünyayı farklı gösterir.'],
     ['Danışman ol (hedef: büyüme)','<b>Danışman</b> sekmesinden bir krallığa hizmet et: hükümdar birkaç yılda bir ikilem getirir (ticaret, kıtlık, savaş, şehir kurma...). Tavsiyen hükümdarın <b>güvenine</b> göre dinlenir; amaç krallığı Beylikten İmparatorluğa taşımak.'],
+    ['İlahi eller','<b>Dünya</b> sekmesindeki <b>İlahi eller</b>: inanç puanı harcayarak yağmur, şifa, ilham, yıldırım, deprem ya da salgın gönder. Gücü seç, haritada hedefe tıkla. Puan yavaş dolar; akıllıca kullan.'],
     ['Hikâyeyi takip et','Bir kişinin kartında <b>☆ İzleme listesine ekle</b>: haritanın altındaki çubukta durur, başına olay gelince bildirim çıkar. <b>📜 Tarih Kitabı</b> ölenler dahil herkesin ve her krallığın geçmişini tutar.']];
   let i=0;const el=document.getElementById('tour');
   const show=()=>{if(i>=steps.length){el.style.display='none';try{localStorage.setItem('krTour','1');}catch(e){}return;}
@@ -1937,7 +1940,7 @@ const CARDS=[
    {l:'Hepsini kabul et',h:'16 yetişkin · meşruiyet −%1',cost:0,risk:'orta',r:t=>0.4+t.loyalty*0.2,fn:t=>{spawnImmigrants(t,16);t.legit=clamp(t.legit-0.01);return {ok:true,m:'16 göçmen kabul edildi'};}},
    {l:'Yalnız ustaları al',h:'3 yetişkin · araştırma +10',cost:0,risk:'düşük',r:t=>0.3+t.innov*0.3,fn:t=>{spawnImmigrants(t,3);t.research+=10;return {ok:true,m:'usta göçmenler atölyelere yerleşti'};}},
    {l:'Geri çevir',h:'maliyet yok',cost:0,risk:'—',r:t=>0.2,fn:()=>({ok:false,m:'kafile yoluna devam etti'})}]},
- {id:'fazla',w:t=>t.treasury>120?3:0,title:'Hazine taşıyor',text:t=>`Hazinede ${t.treasury|0} altın birikti. Yatırım zamanı mı?`,opts:[
+ {id:'fazla',w:t=>t.treasury>120?1.6:0,title:'Hazine taşıyor',text:t=>`Hazinede ${t.treasury|0} altın birikti. Yatırım zamanı mı?`,opts:[
    {l:'Şehirlere yatırım yap',h:'taşıma kapasitesi +%25 (15 yıl), yiyecek +25 · hazine −50',cost:50,risk:'düşük',r:t=>0.4,fn:t=>{addMod(t,'carry',1.25,15);for(const c of t.cities){c.hp=Math.min(CFG.cityHP,c.hp+40);c.food=Math.min(CFG.granaryCap,c.food+25);}return {ok:true,m:'ambarlar ve çarşılar büyüdü'};}},
    {l:'Orduyu büyüt',h:'asker gücü ×1,2 (15 yıl) · hazine −50',cost:50,risk:'orta',r:t=>0.2+t.ambition*0.6,fn:t=>{addMod(t,'mil',1.2,15);return {ok:true,m:'ordu yeni silahlarla donandı'};}},
    {l:'Bilim ödeneği',h:'araştırma ×1,4 (12 yıl) · hazine −50',cost:50,risk:'düşük',r:t=>0.3+t.innov*0.4,fn:t=>{addMod(t,'res',1.4,12);return {ok:true,m:'âlimlere cömert ödenek verildi'};}}]},
@@ -1955,14 +1958,14 @@ function advYear(){const A=sim.adv;if(!A||A.ended)return;const t=sim.tribes[A.ti
   const g=growthIdx(t);A.sc.push({y,g});if(A.sc.length>400)A.sc.shift();const prevRank=advRank(A.best);A.best=Math.max(A.best,g/A.g0);
   if(advRank(A.best)>prevRank&&UI)toast(`🎩 ${t.name} yükseldi: ${GROWTH_RANKS[advRank(A.best)][1]}!`,'pol',{tab:'dan'});
   if(A.pending&&sim.tick-A.pending.at>3*CFG.yearLen)advResolve(null);
-  else if(!A.pending&&t.war&&sim.tick>=(A.warNext||0)){A.warNext=sim.tick+2*CFG.yearLen;advPush(CARDS[0]);}
+  else if(!A.pending&&t.war&&sim.tick>=(A.warNext||0)){A.warNext=sim.tick+5*CFG.yearLen;advPush(CARDS[0]);}
   else if(!A.pending&&sim.tick>=A.nextCard)advDeal();
   renderAdvisor();}
-function advDeal(){const A=sim.adv,t=sim.tribes[A.tid];const el=CARDS.map(c=>({c,w:c.w(t)*(A.recent.includes(c.id)?0.25:1)})).filter(x=>x.w>0);if(!el.length){A.nextCard=sim.tick+CFG.yearLen*2;return;}
+function advDeal(){const A=sim.adv,t=sim.tribes[A.tid];A.last=A.last||{};const el=CARDS.map(c=>({c,w:c.w(t)*(A.recent.includes(c.id)?0.25:1)*(sim.tick-(A.last[c.id]||-1e9)<12*CFG.yearLen?0.12:1)})).filter(x=>x.w>0);if(!el.length){A.nextCard=sim.tick+CFG.yearLen*2;return;}
   let tot=0;for(const x of el)tot+=x.w;let r=rng()*tot,pick=el[0].c;for(const x of el){r-=x.w;if(r<=0){pick=x.c;break;}}
   advPush(pick);}
-function advPush(pick){const A=sim.adv,t=sim.tribes[A.tid];A.pending={id:pick.id,at:sim.tick,card:pick,text:pick.text(t)};A.recent.push(pick.id);if(A.recent.length>4)A.recent.shift();
-  if(UI){toast(`🎩 Hükümdar seni çağırıyor: ${pick.title}`,'pol',{tab:'dan'});if(stepsPerFrame>1){const sp=document.getElementById('speed');sp.value=2;sp.oninput();}}}
+function advPush(pick){const A=sim.adv,t=sim.tribes[A.tid];(A.last=A.last||{})[pick.id]=sim.tick;A.pending={id:pick.id,at:sim.tick,card:pick,text:pick.text(t)};A.recent.push(pick.id);if(A.recent.length>4)A.recent.shift();
+  if(UI){toast(`🎩 Hükümdar seni çağırıyor: ${pick.title}`,'pol',{tab:'dan'});if(playing){playing=false;const pb=document.getElementById('playBtn');if(pb)pb.textContent='▶';A.pausedForCard=true;}showTab('dan');const side=document.querySelector('.side');if(side)side.scrollTop=0;}}
 function advWarAsk(t,o,betray){const A=sim.adv;if(A.pending||sim.tick<(A.askCool||0))return;A.askO=o.id;A.askB=!!betray;A.askCool=sim.tick+3*CFG.yearLen;advPush(CARDS.find(c=>c.id==='hirs'));}
 const advAfford=(t,o)=>t.treasury>=o.cost&&(!o.need||o.need(t));
 const advAdoptP=(A,t)=>{const r=rulerOf(t);return clamp(0.3+0.65*A.trust/100+((r?r.pers.A:0.5)-0.5)*0.2,0.15,0.95);};
@@ -1976,7 +1979,7 @@ function advResolve(idx){const A=sim.adv;if(!A||!A.pending)return;const t=sim.tr
   A.trust=clamp(A.trust+(adopted?(res.ok?5:-7):(idx==null?-2:-3)),5,100);
   A.log.unshift({y,title:card.title,choice:o.l,asked:idx!=null?opts[idx].l:null,adopted,ok:res.ok,msg:res.m,trust:A.trust});if(A.log.length>14)A.log.pop();
   const rl=rulerOf(t);logEvent(`🎩 ${ek(t.name,'loc')} ${adopted?'danışmanın tavsiyesiyle':'hükümdar kendi bildiğini yaparak'} "${o.l}": ${res.m}`,t.color,{pp:rl?[rl.id]:[]});
-  A.pending=null;A.nextCard=sim.tick+Math.round(rnd(4,6)*CFG.yearLen);renderAdvisor();updateStats();}
+  A.pending=null;A.nextCard=sim.tick+Math.round(rnd(4,6)*CFG.yearLen);if(A.pausedForCard&&UI&&!playing){playing=true;const pb=document.getElementById('playBtn');if(pb)pb.textContent='❚❚';}A.pausedForCard=false;renderAdvisor();updateStats();}
 function renderAdvisor(){const el=document.getElementById('advBox');const tab=document.querySelector('.tab[data-t=dan]');if(!sim)return;
   if(tab)tab.classList.toggle('badge',!!(sim.adv&&sim.adv.pending&&!sim.adv.ended));if(!el)return;
   const A=sim.adv;
@@ -2016,29 +2019,29 @@ function fastForward(years,done){const box=document.getElementById('boot');const
 /* ---------- İlahi eller: oyuncu müdahalesi (inanç puanı harcar) ---------- */
 let godSel=null;
 const GODS=[
- {id:'yagmur',ic:'🌧',n:'Yağmur',cost:20,h:'Tıklanan yerde yiyecek yağar; kuraklık sürüyorsa biter',fn:(p,t)=>{for(let i=0;i<70;i++)sim.food.push({x:clamp(p.x+rndUI(-60,60),5,W-5),y:clamp(p.y+rndUI(-60,60),5,H-5)});
+ {id:'yagmur',ic:'🌧',n:'Yağmur',cost:30,h:'Tıklanan yerde yiyecek yağar; kuraklık sürüyorsa biter',fn:(p,t)=>{for(let i=0;i<70;i++)sim.food.push({x:clamp(p.x+rndUI(-60,60),5,W-5),y:clamp(p.y+rndUI(-60,60),5,H-5)});
    if(sim.climate&&sim.climate.mul<1){sim.climate={mul:1,until:sim.tick+Math.round(rnd(...CFG.droughtGapYears)*CFG.yearLen)};logEvent('🌧 Tanrı yağmur gönderdi: kuraklık sona erdi','#8fd0ff');return 'kuraklık bitti, yiyecek yağdı';}
    logEvent('🌧 Tanrı yağmur gönderdi','#8fd0ff');return 'yiyecek yağdı';}},
- {id:'sifa',ic:'✚',n:'Şifa',cost:25,h:'Yakındakilerin enerjisi dolar; bölgedeki salgın söner',fn:(p,t)=>{let n=0;for(const a of sim.agents)if(hyp(a.x-p.x,a.y-p.y)<80){a.energy=CFG.energyMax;n++;}
+ {id:'sifa',ic:'✚',n:'Şifa',cost:35,h:'Yakındakilerin enerjisi dolar; bölgedeki salgın söner',fn:(p,t)=>{let n=0;for(const a of sim.agents)if(hyp(a.x-p.x,a.y-p.y)<80){a.energy=CFG.energyMax;n++;}
    if(t&&t._epi){t._epi=null;logEvent(`✚ Tanrı ${ek(t.name,'loc')} salgını dindirdi`,'#9fe3b0');}else logEvent(`✚ Tanrı ${n} kişiyi iyileştirdi`,'#9fe3b0');return `${n} kişi iyileşti`;}},
- {id:'ilham',ic:'✨',n:'İlham',cost:25,h:'Bölgedeki krallığın araştırması hızlanır, halkın moral ve meşruiyeti artar',needT:true,fn:(p,t)=>{t.research+=30;t.legit=clamp(t.legit+0.05);for(const a of sim.agents)if(a.tribe===t.id)a.content=clamp(a.content+0.08);
+ {id:'ilham',ic:'✨',n:'İlham',cost:35,h:'Bölgedeki krallığın araştırması hızlanır, halkın moral ve meşruiyeti artar',needT:true,fn:(p,t)=>{t.research+=30;t.legit=clamp(t.legit+0.05);for(const a of sim.agents)if(a.tribe===t.id)a.content=clamp(a.content+0.08);
    logEvent(`✨ Tanrı ${ek(t.name,'dat')} ilham verdi`,t.color);return `${t.name} ilham aldı`;}},
- {id:'yildirim',ic:'⚡',n:'Yıldırım',cost:30,h:'Tıklanan kişiyi (en yakın) çarpar. Hükümdarı çarparsan tahta geçiş olur',needA:true,fn:(p,t,a)=>{a.energy=0;a._divine=true;logEvent(`⚡ Tanrının yıldırımı ${a.name} ${a.surname} kişisine çarptı`,'#ffe27a',{pp:[a.id]});return `${a.name} yıldırımla öldü`;}},
- {id:'deprem',ic:'🌋',n:'Deprem',cost:40,h:'Bölgedeki şehirlerin surları çöker, insanlar yaralanır',fn:(p,t)=>{let c=0,k=0;for(const tr of sim.tribes){if(tr._dead)continue;for(const ci of tr.cities)if(hyp(ci.x-p.x,ci.y-p.y)<95){ci.hp=Math.max(5,ci.hp-45);ci.food*=0.6;c++;}}
-   for(const a of sim.agents)if(hyp(a.x-p.x,a.y-p.y)<95){a.energy*=0.6;if(a.energy<4){a.energy=0;a._divine=true;k++;}}
+ {id:'yildirim',ic:'⚡',n:'Yıldırım',cost:45,h:'Tıklanan kişiyi (en yakın) çarpar. Hükümdarı çarparsan tahta geçiş olur',needA:true,fn:(p,t,a)=>{a.energy=0;a._divine=true;logEvent(`⚡ Tanrının yıldırımı ${a.name} ${a.surname} kişisine çarptı`,'#ffe27a',{pp:[a.id]});return `${a.name} ${a.surname} (${(sim.tribes[a.tribe]||{}).name||'?'}${isRulerOf(a)?', hükümdar':''}) yıldırımla öldü`;}},
+ {id:'deprem',ic:'🌋',n:'Deprem',cost:60,h:'Bölgedeki şehirlerin surları çöker, insanlar yaralanır',fn:(p,t)=>{let c=0,k=0;for(const tr of sim.tribes){if(tr._dead)continue;for(const ci of tr.cities)if(hyp(ci.x-p.x,ci.y-p.y)<95){ci.hp=Math.max(5,ci.hp-60);ci.food*=0.5;c++;}}
+   for(const a of sim.agents)if(hyp(a.x-p.x,a.y-p.y)<95){a.energy*=0.45;if(a.energy<14){a.energy=0;a._divine=true;k++;}}
    logEvent(`🌋 Tanrı yer sarstı: ${c} şehir hasar gördü, ${k} kişi öldü`,'#ff9b5b');return `${c} şehir hasar gördü, ${k} ölü`;}},
- {id:'veba',ic:'☠',n:'Salgın',cost:35,h:'Bölgedeki krallıkta salgın başlatır',needT:true,fn:(p,t)=>{t._epi={until:sim.tick+Math.round(rnd(0.6,1.2)*CFG.yearLen),mult:rnd(3,5)};logEvent(`☠ Tanrı ${ek(t.name,'dat')} salgın gönderdi`,'#ff9b5b');return `${t.name} salgına yakalandı`;}}];
-const godM=()=>{sim.pow=sim.pow||{m:60};return sim.pow;};
-function godYear(){if(!sim)return;const P=godM();P.m=Math.min(100,P.m+6);renderGods();}
+ {id:'veba',ic:'☠',n:'Salgın',cost:50,h:'Bölgedeki krallıkta salgın başlatır',needT:true,fn:(p,t)=>{t._epi={until:sim.tick+Math.round(rnd(0.6,1.2)*CFG.yearLen),mult:rnd(3,5)};logEvent(`☠ Tanrı ${ek(t.name,'dat')} salgın gönderdi`,'#ff9b5b');return `${t.name} salgına yakalandı`;}}];
+const godM=()=>{sim.pow=sim.pow||{m:50};return sim.pow;};
+function godYear(){if(!sim)return;const P=godM();P.m=Math.min(100,P.m+2.5);renderGods();}
 function godPick(id){godSel=godSel===id?null:id;if(typeof cv!=='undefined'&&cv)cv.style.cursor=godSel?'crosshair':'';renderGods();}
 function castGod(id,pt,near){const g=GODS.find(x=>x.id===id),P=godM();if(!g)return;
   if(P.m<g.cost){toast('Yeterli inanç puanın yok','war');godPick(null);return;}
   const o=ownerAt(pt.x,pt.y),t=o>=0?sim.tribes[o]:null;let a=null;
   if(g.needA){let bd=30*30;for(const x of sim.agents){const d=(x.x-pt.x)**2+(x.y-pt.y)**2;if(d<bd){bd=d;a=x;}}if(!a){toast('Yakında kimse yok: bir kişinin üstüne tıkla','war');return;}}
   if(g.needT&&(!t||t._dead)){toast('Bir krallığın toprağına tıkla','war');return;}
-  const m=g.fn(pt,t,a);P.m-=g.cost;toast(`${g.ic} ${g.n}: ${m}`,'pol');godPick(null);updateStats();}
+  const m=g.fn(pt,t,a);P.m-=g.cost;(window.godFx=window.godFx||[]).push({x:pt.x,y:pt.y,t:performance.now(),ic:g.ic,r:g.id==='deprem'?95:g.id==='yagmur'||g.id==='sifa'?80:30});toast(`${g.ic} ${g.n}: ${m}`,'pol');godPick(null);updateStats();}
 function renderGods(){const el=document.getElementById('godBox');if(!el||!sim)return;const P=godM();
-  el.innerHTML=`<div class="trust"><span>inanç puanı</span><div class="nbb"><i style="width:${P.m}%;background:#d9a441"></i></div><b>${P.m|0}</b></div><div class="lgsub" style="margin:4px 0 8px">Bir güç seç, sonra haritada hedefe tıkla (Esc iptal). Yılda +6 puan. Shift+tık: yiyecek yağdır (bedava).</div>`
+  el.innerHTML=`<div class="trust"><span>inanç puanı</span><div class="nbb"><i style="width:${P.m}%;background:#d9a441"></i></div><b>${P.m|0}</b></div><div class="lgsub" style="margin:4px 0 8px">Bir güç seç, sonra haritada hedefe tıkla (Esc iptal). Yılda +2,5 puan. Shift+tık: yiyecek yağdır (bedava).</div>`
    +GODS.map(g=>`<button class="godb${godSel===g.id?' on':''}" ${P.m<g.cost?'disabled':''} onclick="godPick('${g.id}')" title="${esc(g.h)}"><span>${g.ic} ${g.n}</span><i>${g.cost}</i></button>`).join('')
    +(godSel?`<div class="lgsub" style="margin-top:6px"><b>${GODS.find(x=>x.id===godSel).n}:</b> ${esc(GODS.find(x=>x.id===godSel).h)}</div>`:'');}
 function frameBig(){if(!UI||!sim)return;const t=sim.tribes.filter(k=>!k._dead&&k.cities.length).sort((a,b)=>b.pop-a.pop)[0];if(!t)return;const c=capital(t);view.z=1.7;view.cx=c.x;view.cy=c.y;view.follow=false;}
@@ -2079,7 +2082,7 @@ function directorFrame(){
   if(!UI||!settings.director||!sim||sim._booting)return;const now=performance.now();
   const ovOpen=['histOverlay','techOverlay','cultOverlay'].some(id=>document.getElementById(id).style.display==='block');
   const el=document.getElementById('caption');if(el&&now>director.capT)el.style.opacity=0;
-  if(ovOpen||now<director.idle)return;
+  if(ovOpen||now<director.idle||(sim.adv&&sim.adv.pending&&!sim.adv.ended))return;
   if(now>director.sceneUntil){                                                  // yeni sahne seç
     director.queue=director.queue.filter(q=>now-q.at<45000);
     let pick=null,bs=-1;for(const q of director.queue){const v=q.score-(now-q.at)/12000;if(v>bs){bs=v;pick=q;}}
