@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Anlatı çeşitliliği
+- Olay metinlerine durumdan seçilen "tat" cümleleri eklendi (ticaret, ittifak, salgın, yeni şehir, keşif, gelenek, savaş, barış, bereketli hasat, tahta çıkış biçimine göre not); seçim deterministik (rastgele sayı tüketmez), mevcut anahtar sözcükler (savaş açtı, salgın başladı, tahtına çıktı...) korunur
+- Yeni yıllık minik hikâyeler: **dostluk** (karşılıklı güçlü bağ, akraba olmayan), **husumet** (karşılıklı derin nefret), **varis** (yaşlanan hükümdarın vârisi ve mizacı), **alamet** (kuyruklu yıldız, güneş tutulması, taş yağmuru... halk yorumlar)
+- Ölçüm (3 tohum × 100 yıl, 2055 günlük kaydı): benzersiz metin oranı %89 (önce 80 yılda 22 kalıp, olayların yarısı iki kalıptı)
+
 ### İlahi eller (oyuncu müdahalesi)
 - **Dünya** sekmesinde "İlahi eller": inanç puanı (başta 60, yılda +6, en çok 100) harcayarak haritada tıklanan yere müdahale: 🌧 Yağmur (20; yiyecek yağar, kuraklığı bitirir), ✚ Şifa (25; yakındakileri iyileştirir, salgını söndürür), ✨ İlham (25; krallığa araştırma, meşruiyet, moral), ⚡ Yıldırım (30; en yakın kişiyi öldürür, hükümdar olursa veraset/siyaset zinciri tetiklenir), 🌋 Deprem (40; şehir surları ve ambarlar zarar görür, yaralı/ölü), ☠ Salgın (35; krallıkta salgın başlatır)
 - Güç seç → haritada hedefe tıkla (Esc iptal). Ölenlerin Tarih Kitabı'ndaki ölüm nedeni "tanrının gazabıyla öldü"; olaylar günlüğe ve yönetmen kamerasına düşer. Shift+tık yiyecek yağdırma bedava kalır
