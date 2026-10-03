@@ -1957,6 +1957,7 @@ function advYear(){const A=sim.adv;if(!A||A.ended)return;const t=sim.tribes[A.ti
   if(t._dead){A.ended=true;A.endY=y;A.pending=null;if(UI)toast(`🎩 ${t.name} yıkıldı: danışmanlığın sona erdi (en yüksek rütben: ${GROWTH_RANKS[advRank(A.best)][1]})`,'war',{tab:'dan'});renderAdvisor();return;}
   const g=growthIdx(t);A.sc.push({y,g});if(A.sc.length>400)A.sc.shift();const prevRank=advRank(A.best);A.best=Math.max(A.best,g/A.g0);
   if(advRank(A.best)>prevRank&&UI)toast(`🎩 ${t.name} yükseldi: ${GROWTH_RANKS[advRank(A.best)][1]}!`,'pol',{tab:'dan'});
+  for(const e of A.log)if(e.chk&&e.after==null&&sim.tick>=e.chk)e.after=growthIdx(t)/A.g0;
   if(A.pending&&sim.tick-A.pending.at>3*CFG.yearLen)advResolve(null);
   else if(!A.pending&&t.war&&sim.tick>=(A.warNext||0)){A.warNext=sim.tick+5*CFG.yearLen;advPush(CARDS[0]);}
   else if(!A.pending&&sim.tick>=A.nextCard)advDeal();
@@ -1967,7 +1968,12 @@ function advDeal(){const A=sim.adv,t=sim.tribes[A.tid];A.last=A.last||{};const e
 function advPush(pick){const A=sim.adv,t=sim.tribes[A.tid];(A.last=A.last||{})[pick.id]=sim.tick;A.pending={id:pick.id,at:sim.tick,card:pick,text:pick.text(t)};A.recent.push(pick.id);if(A.recent.length>4)A.recent.shift();
   if(UI){toast(`🎩 Hükümdar seni çağırıyor: ${pick.title}`,'pol',{tab:'dan'});if(playing){playing=false;const pb=document.getElementById('playBtn');if(pb)pb.textContent='▶';A.pausedForCard=true;}showTab('dan');const side=document.querySelector('.side');if(side)side.scrollTop=0;}}
 function advWarAsk(t,o,betray){const A=sim.adv;if(A.pending||sim.tick<(A.askCool||0))return;A.askO=o.id;A.askB=!!betray;A.askCool=sim.tick+3*CFG.yearLen;advPush(CARDS.find(c=>c.id==='hirs'));}
-const advAfford=(t,o)=>t.treasury>=o.cost&&(!o.need||o.need(t));
+const advCost=(t,o)=>o.cost?Math.round(o.cost*(1+Math.max(0,t.treasury-200)/400)):0;          // hazine şişince harcamalar da ölçeklenir (zengin krallık pahalı iş yapar)
+const advAfford=(t,o)=>t.treasury>=advCost(t,o)&&(!o.need||o.need(t));
+const CHANCE={'Barış elçisi gönder':t=>{const o=t.war?sim.tribes[t.war.target]:null;return o?clamp(0.35+t.weariness/100*0.6+o.weariness/100*0.4,0.2,0.9):0.5;},
+ 'Müttefik ara':()=>0.55,'Üçüncü bir ittifak ara':()=>0.55,'Saray evliliği ayarla':()=>0.6,'Sulama kanalı kazdır':()=>0.85,'Büyük evlilik şenliği':()=>0.85,'Göçmenlere toprak vaat et':()=>0.75,'Haraç gönder':()=>0.75,
+ 'Ticaret anlaşması öner':t=>{const o=advNeighbors(t).filter(o=>sim.tr[t.id][o.id]==='none').sort((a,b)=>sim.rel[t.id][b.id]-sim.rel[t.id][a.id])[0];return o?clamp(0.5+sim.rel[t.id][o.id]/150+(o.rep-50)/200,0.15,0.9):0.3;},
+ 'Evlilik ittifakı öner':t=>{const o=advNeighbors(t).filter(o=>o.pop<0.65*t.pop)[0];return o?clamp(0.4+sim.rel[t.id][o.id]/150,0.2,0.85):0.3;}};
 const advAdoptP=(A,t)=>{const r=rulerOf(t);return clamp(0.3+0.65*A.trust/100+((r?r.pers.A:0.5)-0.5)*0.2,0.15,0.95);};
 function advChoose(idx){advResolve(idx);}
 function advResolve(idx){const A=sim.adv;if(!A||!A.pending)return;const t=sim.tribes[A.tid],P=A.pending,card=P.card,opts=card.opts,y=Math.floor(sim.tick/CFG.yearLen);
@@ -1975,9 +1981,9 @@ function advResolve(idx){const A=sim.adv;if(!A||!A.pending)return;const t=sim.tr
   let chosen=idx,adopted=true;
   if(idx==null){chosen=own;adopted=false;}else if(rng()>advAdoptP(A,t)){chosen=own;adopted=false;}
   if(!advAfford(t,opts[chosen])){chosen=own;adopted=adopted&&chosen===idx;}
-  const o=opts[chosen];t.treasury-=o.cost;const res=o.fn(t)||{ok:false,m:''};
+  const o=opts[chosen];t.treasury-=advCost(t,o);const res=o.fn(t)||{ok:false,m:''};
   A.trust=clamp(A.trust+(adopted?(res.ok?5:-7):(idx==null?-2:-3)),5,100);
-  A.log.unshift({y,title:card.title,choice:o.l,asked:idx!=null?opts[idx].l:null,adopted,ok:res.ok,msg:res.m,trust:A.trust});if(A.log.length>14)A.log.pop();
+  A.log.unshift({chk:sim.tick+5*CFG.yearLen,g0:growthIdx(t)/A.g0,y,title:card.title,choice:o.l,asked:idx!=null?opts[idx].l:null,adopted,ok:res.ok,msg:res.m,trust:A.trust});if(A.log.length>14)A.log.pop();
   const rl=rulerOf(t);logEvent(`🎩 ${ek(t.name,'loc')} ${adopted?'danışmanın tavsiyesiyle':'hükümdar kendi bildiğini yaparak'} "${o.l}": ${res.m}`,t.color,{pp:rl?[rl.id]:[]});
   A.pending=null;A.nextCard=sim.tick+Math.round(rnd(4,6)*CFG.yearLen);if(A.pausedForCard&&UI&&!playing){playing=true;const pb=document.getElementById('playBtn');if(pb)pb.textContent='❚❚';}A.pausedForCard=false;renderAdvisor();updateStats();}
 function renderAdvisor(){const el=document.getElementById('advBox');const tab=document.querySelector('.tab[data-t=dan]');if(!sim)return;
@@ -1997,9 +2003,9 @@ function renderAdvisor(){const el=document.getElementById('advBox');const tab=do
   if(A.ended){h+=`<div class="advcard"><b>Hizmetin sona erdi.</b><div class="lgsub">En yüksek rütben: <b>${GROWTH_RANKS[advRank(A.best)][1]}</b> (%${(A.best*100)|0}). </div><button onclick="advStop()" style="margin-top:8px">Yeni krallık seç</button></div>`;}
   else{h+=`<div class="trust"><span>hükümdarın güveni</span><div class="nbb"><i style="width:${A.trust}%;background:${A.trust>60?'#9bbf5a':A.trust>35?'#d9a441':'#e0603a'}"></i></div><b>%${A.trust|0}</b></div><div class="lgsub" style="margin-bottom:6px">Tavsiyen yaklaşık %${(advAdoptP(A,t)*100)|0} ihtimalle dinlenir.</div>`;
     if(A.pending){const P=A.pending,left=Math.max(0,2-(sim.tick-P.at)/CFG.yearLen);h+=`<div class="advcard"><div class="advct">📜 ${esc(P.card.title)}</div><p>${esc(P.text)}</p><div class="lgsub" style="margin-bottom:6px">Karar için ~${left.toFixed(1)} yıl var; sessiz kalırsan hükümdar kendi bildiğini yapar.</div>`+
-      P.card.opts.map((o,i)=>{const ok=advAfford(t,o);const why=o.cost>t.treasury?`hazine yetersiz (${o.cost})`:(o.need&&!o.need(t)?'şu an uygulanamaz':'');return `<button class="advopt" ${ok?'':'disabled'} onclick="advChoose(${i})"><b>${esc(o.l)}</b><span>${esc(o.h)}${why?' · <i style="color:#e0a05a">'+why+'</i>':''}</span><em class="rk-${o.risk==='yüksek'?'h':o.risk==='orta'?'m':'l'}">risk: ${o.risk}</em></button>`;}).join('')+`</div>`;}
+      P.card.opts.map((o,i)=>{const ok=advAfford(t,o);const cc=advCost(t,o),pr=CHANCE[o.l],hh=o.h.replace(/hazine −\d+/,'hazine −'+cc)+(pr?` · şans ~%${Math.round(pr(t)*100)}`:'');const why=cc>t.treasury?`hazine yetersiz (${cc})`:(o.need&&!o.need(t)?'şu an uygulanamaz':'');return `<button class="advopt" ${ok?'':'disabled'} onclick="advChoose(${i})"><b>${esc(o.l)}</b><span>${esc(hh)}${why?' · <i style="color:#e0a05a">'+why+'</i>':''}</span><em class="rk-${o.risk==='yüksek'?'h':o.risk==='orta'?'m':'l'}">risk: ${o.risk}</em></button>`;}).join('')+`</div>`;}
     else h+=`<div class="empty" style="margin:8px 0">Hükümdar bir sonraki ikilemi getirmek için yaklaşık ${Math.max(0,(A.nextCard-sim.tick)/CFG.yearLen).toFixed(1)} yıl bekliyor…</div>`;}
-  if(A.log.length)h+=`<h3 class="advh3">Verdiğin kararlar</h3>`+A.log.map(e=>`<div class="advlog"><b>Y${e.y} · ${esc(e.title)}</b><div class="lgsub">${e.adopted?`tavsiyen dinlendi: <b>${esc(e.choice)}</b>`:`${e.asked?`tavsiyen (${esc(e.asked)}) reddedildi; hükümdar seçti:`:'karar vermedin; hükümdar seçti:'} <b>${esc(e.choice)}</b>`}</div><div style="color:${e.ok?'#9bbf5a':'#e0a05a'};font-size:13.5px">${e.ok?'✔':'✘'} ${esc(e.msg)}</div></div>`).join('');
+  if(A.log.length)h+=`<h3 class="advh3">Verdiğin kararlar</h3>`+A.log.map(e=>`<div class="advlog"><b>Y${e.y} · ${esc(e.title)}</b><div class="lgsub">${e.adopted?`tavsiyen dinlendi: <b>${esc(e.choice)}</b>`:`${e.asked?`tavsiyen (${esc(e.asked)}) reddedildi; hükümdar seçti:`:'karar vermedin; hükümdar seçti:'} <b>${esc(e.choice)}</b>`}</div><div style="color:${e.ok?'#9bbf5a':'#e0a05a'};font-size:13.5px">${e.ok?'✔':'✘'} ${esc(e.msg)}</div><div class="lgsub">${e.after!=null?`5 yıl sonra büyüme %${(e.g0*100)|0} → %${(e.after*100)|0} <b style="color:${e.after>=e.g0?'#9bbf5a':'#e0a05a'}">(${e.after>=e.g0?'+':''}${((e.after-e.g0)*100)|0})</b> <i>(dünyadaki her şeyin toplamı, yalnız bu karar değil)</i>`:`<i>5 yıl sonra büyümeye bakılacak (şimdi %${(e.g0*100)|0})</i>`}</div></div>`).join('');
   el.innerHTML=h;}
 
 /* ======================= Hızlı başlangıç + Yönetmen modu ======================= */

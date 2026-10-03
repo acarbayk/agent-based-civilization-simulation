@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Etki hissi (danışman)
+- Kart seçeneklerinde **şans yüzdesi** (barış, ittifak, ticaret, sulama, göç, haraç...) ve gerçek maliyet gösterilir
+- **Hazine ölçeklenmesi:** hazine 200'ü aşınca harcamalar orantılı pahalanır (1900 altında "−50" → ~−260)
+- Verdiğin kararlar listesinde her karar için **5 yıl sonra büyüme** karşılaştırması (%önce → %sonra); dürüstlük notu: değişim yalnız karara değil, dünyadaki her şeye bağlıdır
+
 ### Oyun testi düzeltmeleri (bağımsız acemi oyuncu ajanı: genel 5,5/10)
 - Danışman kartı gelince oyun **otomatik durur**, Danışman sekmesi açılır; cevaplayınca devam eder. Yönetmen kamerası kart açıkken sahne değiştirmez (sekme sıçraması giderildi)
 - Kart tekrarı azaldı: aynı kart 12 yıl boyunca ağırlığı %12'ye düşer; "Savaş sürüyor" kartı 2 yerine 5 yılda bir; "Hazine taşıyor" daha seyrek
