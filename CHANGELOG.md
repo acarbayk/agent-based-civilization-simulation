@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Oyun testi 2. tur düzeltmeleri (bağımsız oyuncu ajanı: genel 5,5/10, ilk turla aynı)
+- Savaş kartları azaldı: "Hükümdar savaş istiyor" 3 yerine 8 yılda bir, "Savaş sürüyor" 5 yerine 8 yılda bir; "Komşu zayıf düştü" ve "Güçlü komşu" kartları seyrekleşti; hazine <40 iken "Hazine ve vergi" kartı öne çıkar
+- Karar kartı panelin **en üstünde** (seçenekler kaydırma gerektirmez); oyun duraklatılmışken "Karar için ~2 yıl var" yerine "acele etme" yazar
+- İlahi eller: boş yere harcama önlendi (deprem/şifa hedefte şehir ya da insan yoksa puan gitmez); puan yılda +4, başlangıç 70
+- Esc artık turu kapatır
+- Teknoloji ve gelenek olay cümleleri adına göre özelleşti (22 teknoloji ve 14 gelenek için kendi cümlesi, %70 olasılıkla); tahta çıkış cümleleri her biçim için 3 çeşit
+- Henüz çözülmeyen: kararların büyümeye etkisi çoğunlukla ~0 (dünya gürültüsü baskın), toast yığılması, alt olay günlüğü küçük
+
 ### Etki hissi (danışman)
 - Kart seçeneklerinde **şans yüzdesi** (barış, ittifak, ticaret, sulama, göç, haraç...) ve gerçek maliyet gösterilir
 - **Hazine ölçeklenmesi:** hazine 200'ü aşınca harcamalar orantılı pahalanır (1900 altında "−50" → ~−260)
